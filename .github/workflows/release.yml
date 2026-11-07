@@ -141,7 +141,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             cmake ninja-build qt6-base-dev qt6-tools-dev qt6-tools-dev-tools \
             qt6-translations-l10n libasound2-dev libcups2-dev \
-            libgl1-mesa-dev libxkbcommon-dev curl file binutils
+            libgl1-mesa-dev libxkbcommon-dev curl file binutils xvfb
       - name: Build release
         run: |
           cmake -S ui -B ui/build-release -DCMAKE_BUILD_TYPE=Release \
@@ -155,7 +155,8 @@ jobs:
             ui/build-release/cargo/release/libnamaz_core.so
       - name: Smoke-test AppImage
         run: |
-          ./dist/Namaz-*-"$(uname -m)".AppImage --appimage-extract-and-run --version
+          xvfb-run -a ./dist/Namaz-*-"$(uname -m)".AppImage \
+            --appimage-extract-and-run --version
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
