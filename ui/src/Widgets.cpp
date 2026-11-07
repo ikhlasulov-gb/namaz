@@ -1433,7 +1433,10 @@ void MainWindow::installAppImageUpdate(const UpdateChecker::Release &release) {
                                         | QFile::ExeGroup | QFile::ReadOther
                                         | QFile::ExeOther);
 
-    QString target = QCoreApplication::applicationFilePath();
+    QString target = qEnvironmentVariable("APPIMAGE");
+    if (target.isEmpty()) {
+        target = QCoreApplication::applicationFilePath();
+    }
     if (!QFileInfo(target).isWritable()) {
         target = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)
             + QLatin1Char('/') + assetName;

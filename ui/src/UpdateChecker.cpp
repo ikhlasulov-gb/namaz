@@ -193,6 +193,7 @@ bool UpdateChecker::isFlatpak() {
 
 bool UpdateChecker::isAppImage() {
     return qEnvironmentVariableIsSet("APPIMAGE")
+        || qEnvironmentVariableIsSet("APPDIR")
         || QCoreApplication::applicationFilePath().endsWith(
             QStringLiteral(".AppImage"), Qt::CaseInsensitive);
 }
