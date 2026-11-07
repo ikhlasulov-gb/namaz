@@ -4,6 +4,7 @@
 //! be used as a golden oracle while the Linux application is developed.
 
 #![allow(clippy::approx_constant)]
+#![allow(clippy::collapsible_match)]
 
 pub mod astro;
 pub mod prayer;
