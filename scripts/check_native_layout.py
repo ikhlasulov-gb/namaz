@@ -139,7 +139,10 @@ def main() -> int:
         c.check(widths[1] > 0 and widths[2] > 0,
                 f"info and time columns keep their content width: {widths}")
     row_height = table["h"] / 6
-    c.check(33 <= row_height <= 40,
+    # Qt/font metrics differ between distributions: 32.3 px on Ubuntu 24.04,
+    # 35.3 px on AlmaLinux 10.  Keep the row in the HIG ballpark without
+    # making CI depend on a single font version.
+    c.check(30 <= row_height <= 42,
             f"prayer rows follow the HIG height: {row_height:.1f}px")
     c.check(tx < table["x"] and ty < table["y"]
             and table["x"] + table["w"] < tx + tw
