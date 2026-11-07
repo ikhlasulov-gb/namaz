@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Namaz — prayer times for Linux</title>
+  <meta name="description" content="Namaz is a free Linux app for Muslim prayer times, Qibla and the Hijri calendar.">
+  <link rel="icon" href="icon.png">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f7f8;
+      --fg: #1b1c1e;
+      --muted: #5f6368;
+      --card: #ffffff;
+      --accent: #2b6cb0;
+      --border: #dfe3e8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #17181a;
+        --fg: #f0f1f2;
+        --muted: #a6abb2;
+        --card: #202226;
+        --accent: #7ab7ff;
+        --border: #34383e;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    main { max-width: 980px; margin: 0 auto; padding: 48px 20px 64px; }
+    header { text-align: center; margin-bottom: 40px; }
+    header img { width: 128px; height: 128px; }
+    h1 { font-size: 2.4rem; margin: 12px 0 4px; }
+    p.lead { color: var(--muted); font-size: 1.1rem; margin-top: 0; }
+    section { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin: 22px 0; }
+    h2 { margin-top: 0; font-size: 1.35rem; }
+    pre { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; overflow-x: auto; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .grid img { width: 100%; border: 1px solid var(--border); border-radius: 10px; }
+    footer { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 36px; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="icon.png" alt="Namaz">
+    <h1>Namaz</h1>
+    <p class="lead">Muslim prayer times, Qibla and Hijri calendar for Linux.<br>
+      Native Rust engine + Qt 6 Widgets.</p>
+  </header>
+
+  <section>
+    <h2>Install with Flatpak</h2>
+    <pre><code>flatpak remote-add --if-not-exists --user namaz \
+  https://ikhlasulov-gb.github.io/namaz/namaz.flatpakrepo
+flatpak install --user namaz io.github.ikhlasulov_gb.Namaz
+flatpak run io.github.ikhlasulov_gb.Namaz</code></pre>
+    <p>Updates arrive through <code>flatpak update</code> or your software centre.</p>
+  </section>
+
+  <section>
+    <h2>Other formats</h2>
+    <p>AppImage and portable archives are available on the
+      <a href="https://github.com/ikhlasulov-gb/namaz/releases">Releases page</a>.</p>
+    <p><a href="https://github.com/ikhlasulov-gb/namaz">Source code and documentation</a></p>
+  </section>
+
+  <section>
+    <h2>Screenshots</h2>
+    <div class="grid">
+      <img src="screenshots/day.png" alt="Day view">
+      <img src="screenshots/month.png" alt="Month view">
+      <img src="screenshots/settings.png" alt="Prayer settings">
+      <img src="screenshots/preferences.png" alt="Preferences">
+    </div>
+  </section>
+
+  <footer>
+    <p>Namaz is free software under the GNU GPL v3 or later. Author: Ikhlasulov.</p>
+    <p>Inspired by Salaat Time 3.0. Independent project, not affiliated with it.</p>
+  </footer>
+</main>
+</body>
+</html>

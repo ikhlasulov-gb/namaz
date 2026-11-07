@@ -1,0 +1,10 @@
+The file `cities.json` is generated from the GeoNames `cities5000` dump.
+
+Source: https://download.geonames.org/export/dump/
+Project: https://www.geonames.org/
+Licence: Creative Commons Attribution 4.0 International (CC BY 4.0)
+         https://creativecommons.org/licenses/by/4.0/
+
+GeoNames asks users to give credit to GeoNames.  Namaz does this in the
+README, the About dialog and this file.  The database is provided "as is"
+without warranty of any kind.

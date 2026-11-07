@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Rust + Qt
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build gcc pkg-config \
+            qt6-base-dev qt6-tools-dev qt6-tools-dev-tools \
+            qt6-translations-l10n libasound2-dev libcups2-dev \
+            libgl1-mesa-dev libxkbcommon-dev \
+            desktop-file-utils appstream
+
+      - name: Rust formatting, lints and tests
+        run: |
+          cargo fmt --all -- --check
+          cargo clippy --workspace --lib --bins -- -D warnings
+          cargo test -p prayer-core -p namaz-core
+
+      - name: Differential prayer engine test
+        run: ./scripts/diff-itl.sh 1500
+
+      - name: Build and test the Qt application
+        run: ./scripts/ui-check.sh
+
+      - name: Validate desktop and AppStream metadata
+        run: |
+          desktop-file-validate packaging/io.github.ikhlasulov_gb.Namaz.desktop
+          appstreamcli validate --no-net \
+            packaging/io.github.ikhlasulov_gb.Namaz.metainfo.xml
+
+  flatpak:
+    name: Flatpak (${{ matrix.arch }})
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.10
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Flatpak
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: Namaz-${{ matrix.arch }}.flatpak
+          manifest-path: packaging/io.github.ikhlasulov_gb.Namaz.yml
+          arch: ${{ matrix.arch }}
+          cache-key: flatpak-ci-${{ matrix.arch }}
+          upload-artifact: false

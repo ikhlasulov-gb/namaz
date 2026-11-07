@@ -1,0 +1,21 @@
+[package]
+name = "namaz-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "UI-independent Namaz state and C ABI"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+prayer-core = { path = "../prayer-core" }
+chrono = "0.4"
+chrono-tz = "0.10"
+hijridate = "0.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+rodio = "0.20"
+notify-rust = "4"
+tzf-rs = "2.3"

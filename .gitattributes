@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.svg text eol=lf
+*.wav binary
+*.ogg binary
+*.mp3 binary
+*.flac binary
+*.qm binary

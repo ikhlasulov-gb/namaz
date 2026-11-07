@@ -1,0 +1,280 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        run: |
+          VERSION="$(cat VERSION)"
+          TAG="${GITHUB_REF_NAME#v}"
+          if [ "$VERSION" != "$TAG" ]; then
+            echo "VERSION ($VERSION) does not match tag ($TAG)" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  flatpak:
+    name: Flatpak (${{ matrix.arch }})
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.10
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Import Flatpak signing key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.FLATPAK_GPG_PRIVATE_KEY }}
+        run: |
+          test -n "$GPG_PRIVATE_KEY" || { echo "FLATPAK_GPG_PRIVATE_KEY is not set"; exit 1; }
+          mkdir -p "$HOME/.gnupg"
+          chmod 700 "$HOME/.gnupg"
+          printf '%s' "$GPG_PRIVATE_KEY" | gpg --batch --import
+
+      - name: Build Flatpak
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: Namaz-${{ needs.prepare.outputs.version }}-${{ matrix.arch }}.flatpak
+          manifest-path: packaging/io.github.ikhlasulov_gb.Namaz.yml
+          arch: ${{ matrix.arch }}
+          repo-dir: flatpak-repo
+          cache-key: flatpak-release-${{ matrix.arch }}
+          gpg-sign: ${{ secrets.FLATPAK_GPG_KEY_ID }}
+          upload-artifact: true
+
+      - name: Upload the signed OSTree repository
+        uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-repo-${{ matrix.arch }}
+          path: flatpak-repo
+          if-no-files-found: error
+
+  portable:
+    name: Portable (${{ matrix.arch }})
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build qt6-base-dev qt6-tools-dev qt6-tools-dev-tools \
+            qt6-translations-l10n libasound2-dev libcups2-dev \
+            libgl1-mesa-dev libxkbcommon-dev patchelf
+      - name: Build release
+        run: |
+          cmake -S ui -B ui/build-release -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF -G Ninja
+          cmake --build ui/build-release -j"$(nproc)"
+      - name: Package
+        run: |
+          ./scripts/build-portable.sh ui/build-release/namaz \
+            ui/build-release/cargo/release/libnamaz_core.so
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: portable-${{ matrix.arch }}
+          path: dist/namaz-*.tar.gz
+          if-no-files-found: error
+
+  appimage:
+    name: AppImage (${{ matrix.arch }})
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build qt6-base-dev qt6-tools-dev qt6-tools-dev-tools \
+            qt6-translations-l10n libasound2-dev libcups2-dev \
+            libgl1-mesa-dev libxkbcommon-dev curl file binutils
+      - name: Build release
+        run: |
+          cmake -S ui -B ui/build-release -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF -G Ninja
+          cmake --build ui/build-release -j"$(nproc)"
+      - name: Build AppImage
+        env:
+          QMAKE: /usr/lib/qt6/bin/qmake
+        run: |
+          ./scripts/build-appimage.sh ui/build-release/namaz \
+            ui/build-release/cargo/release/libnamaz_core.so
+      - name: Smoke-test AppImage
+        run: |
+          ./dist/Namaz-*-"$(uname -m)".AppImage --appimage-extract-and-run --version
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: appimage-${{ matrix.arch }}
+          path: dist/Namaz-*.AppImage
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub release
+    needs: [prepare, flatpak, portable, appimage]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: "Namaz-*"
+          path: artifacts/flatpak
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: "portable-*"
+          path: artifacts/portable
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: "appimage-*"
+          path: artifacts/appimage
+          merge-multiple: true
+      - name: Collect files and checksums
+        run: |
+          mkdir -p dist
+          find artifacts -type f \( -name '*.flatpak' -o -name '*.AppImage' -o -name '*.tar.gz' \) \
+            -exec cp {} dist/ \;
+          cd dist
+          sha256sum * > SHA256SUMS
+          ls -lh
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.prepare.outputs.version }}
+          name: Namaz ${{ needs.prepare.outputs.version }}
+          generate_release_notes: true
+          files: dist/*
+
+  pages:
+    name: Publish signed Flatpak repository
+    needs: [prepare, flatpak]
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.10
+      options: --privileged
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: flatpak-repo-x86_64
+          path: repo-x86_64
+      - uses: actions/download-artifact@v4
+        with:
+          name: flatpak-repo-aarch64
+          path: repo-aarch64
+      - name: Import Flatpak signing key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.FLATPAK_GPG_PRIVATE_KEY }}
+          GPG_KEY_ID: ${{ secrets.FLATPAK_GPG_KEY_ID }}
+        run: |
+          test -n "$GPG_PRIVATE_KEY" || { echo "FLATPAK_GPG_PRIVATE_KEY is not set"; exit 1; }
+          mkdir -p "$HOME/.gnupg"
+          chmod 700 "$HOME/.gnupg"
+          printf '%s' "$GPG_PRIVATE_KEY" | gpg --batch --import
+          gpg --list-secret-keys "$GPG_KEY_ID" >/dev/null
+      - name: Merge and sign the repository
+        env:
+          GPG_KEY_ID: ${{ secrets.FLATPAK_GPG_KEY_ID }}
+        run: |
+          set -euo pipefail
+          mkdir -p pages
+          cp -a repo-x86_64 pages/repo
+          ostree pull-local pages/repo repo-aarch64
+          for arch in x86_64 aarch64; do
+            flatpak build-sign --arch="$arch" --gpg-sign="$GPG_KEY_ID" \
+              pages/repo io.github.ikhlasulov_gb.Namaz master || true
+            flatpak build-sign --arch="$arch" --runtime --gpg-sign="$GPG_KEY_ID" \
+              pages/repo io.github.ikhlasulov_gb.Namaz.Debug master || true
+          done
+          flatpak build-update-repo --gpg-sign="$GPG_KEY_ID" \
+            --generate-static-deltas --prune \
+            --title="Namaz" \
+            --comment="Muslim prayer times, Qibla and Hijri calendar" \
+            --homepage="https://github.com/ikhlasulov-gb/namaz" \
+            --icon="https://ikhlasulov-gb.github.io/namaz/icon.png" \
+            --default-branch=master pages/repo
+      - name: Generate .flatpakrepo and site
+        env:
+          GPG_KEY_ID: ${{ secrets.FLATPAK_GPG_KEY_ID }}
+        run: |
+          set -euo pipefail
+          GPGKEY="$(gpg --armor --export "$GPG_KEY_ID" | base64 -w0)"
+          cat > pages/namaz.flatpakrepo <<EOF
+          [Flatpak Repo]
+          Title=Namaz
+          Url=https://ikhlasulov-gb.github.io/namaz/repo
+          Homepage=https://github.com/ikhlasulov-gb/namaz
+          Comment=Muslim prayer times, Qibla and Hijri calendar
+          Description=Namaz for Linux
+          Icon=https://ikhlasulov-gb.github.io/namaz/icon.png
+          GPGKey=$GPGKEY
+          DefaultBranch=master
+          EOF
+          cp README/logo.png pages/icon.png
+          mkdir -p pages/screenshots
+          cp README/day.png README/month.png README/year.png \
+             README/settings.png README/preferences.png pages/screenshots/
+          cp packaging/pages/index.html pages/index.html
+          touch pages/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,18 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/prayer-core",
+    "crates/core",
+]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+license = "GPL-3.0-or-later"
+authors = ["Ikhlasulov"]
+repository = "https://github.com/ikhlasulov-gb/namaz"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true

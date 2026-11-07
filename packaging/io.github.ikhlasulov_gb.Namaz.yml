@@ -1,0 +1,67 @@
+# Flatpak manifest for Namaz.
+#
+# The Cargo dependencies are vendored through packaging/cargo-sources.json,
+# generated with flatpak-builder-tools/flatpak-cargo-generator.py.  The build
+# therefore works without network access.
+app-id: io.github.ikhlasulov_gb.Namaz
+runtime: org.kde.Platform
+runtime-version: '6.10'
+sdk: org.kde.Sdk
+command: namaz
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --socket=pulseaudio
+  - --socket=cups
+  - --talk-name=org.kde.StatusNotifierWatcher
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.freedesktop.ScreenSaver
+  - --talk-name=org.freedesktop.login1
+  - --own-name=io.github.ikhlasulov_gb.Namaz
+  - --filesystem=xdg-music:ro
+  # The core stores config.toml under XDG_CONFIG_HOME (persistent in Flatpak),
+  # and autostart has to be written to the host ~/.config/autostart because
+  # the sandbox's own $HOME/.config is a per-run tmpfs.
+  - --filesystem=xdg-config/autostart:create
+  - --env=NAMAZ_WAVE_DIR=/app/share/namaz/wave
+  - --env=LD_LIBRARY_PATH=/app/lib
+modules:
+  - name: namaz
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/rust-stable/bin
+      env:
+        CARGO_HOME: /run/build/namaz/cargo
+        CARGO_NET_OFFLINE: 'true'
+    build-commands:
+      - cmake -S ui -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -G Ninja
+      - cmake --build build -j "$FLATPAK_BUILDER_N_JOBS"
+      - install -Dm755 build/namaz /app/bin/namaz
+      - install -Dm755 build/cargo/release/libnamaz_core.so /app/lib/libnamaz_core.so
+      - install -d /app/share/namaz/wave
+      - cp assets/audio/*.ogg /app/share/namaz/wave/
+      - install -Dm644 assets/audio/LICENSE /app/share/namaz/audio.LICENSE
+      - install -Dm644 assets/cities.LICENSE /app/share/namaz/cities.LICENSE
+      - install -Dm644 packaging/io.github.ikhlasulov_gb.Namaz.desktop
+        /app/share/applications/io.github.ikhlasulov_gb.Namaz.desktop
+      - install -Dm644 packaging/io.github.ikhlasulov_gb.Namaz.metainfo.xml
+        /app/share/metainfo/io.github.ikhlasulov_gb.Namaz.metainfo.xml
+      - for size in 16 22 24 32 48 64 96 128 192 256 512; do
+        install -Dm644 packaging/icons/io.github.ikhlasulov_gb.Namaz-$size.png
+        /app/share/icons/hicolor/${size}x${size}/apps/io.github.ikhlasulov_gb.Namaz.png;
+        done
+      - install -Dm644 packaging/icons/io.github.ikhlasulov_gb.Namaz.svg
+        /app/share/icons/hicolor/scalable/apps/io.github.ikhlasulov_gb.Namaz.svg
+    sources:
+      - cargo-sources.json
+      - type: dir
+        path: ..
+        # Never copy build output or the local-only legacy archive.
+        skip:
+          - .git
+          - .flatpak-builder
+          - target
+          - ui/build
+          - dist
+          - third_party
