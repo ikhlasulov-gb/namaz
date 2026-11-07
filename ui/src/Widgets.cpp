@@ -1243,6 +1243,17 @@ void MainWindow::checkForUpdates(bool manual) {
     if (!m_updater) {
         return;
     }
+    if (UpdateChecker::isFlatpak()) {
+        // The Flatpak sandbox has no network permission; updates are handled
+        // by the signed OSTree remote and the desktop software centre.
+        if (manual) {
+            QMessageBox::information(
+                this, tr("Check for Updates"),
+                tr("Namaz is installed as a Flatpak. Use your software centre "
+                   "or run:\nflatpak update --user io.github.ikhlasulov_gb.Namaz"));
+        }
+        return;
+    }
     if (manual) {
         statusBar()->showMessage(tr("Checking for updates..."), 5000);
     }

@@ -436,106 +436,107 @@
         <translation>Бисмиллах</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1247"/>
+        <location filename="../src/Widgets.cpp" line="1258"/>
         <source>Checking for updates...</source>
         <translation>Проверка обновлений…</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1254"/>
+        <location filename="../src/Widgets.cpp" line="1265"/>
         <source>Update Available</source>
         <translation>Доступно обновление</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1258"/>
+        <location filename="../src/Widgets.cpp" line="1269"/>
         <source>&lt;b&gt;Namaz %1 is available.&lt;/b&gt;&lt;br&gt;You are using %2.</source>
         <translation>&lt;b&gt;Доступна версия Namaz %1.&lt;/b&gt;&lt;br&gt;Вы используете %2.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1267"/>
+        <location filename="../src/Widgets.cpp" line="1278"/>
         <source>No release notes were provided.</source>
         <translation>Список изменений не указан.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1274"/>
+        <location filename="../src/Widgets.cpp" line="1252"/>
+        <location filename="../src/Widgets.cpp" line="1285"/>
         <source>Namaz is installed as a Flatpak. Use your software centre or run:
 flatpak update --user io.github.ikhlasulov_gb.Namaz</source>
         <translation>Namaz установлен как Flatpak. Используйте центр приложений или выполните:
 flatpak update --user io.github.ikhlasulov_gb.Namaz</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1282"/>
+        <location filename="../src/Widgets.cpp" line="1293"/>
         <source>Open release page</source>
         <translation>Открыть страницу релиза</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1288"/>
+        <location filename="../src/Widgets.cpp" line="1299"/>
         <source>Download and install</source>
         <translation>Скачать и установить</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1293"/>
+        <location filename="../src/Widgets.cpp" line="1304"/>
         <source>Copy update command</source>
         <translation>Скопировать команду обновления</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1296"/>
+        <location filename="../src/Widgets.cpp" line="1307"/>
         <source>Skip this version</source>
         <translation>Пропустить эту версию</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1298"/>
+        <location filename="../src/Widgets.cpp" line="1309"/>
         <source>Later</source>
         <translation>Позже</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1313"/>
+        <location filename="../src/Widgets.cpp" line="1324"/>
         <source>Update command copied</source>
         <translation>Команда обновления скопирована</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1314"/>
+        <location filename="../src/Widgets.cpp" line="1325"/>
         <source>The command was copied to the clipboard.</source>
         <translation>Команда скопирована в буфер обмена.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1365"/>
+        <location filename="../src/Widgets.cpp" line="1376"/>
         <source>Downloading Namaz %1...</source>
         <translation>Скачивание Namaz %1…</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1366"/>
+        <location filename="../src/Widgets.cpp" line="1377"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1374"/>
-        <location filename="../src/Widgets.cpp" line="1403"/>
-        <location filename="../src/Widgets.cpp" line="1413"/>
+        <location filename="../src/Widgets.cpp" line="1385"/>
+        <location filename="../src/Widgets.cpp" line="1414"/>
+        <location filename="../src/Widgets.cpp" line="1424"/>
         <source>Update failed</source>
         <translation>Не удалось обновить</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1375"/>
+        <location filename="../src/Widgets.cpp" line="1386"/>
         <source>The update could not be downloaded.</source>
         <translation>Не удалось скачать обновление.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1404"/>
+        <location filename="../src/Widgets.cpp" line="1415"/>
         <source>The downloaded file does not match its SHA-256 checksum.</source>
         <translation>Контрольная сумма SHA-256 скачанного файла не совпадает.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1414"/>
+        <location filename="../src/Widgets.cpp" line="1425"/>
         <source>Could not write the downloaded file.</source>
         <translation>Не удалось записать скачанный файл.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1443"/>
+        <location filename="../src/Widgets.cpp" line="1454"/>
         <source>Update downloaded</source>
         <translation>Обновление скачано</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1444"/>
+        <location filename="../src/Widgets.cpp" line="1455"/>
         <source>The new version was saved to:
 %1
 
@@ -546,12 +547,12 @@ Start it manually to replace the current AppImage.</source>
 Запустите её вручную, чтобы заменить текущий AppImage.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1452"/>
+        <location filename="../src/Widgets.cpp" line="1463"/>
         <source>Update installed</source>
         <translation>Обновление установлено</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1453"/>
+        <location filename="../src/Widgets.cpp" line="1464"/>
         <source>Namaz %1 has been installed. Restart now?</source>
         <translation>Namaz %1 установлен. Перезапустить сейчас?</translation>
     </message>
@@ -588,6 +589,7 @@ Start it manually to replace the current AppImage.</source>
     <message>
         <location filename="../src/Widgets.cpp" line="184"/>
         <location filename="../src/Widgets.cpp" line="189"/>
+        <location filename="../src/Widgets.cpp" line="1251"/>
         <source>Check for Updates</source>
         <translation>Проверка обновлений</translation>
     </message>
