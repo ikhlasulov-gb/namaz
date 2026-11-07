@@ -164,17 +164,17 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: "Namaz-*"
           path: artifacts/flatpak
           merge-multiple: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: "portable-*"
           path: artifacts/portable
           merge-multiple: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: "appimage-*"
           path: artifacts/appimage
@@ -212,11 +212,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends flatpak ostree gnupg
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: flatpak-repo-x86_64
           path: repo-x86_64
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: flatpak-repo-aarch64
           path: repo-aarch64
