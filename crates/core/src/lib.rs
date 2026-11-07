@@ -6,6 +6,7 @@
 //! while all prayer-time and calendar logic stays in Rust.
 
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
+#![allow(clippy::collapsible_match)]
 
 mod audio;
 mod cities;
