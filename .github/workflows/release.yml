@@ -243,6 +243,8 @@ jobs:
           set -euo pipefail
           mkdir -p pages
           cp -a repo-x86_64 pages/repo
+          # ostree insists on refs/remotes even when only refs/heads exist.
+          mkdir -p pages/repo/refs/remotes repo-aarch64/refs/remotes
           ostree pull-local --repo=pages/repo repo-aarch64
           for arch in x86_64 aarch64; do
             flatpak build-sign --arch="$arch" --gpg-sign="$GPG_KEY_ID" \
