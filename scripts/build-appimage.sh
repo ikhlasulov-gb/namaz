@@ -42,24 +42,30 @@ else
 fi
 export QMAKE
 
+case "$ARCH" in
+    x86_64) TOOLS_ARCH=x86_64 ;;
+    aarch64|arm64) TOOLS_ARCH=aarch64 ;;
+    *) echo "unsupported architecture for AppImage: $ARCH" >&2; exit 1 ;;
+esac
+
 mkdir -p "$CACHE"
-if [[ ! -x "$CACHE/linuxdeploy.AppImage" ]]; then
-    curl -fsSL -o "$CACHE/linuxdeploy.AppImage" \
-        https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-    chmod +x "$CACHE/linuxdeploy.AppImage"
+if [[ ! -x "$CACHE/linuxdeploy-$TOOLS_ARCH.AppImage" ]]; then
+    curl -fsSL -o "$CACHE/linuxdeploy-$TOOLS_ARCH.AppImage" \
+        "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-$TOOLS_ARCH.AppImage"
+    chmod +x "$CACHE/linuxdeploy-$TOOLS_ARCH.AppImage"
 fi
-if [[ ! -x "$CACHE/linuxdeploy-plugin-qt.AppImage" ]]; then
-    curl -fsSL -o "$CACHE/linuxdeploy-plugin-qt.AppImage" \
-        https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
-    chmod +x "$CACHE/linuxdeploy-plugin-qt.AppImage"
+if [[ ! -x "$CACHE/linuxdeploy-plugin-qt-$TOOLS_ARCH.AppImage" ]]; then
+    curl -fsSL -o "$CACHE/linuxdeploy-plugin-qt-$TOOLS_ARCH.AppImage" \
+        "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-$TOOLS_ARCH.AppImage"
+    chmod +x "$CACHE/linuxdeploy-plugin-qt-$TOOLS_ARCH.AppImage"
 fi
 if [[ ! -x "$CACHE/linuxdeploy-root/squashfs-root/AppRun" ]]; then
     mkdir -p "$CACHE/linuxdeploy-root"
-    (cd "$CACHE/linuxdeploy-root" && "$CACHE/linuxdeploy.AppImage" --appimage-extract >/dev/null)
+    (cd "$CACHE/linuxdeploy-root" && "$CACHE/linuxdeploy-$TOOLS_ARCH.AppImage" --appimage-extract >/dev/null)
 fi
 if [[ ! -x "$CACHE/plugin-root/squashfs-root/usr/bin/linuxdeploy-plugin-qt" ]]; then
     mkdir -p "$CACHE/plugin-root"
-    (cd "$CACHE/plugin-root" && "$CACHE/linuxdeploy-plugin-qt.AppImage" --appimage-extract >/dev/null)
+    (cd "$CACHE/plugin-root" && "$CACHE/linuxdeploy-plugin-qt-$TOOLS_ARCH.AppImage" --appimage-extract >/dev/null)
 fi
 
 rm -rf "$WORK"
