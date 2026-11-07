@@ -18,7 +18,6 @@ finish-args:
   - --talk-name=org.freedesktop.Notifications
   - --talk-name=org.freedesktop.ScreenSaver
   - --talk-name=org.freedesktop.login1
-  - --own-name=io.github.ikhlasulov_gb.Namaz
   - --filesystem=xdg-music:ro
   # The core stores config.toml under XDG_CONFIG_HOME (persistent in Flatpak),
   # and autostart has to be written to the host ~/.config/autostart because
