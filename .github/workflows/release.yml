@@ -76,7 +76,7 @@ jobs:
           artifact-name: Namaz-${{ needs.prepare.outputs.version }}-${{ matrix.arch }}
 
       - name: Upload the signed OSTree repository
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: flatpak-repo-${{ matrix.arch }}
           path: flatpak-repo
@@ -114,7 +114,7 @@ jobs:
           ./scripts/build-portable.sh ui/build-release/namaz \
             ui/build-release/cargo/release/libnamaz_core.so
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: portable-${{ matrix.arch }}
           path: dist/namaz-*.tar.gz
@@ -158,7 +158,7 @@ jobs:
           xvfb-run -a ./dist/Namaz-*-"$(uname -m)".AppImage \
             --appimage-extract-and-run --version
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: appimage-${{ matrix.arch }}
           path: dist/Namaz-*.AppImage
