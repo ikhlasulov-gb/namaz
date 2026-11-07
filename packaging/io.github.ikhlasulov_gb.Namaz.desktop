@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Name=Namaz
+Name[ru]=Намаз
+GenericName=Prayer Times
+GenericName[ru]=Время намаза
+Comment=Muslim prayer times, Qibla direction and Hijri calendar
+Comment[ru]=Время мусульманских молитв, направление Киблы и хиджрийский календарь
+Exec=namaz
+Icon=io.github.ikhlasulov_gb.Namaz
+Terminal=false
+Categories=Utility;
+Keywords=prayer;namaz;salaat;athan;azan;qibla;hijri;islam;
+StartupWMClass=namaz
+StartupNotify=true
+X-GNOME-UsesNotifications=true

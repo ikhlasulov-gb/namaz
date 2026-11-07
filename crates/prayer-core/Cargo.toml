@@ -1,0 +1,10 @@
+[package]
+name = "prayer-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Pure-Rust port of the ITL prayer time engine"
+
+[lib]
+name = "prayer_core"
+path = "src/lib.rs"

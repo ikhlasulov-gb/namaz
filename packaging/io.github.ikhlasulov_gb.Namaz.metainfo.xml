@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.ikhlasulov_gb.Namaz</id>
+  <name>Namaz</name>
+  <summary>Muslim prayer times, Qibla and Hijri calendar</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <description>
+    <p>
+      Namaz is a native Linux application for the five daily prayers. It
+      calculates prayer times from your location and chosen calculation
+      method, shows the Qibla direction and a Hijri calendar, and can play
+      the adhan, reminders and iqama from the system tray.
+    </p>
+    <p>
+      The interface follows the KDE Plasma human interface guidelines and
+      integrates with the desktop through XDG autostart, a D-Bus API, desktop
+      notifications and the KDE screen locker.
+    </p>
+    <ul>
+      <li>Day, month and year prayer-time views</li>
+      <li>Qibla compass and Hijri calendar</li>
+      <li>Tray icon, reminders, iqama and custom audio</li>
+      <li>Multiple calculation methods and high-latitude rules</li>
+      <li>PDF and CSV export, including Outlook CSV</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">io.github.ikhlasulov_gb.Namaz.desktop</launchable>
+  <url type="homepage">https://github.com/ikhlasulov-gb/namaz</url>
+  <url type="bugtracker">https://github.com/ikhlasulov-gb/namaz/issues</url>
+  <url type="vcs-browser">https://github.com/ikhlasulov-gb/namaz</url>
+
+  <developer id="io.github.ikhlasulov_gb">
+    <name>Ikhlasulov</name>
+  </developer>
+
+  <categories>
+    <category>Utility</category>
+    <category>Education</category>
+  </categories>
+
+  <keywords>
+    <keyword>prayer</keyword>
+    <keyword>namaz</keyword>
+    <keyword>salaat</keyword>
+    <keyword>athan</keyword>
+    <keyword>azan</keyword>
+    <keyword>qibla</keyword>
+    <keyword>hijri</keyword>
+    <keyword>islam</keyword>
+  </keywords>
+
+  <content_rating type="oars-1.1"/>
+
+  <screenshots>
+    <screenshot type="default">
+      <image>https://ikhlasulov-gb.github.io/namaz/screenshots/day.png</image>
+      <caption>Day view with current and next prayer</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://ikhlasulov-gb.github.io/namaz/screenshots/month.png</image>
+      <caption>Month view</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://ikhlasulov-gb.github.io/namaz/screenshots/year.png</image>
+      <caption>Year view</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://ikhlasulov-gb.github.io/namaz/screenshots/settings.png</image>
+      <caption>Prayer settings</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://ikhlasulov-gb.github.io/namaz/screenshots/preferences.png</image>
+      <caption>Preferences</caption>
+    </screenshot>
+  </screenshots>
+
+  <releases>
+    <release version="1.0.0" date="2026-11-08">
+      <description>
+        <p>First public release of Namaz.</p>
+      </description>
+    </release>
+  </releases>
+</component>

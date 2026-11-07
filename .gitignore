@@ -1,0 +1,45 @@
+# Rust build output
+/target/
+
+# Qt build output
+/ui/build/
+/ui/build-release/
+/build/
+/build-appimage/
+/.cache/
+
+# Packaged output (rebuild with scripts/build-portable.sh)
+/dist/
+*.AppImage
+*.flatpak
+*.flatpakrepo.sig
+*.tar.gz
+*.tar.xz
+*.zip
+
+# Flatpak builder caches and local repositories
+/.flatpak-builder/
+/packaging/flatpak/repo/
+/packaging/flatpak/build/
+
+# Local-only legacy archive and private recordings
+/legacy/
+/assets/private/
+/assets/salaattime-exe/
+/assets/salaattime-dll/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Local scratch
+*.swp
+*.swo
+*~
+.DS_Store
+*.log
+.env
+
+# Editor/IDE
+.idea/
+.vscode/
