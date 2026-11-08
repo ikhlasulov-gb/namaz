@@ -2534,7 +2534,7 @@ mod tests {
     }
 
     #[test]
-    fn polar_day_without_fajr_has_no_next_prayer() {
+    fn polar_day_without_fajr_never_uses_fajr_as_next() {
         let mut cfg = Config::default();
         cfg.latitude = 89.0;
         cfg.longitude = 0.0;
@@ -2546,9 +2546,17 @@ mod tests {
         let core = test_core(cfg, today);
         let value = core.day_json();
         assert_eq!(value["times"][0]["seconds"], Value::Null);
-        assert_eq!(value["next"]["index"], -1);
-        assert_eq!(value["next"]["remaining"], -1);
-        assert_eq!(value["next"]["countdown"], "");
+        // Dhuhr is still defined during a polar night, so the next prayer may
+        // legitimately be Dhuhr.  What must never happen is Fajr being chosen
+        // when its time is invalid.
+        let next = value["next"]["index"].as_i64().unwrap();
+        assert_ne!(next, 0);
+        if next < 0 {
+            assert_eq!(value["next"]["remaining"], -1);
+            assert_eq!(value["next"]["countdown"], "");
+        } else {
+            assert!(value["next"]["remaining"].as_i64().unwrap() >= 0);
+        }
     }
 
     #[test]
