@@ -52,7 +52,6 @@ private:
     QDoubleSpinBox *m_timezone = nullptr;
     QComboBox *m_timeZoneName = nullptr;
     QComboBox *m_dstMode = nullptr;
-    QSpinBox *m_dstManual = nullptr;
     QComboBox *m_method = nullptr;
     QLabel *m_methodDescription = nullptr;
     QComboBox *m_mathhab = nullptr;
@@ -97,7 +96,6 @@ private:
 
     QCheckBox *m_athanEnabled = nullptr;
     QCheckBox *m_notifications = nullptr;
-    QCheckBox *m_duaAfterAthan = nullptr;
     QCheckBox *m_stopOnPrayer = nullptr;
     QSlider *m_volume = nullptr;
     QLabel *m_volumeValue = nullptr;
@@ -109,7 +107,6 @@ private:
     QStackedWidget *m_audioStack[6] = {};
 
     QComboBox *m_startupMode = nullptr;
-    QComboBox *m_startupSound = nullptr;
     QLineEdit *m_startupFile = nullptr;
     QLineEdit *m_startupFolder = nullptr;
     QStackedWidget *m_startupStack = nullptr;

@@ -4,6 +4,7 @@
 
 #include <QBoxLayout>
 #include <QCalendarWidget>
+#include <QEvent>
 #include <QFontMetrics>
 #include <QFrame>
 #include <QGroupBox>
@@ -92,8 +93,12 @@ void QiblahCompass::paintEvent(QPaintEvent *) {
     }
     const QPointF center(width() / 2.0, height() / 2.0);
     const QPalette pal = palette();
-    const QColor ring = pal.color(QPalette::Mid);
     const QColor text = pal.color(QPalette::WindowText);
+    // QPalette::Mid merges into the background in dark colour schemes (Breeze
+    // Dark is roughly 2.6:1).  Blend the text colour instead: the ring stays
+    // above 4:1 in the dark theme and above 3:1 in the light one.
+    QColor ring = text;
+    ring.setAlpha(140);
     const QColor accent = pal.color(QPalette::Highlight);
 
     painter.setPen(QPen(ring, 1.5));
@@ -186,9 +191,20 @@ CurrentTimeCard::CurrentTimeCard(QWidget *parent)
     m_prayerLabel->setObjectName(QStringLiteral("CurrentPrayerLabel"));
     m_prayerLabel->setFont(Ui::scaledFont(font(), 0.95, false));
     m_prayerLabel->setForegroundRole(QPalette::PlaceholderText);
+    m_prayerLabel->setWordWrap(true);
+    m_prayerLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
-    layout->addWidget(m_timeLabel);
-    layout->addWidget(m_prayerLabel);
+    // Clock on the left, current prayer on the right: the card uses its whole
+    // width instead of leaving the right half empty.
+    auto *row = new QHBoxLayout;
+    row->setContentsMargins(0, 0, 0, 0);
+    row->setSpacing(Ui::sectionSpacing());
+    row->addWidget(m_timeLabel, 0, Qt::AlignLeft | Qt::AlignVCenter);
+    row->addStretch(1);
+    row->addWidget(m_prayerLabel, 0, Qt::AlignRight | Qt::AlignVCenter);
+
+    layout->addStretch(1);
+    layout->addLayout(row);
     layout->addStretch(1);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
@@ -239,6 +255,8 @@ NextPrayerCard::NextPrayerCard(QWidget *parent)
     m_countdownLabel->setObjectName(QStringLiteral("NextPrayerCountdown"));
     m_countdownLabel->setFont(Ui::scaledFont(font(), 0.95, false));
     m_countdownLabel->setForegroundRole(QPalette::PlaceholderText);
+    m_countdownLabel->setWordWrap(true);
+    m_countdownLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
     m_progress = new QProgressBar(this);
     m_progress->setObjectName(QStringLiteral("NextPrayerProgress"));
@@ -247,11 +265,19 @@ NextPrayerCard::NextPrayerCard(QWidget *parent)
     m_progress->setFixedHeight(6);
     m_progress->setAccessibleName(DayView::tr("Progress until the next prayer"));
 
-    layout->addWidget(m_timeLabel);
+    // Time on the left, countdown on the right; the progress bar anchors the
+    // card at the bottom and spans the full width.
+    auto *topRow = new QHBoxLayout;
+    topRow->setContentsMargins(0, 0, 0, 0);
+    topRow->setSpacing(Ui::sectionSpacing());
+    topRow->addWidget(m_timeLabel, 0, Qt::AlignLeft | Qt::AlignVCenter);
+    topRow->addStretch(1);
+    topRow->addWidget(m_countdownLabel, 0, Qt::AlignRight | Qt::AlignVCenter);
+
+    layout->addLayout(topRow);
     layout->addWidget(m_nameLabel);
-    layout->addWidget(m_countdownLabel);
-    layout->addWidget(m_progress);
     layout->addStretch(1);
+    layout->addWidget(m_progress);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
@@ -313,13 +339,41 @@ PrayerTimesWidget::PrayerTimesWidget(QWidget *parent)
                 metrics.horizontalAdvance(Ui::formatTime(12 * 3600 + 59 * 60)))
                + 18);
     Ui::compactTable(m_table, 18);
+    // Exactly six rows: the previous extra 2 px looked like an unexplained
+    // line under the last row.
     m_table->setFixedHeight(
-        m_table->verticalHeader()->defaultSectionSize() * 6 + 2);
+        m_table->verticalHeader()->defaultSectionSize() * 6);
     m_table->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    applyTablePalette();
 
+    layout->addStretch(1);
     layout->addWidget(m_table);
     layout->addStretch(1);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+}
+
+void PrayerTimesWidget::applyTablePalette() {
+    if (!m_table) {
+        return;
+    }
+    const QPalette pal = palette();
+    const QColor base = pal.color(QPalette::Window);
+    QPalette tablePalette = m_table->palette();
+    // Let the table blend into the card.  Breeze's Base is darker than the
+    // window colour and its AlternateBase is darker still, which made the
+    // zebra stripes look like holes in the card.
+    tablePalette.setColor(QPalette::Base, base);
+    tablePalette.setColor(QPalette::AlternateBase,
+                          Ui::mixColor(base, pal.color(QPalette::WindowText),
+                                       0.05));
+    m_table->setPalette(tablePalette);
+}
+
+void PrayerTimesWidget::changeEvent(QEvent *event) {
+    if (event->type() == QEvent::PaletteChange) {
+        applyTablePalette();
+    }
+    QGroupBox::changeEvent(event);
 }
 
 void PrayerTimesWidget::setState(const QJsonObject &state) {
@@ -496,9 +550,11 @@ DayView::DayView(QWidget *parent) : QWidget(parent) {
 
     auto *header = new QWidget(page);
     header->setObjectName(QStringLiteral("DateHeader"));
-    auto *headerLayout = new QVBoxLayout(header);
+    // Gregorian date on the left, Hijri date on the right: one full-width
+    // line instead of two short labels with a large empty area beside them.
+    auto *headerLayout = new QHBoxLayout(header);
     headerLayout->setContentsMargins(0, 0, 0, 0);
-    headerLayout->setSpacing(Ui::spacingTight());
+    headerLayout->setSpacing(Ui::sectionSpacing());
     m_dateLabel = new QLabel(header);
     m_dateLabel->setObjectName(QStringLiteral("DateLabel"));
     m_dateLabel->setFont(Ui::scaledFont(font(), 1.2, true));
@@ -509,8 +565,10 @@ DayView::DayView(QWidget *parent) : QWidget(parent) {
     m_hijriLabel->setFont(Ui::scaledFont(font(), 0.95, false));
     m_hijriLabel->setForegroundRole(QPalette::PlaceholderText);
     m_hijriLabel->setWordWrap(true);
-    headerLayout->addWidget(m_dateLabel);
-    headerLayout->addWidget(m_hijriLabel);
+    m_hijriLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    m_hijriLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    headerLayout->addWidget(m_dateLabel, 1);
+    headerLayout->addWidget(m_hijriLabel, 0);
 
     m_timeCard = new CurrentTimeCard;
     m_nextCard = new NextPrayerCard;

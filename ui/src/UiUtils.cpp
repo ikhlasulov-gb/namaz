@@ -245,6 +245,13 @@ QColor tintColor(const QColor &base, int alpha) {
     return color;
 }
 
+QColor mixColor(const QColor &first, const QColor &second, qreal amount) {
+    const qreal t = qBound<qreal>(0.0, amount, 1.0);
+    return QColor::fromRgbF(first.redF() * (1.0 - t) + second.redF() * t,
+                            first.greenF() * (1.0 - t) + second.greenF() * t,
+                            first.blueF() * (1.0 - t) + second.blueF() * t);
+}
+
 int spacingTight() {
     return 4;
 }

@@ -8,6 +8,7 @@
 
 class QBoxLayout;
 class QCalendarWidget;
+class QEvent;
 class QLabel;
 class QProgressBar;
 class QTableWidget;
@@ -63,7 +64,12 @@ public:
     explicit PrayerTimesWidget(QWidget *parent = nullptr);
     void setState(const QJsonObject &state);
 
+protected:
+    void changeEvent(QEvent *event) override;
+
 private:
+    void applyTablePalette();
+
     QTableWidget *m_table = nullptr;
 };
 

@@ -96,11 +96,9 @@ pub struct Config {
     pub athan_folder: String,
     pub athan_folders: [String; 6],
     pub volume: i32,
-    pub startup_sound: String,
     pub startup_mode: i32,
     pub startup_file: String,
     pub startup_folder: String,
-    pub dua_after_athan: bool,
     pub stop_audio_on_prayer: bool,
     pub reminders_before: [i32; 6],
     pub reminders_after: [i32; 6],
@@ -139,10 +137,6 @@ fn default_sounds() -> [String; 6] {
     ]
 }
 
-fn default_startup_sound() -> String {
-    "BISMILLAH".into()
-}
-
 impl Default for Config {
     fn default() -> Self {
         Self {
@@ -179,11 +173,9 @@ impl Default for Config {
             athan_folder: String::new(),
             athan_folders: Default::default(),
             volume: 90,
-            startup_sound: default_startup_sound(),
             startup_mode: 1,
             startup_file: String::new(),
             startup_folder: String::new(),
-            dua_after_athan: false,
             stop_audio_on_prayer: false,
             reminders_before: [0; 6],
             reminders_after: [0; 6],
@@ -323,9 +315,6 @@ fn migrate_config(cfg: &mut Config) {
         ) {
             *sound = "ALIHLAS".to_string();
         }
-    }
-    if cfg.startup_sound.starts_with("BISMILLAH") {
-        cfg.startup_sound = "BISMILLAH".to_string();
     }
 }
 
@@ -1278,11 +1267,6 @@ impl Core {
         if paths.is_empty() {
             return paths;
         }
-        if self.cfg.dua_after_athan {
-            if let Some(path) = audio::sound_path("DUA") {
-                paths.push(path);
-            }
-        }
         paths
     }
 
@@ -1326,12 +1310,9 @@ impl Core {
         match self.cfg.startup_mode {
             0 => {}
             1 => {
-                let name = self.cfg.startup_sound.trim();
-                if name.is_empty() {
-                    audio::play_bismillah_random(0.7, seed);
-                } else {
-                    audio::play(name, 0.0);
-                }
+                // The bundled adhan already contains the dua; startup mode 1
+                // means the built-in Bismillah recording.
+                audio::play_bismillah_random(0.7, seed);
             }
             2 => {
                 audio::play_quran_random(0.0, seed);
@@ -2033,7 +2014,6 @@ pub extern "C" fn namaz_core_apply_preferences_json(
         core.cfg.screensaver_on_pray_now,
     );
     core.cfg.show_splash = json_bool(&value, "show_splash", core.cfg.show_splash);
-    core.cfg.dua_after_athan = json_bool(&value, "dua_after_athan", core.cfg.dua_after_athan);
     core.cfg.stop_audio_on_prayer = json_bool(
         &value,
         "stop_audio_on_prayer",
@@ -2061,7 +2041,6 @@ pub extern "C" fn namaz_core_apply_preferences_json(
     core.cfg.volume = json_i32(&value, "volume", core.cfg.volume).clamp(0, 200);
     audio::set_volume(core.cfg.volume);
     core.cfg.startup_mode = json_i32(&value, "startup_mode", core.cfg.startup_mode).clamp(0, 4);
-    core.cfg.startup_sound = json_string(&value, "startup_sound", &core.cfg.startup_sound);
     core.cfg.startup_file = json_string(&value, "startup_file", &core.cfg.startup_file);
     core.cfg.startup_folder = json_string(&value, "startup_folder", &core.cfg.startup_folder);
     core.cfg.custom_sound_folder =
@@ -2122,7 +2101,6 @@ pub extern "C" fn namaz_core_set_flag(core: *mut Core, key: *const c_char, value
         "athan_visual_flash" => core.cfg.athan_visual_flash = on,
         "show_qiblah" => core.cfg.show_qiblah = on,
         "qibla_clockwise" => core.cfg.qibla_clockwise = on,
-        "dua_after_athan" => core.cfg.dua_after_athan = on,
         "stop_audio_on_prayer" => core.cfg.stop_audio_on_prayer = on,
         "reminder_visual_notification" => core.cfg.reminder_visual_notification = on,
         "reminder_visual_main" => core.cfg.reminder_visual_main = on,
@@ -2424,7 +2402,6 @@ mod tests {
     fn custom_athan_without_file_stays_silent() {
         let date = NaiveDate::from_ymd_opt(2026, 11, 8).unwrap();
         let mut cfg = Config::default();
-        cfg.dua_after_athan = true;
         cfg.athan_modes[0] = 2;
         cfg.sound_files[0] = "/nonexistent/namaz-custom-athan.wav".into();
         let core = test_core(cfg.clone(), date);

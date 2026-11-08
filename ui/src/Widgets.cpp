@@ -144,6 +144,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     });
 
     m_cityLabel = new QLabel(this);
+    statusBar()->setSizeGripEnabled(false);
     statusBar()->addWidget(m_cityLabel, 1);
     m_methodLabel = new QLabel(this);
     m_methodLabel->setForegroundRole(QPalette::PlaceholderText);
