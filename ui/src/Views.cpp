@@ -328,16 +328,12 @@ PrayerTimesWidget::PrayerTimesWidget(QWidget *parent)
     m_table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_table->setWordWrap(false);
     m_table->horizontalHeader()->setStretchLastSection(false);
-    m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    m_table->horizontalHeader()->setSectionResizeMode(
-        1, QHeaderView::ResizeToContents);
+    // All three columns are positioned explicitly so the "Raka'as" column
+    // sits in the middle of the row instead of being pushed against the time.
+    m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+    m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
     m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Fixed);
-    const QFont timeFont = Ui::tabularFont(m_table->font(), 1.0, false);
-    const QFontMetrics metrics(timeFont);
-    m_table->setColumnWidth(
-        2, qMax(metrics.horizontalAdvance(Ui::formatTime(23 * 3600 + 59 * 60)),
-                metrics.horizontalAdvance(Ui::formatTime(12 * 3600 + 59 * 60)))
-               + 18);
+    m_table->installEventFilter(this);
     Ui::compactTable(m_table, 18);
     // Exactly six rows: the previous extra 2 px looked like an unexplained
     // line under the last row.
@@ -345,6 +341,7 @@ PrayerTimesWidget::PrayerTimesWidget(QWidget *parent)
         m_table->verticalHeader()->defaultSectionSize() * 6);
     m_table->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     applyTablePalette();
+    updateColumnWidths();
 
     layout->addStretch(1);
     layout->addWidget(m_table);
@@ -374,6 +371,38 @@ void PrayerTimesWidget::changeEvent(QEvent *event) {
         applyTablePalette();
     }
     QGroupBox::changeEvent(event);
+}
+
+void PrayerTimesWidget::updateColumnWidths() {
+    if (!m_table) {
+        return;
+    }
+    const int available = m_table->width();
+    if (available <= 0) {
+        return;
+    }
+    const QFont infoFont = Ui::scaledFont(font(), 0.9, false);
+    const QFontMetrics metrics(infoFont);
+    int infoWidth = 0;
+    for (int row = 0; row < 6; ++row) {
+        const QTableWidgetItem *item = m_table->item(row, 1);
+        const QString text = item && !item->text().isEmpty()
+                                 ? item->text()
+                                 : DayView::tr(kPrayerInfo[row]);
+        infoWidth = qMax(infoWidth, metrics.horizontalAdvance(text));
+    }
+    infoWidth += 18;
+    const int side = qMax(0, (available - infoWidth) / 2);
+    m_table->setColumnWidth(0, side);
+    m_table->setColumnWidth(1, infoWidth);
+    m_table->setColumnWidth(2, qMax(0, available - side - infoWidth));
+}
+
+bool PrayerTimesWidget::eventFilter(QObject *watched, QEvent *event) {
+    if (watched == m_table && event->type() == QEvent::Resize) {
+        updateColumnWidths();
+    }
+    return QGroupBox::eventFilter(watched, event);
 }
 
 void PrayerTimesWidget::setState(const QJsonObject &state) {
@@ -437,6 +466,7 @@ void PrayerTimesWidget::setState(const QJsonObject &state) {
             infoItem->setForeground(palette().color(QPalette::PlaceholderText));
         }
     }
+    updateColumnWidths();
 }
 
 // ── QiblahCard ─────────────────────────────────────────────────────────────

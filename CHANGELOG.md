@@ -4,6 +4,13 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.3] - 2026-11-08
+
+### Fixed
+
+- The "Raka'as" column in the Day view is now centred between the prayer
+  name and the time, instead of being pushed against the time column.
+
 ## [1.0.2] - 2026-11-08
 
 ### Fixed

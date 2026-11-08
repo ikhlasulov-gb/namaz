@@ -66,9 +66,11 @@ public:
 
 protected:
     void changeEvent(QEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
     void applyTablePalette();
+    void updateColumnWidths();
 
     QTableWidget *m_table = nullptr;
 };
