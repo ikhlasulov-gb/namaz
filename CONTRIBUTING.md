@@ -2,6 +2,9 @@
 
 Thank you for helping improve Namaz.
 
+> AI agents: read [`AGENTS.md`](AGENTS.md) first.  It documents the local
+> signing key, release flow and other maintainer-only details.
+
 ## Before you start
 
 - Use a recent Rust toolchain (1.92+) and Qt 6.5+.
