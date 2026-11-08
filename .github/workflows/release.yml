@@ -24,10 +24,12 @@ jobs:
       - id: version
         run: |
           VERSION="$(cat VERSION)"
-          TAG="${GITHUB_REF_NAME#v}"
-          if [ "$VERSION" != "$TAG" ]; then
-            echo "VERSION ($VERSION) does not match tag ($TAG)" >&2
-            exit 1
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            TAG="${GITHUB_REF_NAME#v}"
+            if [ "$VERSION" != "$TAG" ]; then
+              echo "VERSION ($VERSION) does not match tag ($TAG)" >&2
+              exit 1
+            fi
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
@@ -167,6 +169,11 @@ jobs:
   release:
     name: Publish GitHub release
     needs: [prepare, flatpak, portable, appimage]
+    # A failed AppImage build (the tools are downloaded from a third-party
+    # GitHub release) must not hide the Flatpak and portable archives.
+    if: >-
+      always() && needs.prepare.result == 'success' &&
+      needs.flatpak.result == 'success' && needs.portable.result == 'success'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -181,13 +188,14 @@ jobs:
           path: artifacts/portable
           merge-multiple: true
       - uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           pattern: "appimage-*"
           path: artifacts/appimage
           merge-multiple: true
       - name: Collect files and checksums
         run: |
-          mkdir -p dist
+          mkdir -p dist artifacts/appimage
           find artifacts -type f \( -name '*.flatpak' -o -name '*.AppImage' -o -name '*.tar.gz' \) \
             -exec cp {} dist/ \;
           cd dist

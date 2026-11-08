@@ -49,13 +49,31 @@ case "$ARCH" in
 esac
 
 mkdir -p "$CACHE"
+fetch_tool() {
+    local url="$1"
+    local output="$2"
+    local attempt
+    for attempt in 1 2 3 4 5 6; do
+        if curl -fL --retry 5 --retry-delay 5 --retry-all-errors \
+                --connect-timeout 30 --max-time 900 \
+                -o "$output.part" "$url"; then
+            mv "$output.part" "$output"
+            return 0
+        fi
+        echo "download failed (attempt $attempt): $url" >&2
+        rm -f "$output.part"
+        sleep $((attempt * 5))
+    done
+    return 1
+}
+
 if [[ ! -x "$CACHE/linuxdeploy-$TOOLS_ARCH.AppImage" ]]; then
-    curl -fsSL -o "$CACHE/linuxdeploy-$TOOLS_ARCH.AppImage" \
+    fetch_tool "$CACHE/linuxdeploy-$TOOLS_ARCH.AppImage" \
         "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-$TOOLS_ARCH.AppImage"
     chmod +x "$CACHE/linuxdeploy-$TOOLS_ARCH.AppImage"
 fi
 if [[ ! -x "$CACHE/linuxdeploy-plugin-qt-$TOOLS_ARCH.AppImage" ]]; then
-    curl -fsSL -o "$CACHE/linuxdeploy-plugin-qt-$TOOLS_ARCH.AppImage" \
+    fetch_tool "$CACHE/linuxdeploy-plugin-qt-$TOOLS_ARCH.AppImage" \
         "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-$TOOLS_ARCH.AppImage"
     chmod +x "$CACHE/linuxdeploy-plugin-qt-$TOOLS_ARCH.AppImage"
 fi
