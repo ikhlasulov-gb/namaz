@@ -85,6 +85,7 @@ pub struct Config {
     pub athan_visual_main: bool,
     pub athan_visual_flash: bool,
     pub hijri_offset: i32,
+    pub time_format: i32,
     pub always_on_top: bool,
     pub hide_on_close: bool,
     pub launch_minimized: bool,
@@ -162,6 +163,7 @@ impl Default for Config {
             athan_visual_main: false,
             athan_visual_flash: false,
             hijri_offset: 0,
+            time_format: 0,
             always_on_top: true,
             hide_on_close: false,
             launch_minimized: false,
@@ -2000,6 +2002,7 @@ pub extern "C" fn namaz_core_apply_preferences_json(
     core.cfg.hijri_calendar = json_bool(&value, "hijri_calendar", core.cfg.hijri_calendar);
     core.cfg.show_qiblah = json_bool(&value, "show_qiblah", core.cfg.show_qiblah);
     core.cfg.hijri_offset = json_i32(&value, "hijri_offset", core.cfg.hijri_offset).clamp(-3, 3);
+    core.cfg.time_format = json_i32(&value, "time_format", core.cfg.time_format).clamp(0, 3);
     core.cfg.locale = json_string(&value, "locale", &core.cfg.locale);
     core.cfg.dbus_enabled = json_bool(&value, "dbus_enabled", core.cfg.dbus_enabled);
     core.cfg.dbus_interval =

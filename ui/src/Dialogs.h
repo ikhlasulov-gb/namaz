@@ -151,6 +151,7 @@ private:
     QCheckBox *m_dbusEnabled = nullptr;
     QSpinBox *m_dbusInterval = nullptr;
     QSpinBox *m_hijriOffset = nullptr;
+    QComboBox *m_timeFormat = nullptr;
     QComboBox *m_masjidScreen = nullptr;
     QComboBox *m_language = nullptr;
     QPushButton *m_applyButton = nullptr;

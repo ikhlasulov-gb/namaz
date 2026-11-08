@@ -17,6 +17,10 @@
 
 namespace Ui {
 
+namespace {
+int s_timeFormat = 0;
+}
+
 QIcon appIcon() {
     QIcon icon = QIcon::fromTheme(QStringLiteral("io.github.ikhlasulov_gb.Namaz"));
     // A theme lookup can return a non-null QIcon with no actual pixmaps when
@@ -82,6 +86,10 @@ void styleCaption(QLabel *label) {
     label->setFont(font);
 }
 
+void setTimeFormat(int format) {
+    s_timeFormat = qBound(0, format, 3);
+}
+
 QString formatTime(int seconds, bool withSeconds) {
     if (seconds < 0) {
         return QStringLiteral("—");
@@ -89,29 +97,34 @@ QString formatTime(int seconds, bool withSeconds) {
     const int hour = (seconds / 3600) % 24;
     const int minute = (seconds % 3600) / 60;
     const int second = seconds % 60;
-    const QTime time(hour, minute, second);
+    const bool hour24 = s_timeFormat >= 2;
+    const bool showSeconds =
+        withSeconds && (s_timeFormat == 0 || s_timeFormat == 3);
+    if (hour24) {
+        QString text = QStringLiteral("%1:%2")
+                           .arg(hour, 2, 10, QLatin1Char('0'))
+                           .arg(minute, 2, 10, QLatin1Char('0'));
+        if (showSeconds) {
+            text += QStringLiteral(":%1").arg(second, 2, 10, QLatin1Char('0'));
+        }
+        return text;
+    }
+    int displayHour = hour % 12;
+    if (displayHour == 0) {
+        displayHour = 12;
+    }
     const QLocale locale = QLocale();
-    if (!withSeconds) {
-        return locale.toString(time, QLocale::ShortFormat);
+    QString suffix = hour < 12 ? locale.amText() : locale.pmText();
+    if (suffix.isEmpty()) {
+        suffix = hour < 12 ? QStringLiteral("AM") : QStringLiteral("PM");
     }
-    QString pattern = locale.timeFormat(QLocale::ShortFormat);
-    if (!pattern.contains(QLatin1String("ss"))) {
-        int marker = -1;
-        for (int index = 0; index < pattern.size(); ++index) {
-            const QChar character = pattern.at(index);
-            if (character == QLatin1Char('A') || character == QLatin1Char('a')
-                || character == QLatin1Char('P') || character == QLatin1Char('p')) {
-                marker = index;
-                break;
-            }
-        }
-        int position = marker >= 0 ? marker : pattern.size();
-        while (position > 0 && pattern.at(position - 1).isSpace()) {
-            --position;
-        }
-        pattern.insert(position, QStringLiteral(":ss"));
+    QString text = QStringLiteral("%1:%2")
+                       .arg(displayHour, 2, 10, QLatin1Char('0'))
+                       .arg(minute, 2, 10, QLatin1Char('0'));
+    if (showSeconds) {
+        text += QStringLiteral(":%1").arg(second, 2, 10, QLatin1Char('0'));
     }
-    return locale.toString(time, pattern);
+    return text + QLatin1Char(' ') + suffix;
 }
 
 QString formatCountdown(int seconds) {

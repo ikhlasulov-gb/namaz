@@ -1283,6 +1283,24 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
     hijriLayout->addStretch(1);
     calendarLayout->addWidget(m_hijriCalendar);
     calendarLayout->addWidget(hijriRow);
+
+    auto *timeFormatRow = new QWidget(calendarBox);
+    auto *timeFormatLayout = new QHBoxLayout(timeFormatRow);
+    timeFormatLayout->setContentsMargins(0, 0, 0, 0);
+    timeFormatLayout->setSpacing(Ui::controlSpacing());
+    timeFormatLayout->addWidget(new QLabel(tr("Time format"), timeFormatRow));
+    m_timeFormat = new QComboBox(timeFormatRow);
+    m_timeFormat->setObjectName(QStringLiteral("TimeFormatCombo"));
+    m_timeFormat->addItem(QStringLiteral("08:00 PM"), 1);
+    m_timeFormat->addItem(QStringLiteral("08:00:33 PM"), 0);
+    m_timeFormat->addItem(QStringLiteral("20:00"), 2);
+    m_timeFormat->addItem(QStringLiteral("20:00:33"), 3);
+    m_timeFormat->setToolTip(
+        tr("12-hour or 24-hour clock; the current time can also show seconds."));
+    Ui::setFieldWidth(m_timeFormat, 160);
+    timeFormatLayout->addWidget(m_timeFormat);
+    timeFormatLayout->addStretch(1);
+    calendarLayout->addWidget(timeFormatRow);
     otherGrid->addWidget(calendarBox, 1, 0);
 
     auto *qiblahBox = compactBox(tr("Qiblah"), otherPage.widget);
@@ -1626,6 +1644,9 @@ void PreferencesDialog::populate(const QJsonObject &config) {
     m_hijriCalendar->setChecked(
         config.value(QStringLiteral("hijri_calendar")).toBool(true));
     m_hijriOffset->setValue(config.value(QStringLiteral("hijri_offset")).toInt());
+    m_timeFormat->setCurrentIndex(qMax(
+        0, m_timeFormat->findData(
+               config.value(QStringLiteral("time_format")).toInt(0))));
     m_showQiblah->setChecked(config.value(QStringLiteral("show_qiblah")).toBool(true));
     m_qiblaClockwise->setChecked(
         config.value(QStringLiteral("qibla_clockwise")).toBool(true));
@@ -1728,6 +1749,7 @@ bool PreferencesDialog::apply() {
     config.insert(QStringLiteral("athan_visual_flash"), m_athanVisualFlash->isChecked());
     config.insert(QStringLiteral("hijri_calendar"), m_hijriCalendar->isChecked());
     config.insert(QStringLiteral("hijri_offset"), m_hijriOffset->value());
+    config.insert(QStringLiteral("time_format"), m_timeFormat->currentData().toInt());
     config.insert(QStringLiteral("show_qiblah"), m_showQiblah->isChecked());
     config.insert(QStringLiteral("qibla_clockwise"), m_qiblaClockwise->isChecked());
     config.insert(QStringLiteral("lock_on_pray_now"), m_lockOnPray->isChecked());
