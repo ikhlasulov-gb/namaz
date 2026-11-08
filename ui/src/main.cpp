@@ -51,6 +51,7 @@ QJsonObject dumpWidget(QWidget *widget, QWidget *origin) {
     if (auto *table = qobject_cast<QTableWidget *>(widget)) {
         object.insert(QStringLiteral("rows"), table->rowCount());
         object.insert(QStringLiteral("columns"), table->columnCount());
+        object.insert(QStringLiteral("viewportHeight"), table->viewport()->height());
         QJsonArray widths;
         for (int column = 0; column < table->columnCount(); ++column) {
             widths.append(table->columnWidth(column));
