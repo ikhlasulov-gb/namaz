@@ -531,12 +531,12 @@ flatpak update --user io.github.ikhlasulov_gb.Namaz</translation>
         <translation>Не удалось записать скачанный файл.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1454"/>
+        <location filename="../src/Widgets.cpp" line="1457"/>
         <source>Update downloaded</source>
         <translation>Обновление скачано</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1455"/>
+        <location filename="../src/Widgets.cpp" line="1458"/>
         <source>The new version was saved to:
 %1
 
@@ -547,12 +547,12 @@ Start it manually to replace the current AppImage.</source>
 Запустите её вручную, чтобы заменить текущий AppImage.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1463"/>
+        <location filename="../src/Widgets.cpp" line="1466"/>
         <source>Update installed</source>
         <translation>Обновление установлено</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1464"/>
+        <location filename="../src/Widgets.cpp" line="1467"/>
         <source>Namaz %1 has been installed. Restart now?</source>
         <translation>Namaz %1 установлен. Перезапустить сейчас?</translation>
     </message>
@@ -1061,38 +1061,38 @@ Start it manually to replace the current AppImage.</source>
         <translation>Метод расчёта</translation>
     </message>
     <message>
-        <location filename="../src/UiUtils.cpp" line="186"/>
         <location filename="../src/Dialogs.cpp" line="381"/>
+        <location filename="../src/UiUtils.cpp" line="186"/>
         <source>Custom twilight angles</source>
         <translation>Пользовательские углы сумерек</translation>
     </message>
     <message>
-        <location filename="../src/UiUtils.cpp" line="172"/>
         <location filename="../src/Dialogs.cpp" line="382"/>
+        <location filename="../src/UiUtils.cpp" line="172"/>
         <source>Egyptian General Authority of Survey</source>
         <translation>Египетское управление общей геодезии</translation>
     </message>
     <message>
-        <location filename="../src/UiUtils.cpp" line="178"/>
         <location filename="../src/Dialogs.cpp" line="383"/>
+        <location filename="../src/UiUtils.cpp" line="178"/>
         <source>Islamic Society of North America (ISNA)</source>
         <translation>Исламское общество Северной Америки (ISNA)</translation>
     </message>
     <message>
-        <location filename="../src/UiUtils.cpp" line="181"/>
         <location filename="../src/Dialogs.cpp" line="384"/>
+        <location filename="../src/UiUtils.cpp" line="181"/>
         <source>Muslim World League</source>
         <translation>Всемирная мусульманская лига</translation>
     </message>
     <message>
-        <location filename="../src/UiUtils.cpp" line="184"/>
         <location filename="../src/Dialogs.cpp" line="385"/>
+        <location filename="../src/UiUtils.cpp" line="184"/>
         <source>Umm al-Qura</source>
         <translation>Умм аль-Кура</translation>
     </message>
     <message>
-        <location filename="../src/UiUtils.cpp" line="175"/>
         <location filename="../src/Dialogs.cpp" line="386"/>
+        <location filename="../src/UiUtils.cpp" line="175"/>
         <source>University of Islamic Sciences, Karachi</source>
         <translation>Университет исламских наук, Карачи</translation>
     </message>
