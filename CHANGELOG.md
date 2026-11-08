@@ -4,6 +4,20 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-11-08
+
+### Fixed
+
+- The application icon now resolves inside Flatpak.  `/app/share/icons` now
+  contains the hicolor `index.theme`, so Qt can load the themed icon, and the
+  embedded PNG is used as a fallback when a theme cache is incomplete.
+- Athan, iqama and reminders are only delivered within a few seconds of their
+  scheduled time.  Starting the application late, or waking the computer after
+  the prayer time, no longer plays a stale adhan; a muadhdhin does not start
+  ten minutes after the prayer either.
+- CMake builds from project paths containing spaces and Cyrillic characters by
+  generating the Russian `.qm` file with a direct `lrelease` command.
+
 ## [1.0.0] - 2026-11-08
 
 ### Added

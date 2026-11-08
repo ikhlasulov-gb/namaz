@@ -44,6 +44,9 @@ for size in 16 22 24 32 48 64 96 128 192 256 512; do
 done
 install -Dm644 "$ROOT/packaging/icons/io.github.ikhlasulov_gb.Namaz.svg" \
   "$ICON_DIR/scalable/apps/io.github.ikhlasulov_gb.Namaz.svg"
+if [[ -f /usr/share/icons/hicolor/index.theme ]]; then
+  install -Dm644 /usr/share/icons/hicolor/index.theme "$ICON_DIR/index.theme"
+fi
 
 install -d "$BIN_DIR"
 cat > "$BIN_DIR/namaz" <<EOF

@@ -612,11 +612,13 @@ fn push_reminder_event(
     }));
 }
 
-/// How late an event may still be delivered (e.g. after the computer sleeps).
-/// The UI ticks once a second, but a resumed session or a busy machine may be
-/// minutes behind; 15 minutes still catches up after a short suspend without
-/// replaying a stale athan hours later.
-const EVENT_GRACE_SECONDS: i64 = 900;
+/// How late an event may still be delivered.
+///
+/// A muadhdhin does not start the adhan ten minutes after the prayer time, so
+/// Namaz uses a strict few-second window.  This absorbs normal timer jitter
+/// and a short UI stall, but never replays a stale athan, iqama or reminder
+/// when the application starts late or the machine wakes from sleep.
+const EVENT_GRACE_SECONDS: i64 = 5;
 
 fn event_time(date: NaiveDate, seconds: i64) -> NaiveDateTime {
     date.and_hms_opt(0, 0, 0)
@@ -1035,9 +1037,10 @@ impl Core {
         let seed = (now_naive.time().num_seconds_from_midnight() as u64)
             ^ (today.num_days_from_ce() as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15);
 
-        // Check yesterday/today/tomorrow so a reminder just before Fajr, an
-        // iqama after Ishaa, or an event missed while suspended is still
-        // delivered even when it belongs to an adjacent calendar day.
+        // Check yesterday/today/tomorrow so a reminder just before Fajr or an
+        // iqama after Ishaa is handled even when it belongs to an adjacent
+        // calendar day.  Events are only delivered inside the strict grace
+        // window, never as a stale catch-up.
         for offset in [-1i64, 0, 1] {
             let schedule = today + ChronoDuration::days(offset);
             let date = Date::new(
@@ -2651,8 +2654,7 @@ mod tests {
         assert!(again.as_array().unwrap().is_empty());
     }
 
-    #[test]
-    fn tick_catches_up_athan_after_sleep() {
+    fn athan_test_core() -> (Core, i64, FixedOffset) {
         let mut cfg = Config::default();
         cfg.city = "Palembang".into();
         cfg.latitude = -2.9055;
@@ -2668,15 +2670,36 @@ mod tests {
             &Date::new(2026, 11, 8),
         );
         let fajr = times[0].seconds_of_day().unwrap() as i64;
-        let mut core = test_core(cfg, date);
         let offset = FixedOffset::east_opt(7 * 3600).unwrap();
+        (test_core(cfg, date), fajr, offset)
+    }
+
+    #[test]
+    fn tick_plays_athan_on_time() {
+        let (mut core, fajr, offset) = athan_test_core();
         let now = offset
             .with_ymd_and_hms(2026, 11, 8, 0, 0, 0)
             .single()
             .unwrap()
-            + ChronoDuration::seconds(fajr + 90);
+            + ChronoDuration::seconds(fajr + 2);
         let events = core.tick_at(now);
         assert!(events
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|event| event["type"] == "athan"));
+    }
+
+    #[test]
+    fn tick_does_not_replay_stale_athan() {
+        let (mut core, fajr, offset) = athan_test_core();
+        let now = offset
+            .with_ymd_and_hms(2026, 11, 8, 0, 0, 0)
+            .single()
+            .unwrap()
+            + ChronoDuration::seconds(fajr + 10 * 60);
+        let events = core.tick_at(now);
+        assert!(!events
             .as_array()
             .unwrap()
             .iter()
