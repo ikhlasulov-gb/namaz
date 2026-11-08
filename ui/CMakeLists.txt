@@ -65,11 +65,34 @@ add_executable(namaz-ui
 
 add_dependencies(namaz-ui namaz_core)
 
-qt_add_translations(namaz-ui
-    TS_FILES
-        translations/namaz_ru.ts
-    RESOURCE_PREFIX "/i18n"
-    LUPDATE_OPTIONS -no-obsolete
+# Build the .qm file explicitly.  qt_add_translations() defers a call with
+# unquoted arguments and breaks when the build directory contains spaces
+# (for example ".../Моя Информация/...").  A plain lrelease command is
+# smaller and works with any path.
+set(NAMAZ_TS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/translations/namaz_ru.ts")
+set(NAMAZ_QM_FILE "${CMAKE_CURRENT_BINARY_DIR}/namaz_ru.qm")
+set_source_files_properties("${NAMAZ_QM_FILE}" PROPERTIES GENERATED TRUE)
+add_custom_command(
+    OUTPUT "${NAMAZ_QM_FILE}"
+    COMMAND $<TARGET_FILE:Qt6::lrelease> "${NAMAZ_TS_FILE}" -qm "${NAMAZ_QM_FILE}"
+    DEPENDS "${NAMAZ_TS_FILE}"
+    COMMENT "Generating namaz_ru.qm"
+    VERBATIM
+)
+add_custom_target(namaz_translations ALL DEPENDS "${NAMAZ_QM_FILE}")
+add_dependencies(namaz-ui namaz_translations)
+qt_add_resources(namaz-ui "namaz_translations"
+    PREFIX "/i18n"
+    BASE "${CMAKE_CURRENT_BINARY_DIR}"
+    FILES "${NAMAZ_QM_FILE}"
+)
+
+add_custom_target(update_translations
+    COMMAND $<TARGET_FILE:Qt6::lupdate> -no-obsolete
+            "${CMAKE_CURRENT_SOURCE_DIR}/src"
+            -ts "${NAMAZ_TS_FILE}"
+    COMMENT "Updating namaz_ru.ts"
+    VERBATIM
 )
 
 qt_add_resources(namaz-ui "app_assets"
