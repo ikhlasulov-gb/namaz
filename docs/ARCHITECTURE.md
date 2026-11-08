@@ -30,7 +30,9 @@ compare both implementations over random locations, dates and methods.
 - day/month/year JSON consumed by the UI,
 - Hijri conversion, Qibla bearing and city lookup,
 - audio playback through `rodio` (PipeWire/PulseAudio/ALSA),
-- reminders, iqama scheduling and D-Bus notifications.
+- reminders, iqama scheduling and D-Bus notifications.  Events use a strict
+  five-second grace window: starting the application late or waking from
+  sleep must not replay a stale adhan.
 
 The C ABI is declared in `ui/src/Core.h` and implemented at the bottom of
 `crates/core/src/lib.rs`.  Every returned string must be freed with

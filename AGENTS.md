@@ -217,6 +217,25 @@ Do not move a published tag.  The early `v1.0.0` tag was moved while the
 project was still being set up; future releases must be immutable.  If a
 release is broken, publish the next patch version.
 
+## Behaviour invariants (do not regress)
+
+- **No stale adhan.** `EVENT_GRACE_SECONDS` in `crates/core/src/lib.rs` is
+  deliberately `5` seconds.  Athan, iqama and reminders must only fire close
+  to their scheduled time.  Do not restore the old 15-minute catch-up: it
+  played the adhan when the app started ten minutes late or the machine woke
+  from sleep.  The guard tests are `tick_plays_athan_on_time` and
+  `tick_does_not_replay_stale_athan`.
+- **Flatpak icon theme.** The manifest must install
+  `/usr/share/icons/hicolor/index.theme` as
+  `/app/share/icons/hicolor/index.theme`.  Without it Qt cannot resolve
+  `QIcon::fromTheme("io.github.ikhlasulov_gb.Namaz")`, which leaves the window
+  and tray icon empty.  `Ui::appIcon()` also falls back to the embedded PNG
+  when a theme icon has no pixmaps.
+- **Spaces in the project path.** The project lives under
+  `.../Моя Информация/...`; `ui/CMakeLists.txt` generates `namaz_ru.qm` with a
+  direct `lrelease` command instead of deferred `qt_add_translations()`.
+  Keep at least one test build in this path.
+
 ## Project invariants
 
 - Application ID: `io.github.ikhlasulov_gb.Namaz`
