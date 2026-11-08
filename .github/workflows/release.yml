@@ -287,7 +287,8 @@ jobs:
           cp README/logo.png pages/icon.png
           mkdir -p pages/screenshots
           cp README/day.png README/month.png README/year.png \
-             README/settings.png README/preferences.png pages/screenshots/
+             README/settings.png README/preferences.png README/masjid.png \
+             pages/screenshots/
           cp packaging/pages/index.html pages/index.html
           touch pages/.nojekyll
       - uses: actions/configure-pages@v5
