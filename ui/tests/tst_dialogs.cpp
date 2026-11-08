@@ -75,6 +75,7 @@ private slots:
     void extremeComboMapsToItlConstants();
     void preferencesCancelDoesNotApplyVolume();
     void preferencesShuruqIsDisabled();
+    void applyButtonTracksChanges();
     void viewActionsStayExclusive();
     void windowRestoresSavedTab();
     void showFromTrayKeepsWindowState();
@@ -480,6 +481,33 @@ void DialogTest::preferencesShuruqIsDisabled() {
     QVERIFY(!iqama->isEnabled());
     QVERIFY(!iqama->isChecked());
     QCOMPARE(mode->currentData().toInt(), 0);
+}
+
+void DialogTest::applyButtonTracksChanges() {
+    Core core;
+    PreferencesDialog prefs(core.handle());
+    auto *apply = dialogButton(&prefs, QDialogButtonBox::Apply);
+    QVERIFY(apply);
+    QVERIFY(!apply->isEnabled());
+
+    auto *slider = prefs.findChild<QSlider *>(QStringLiteral("VolumeSlider"));
+    QVERIFY(slider);
+    slider->setValue(slider->value() == 50 ? 60 : 50);
+    QVERIFY(apply->isEnabled());
+    apply->click();
+    QVERIFY(!apply->isEnabled());
+
+    PrayerSettingsDialog settings(core.handle());
+    auto *settingsApply = dialogButton(&settings, QDialogButtonBox::Apply);
+    QVERIFY(settingsApply);
+    QVERIFY(!settingsApply->isEnabled());
+
+    auto *method = settings.findChild<QComboBox *>(QStringLiteral("MethodCombo"));
+    QVERIFY(method);
+    method->setCurrentIndex((method->currentIndex() + 1) % method->count());
+    QVERIFY(settingsApply->isEnabled());
+    settingsApply->click();
+    QVERIFY(!settingsApply->isEnabled());
 }
 
 namespace {

@@ -203,6 +203,49 @@ QLabel *descriptionLabel(QWidget *parent) {
     return label;
 }
 
+// Size a settings dialog so the tallest page fits without a vertical
+// scrollbar.  The dialogs keep their scroll areas for small screens, but on a
+// normal desktop screen everything is visible at once.
+void fitDialogToPages(QDialog *dialog, QStackedWidget *stack,
+                      QDialogButtonBox *buttons, int preferredWidth) {
+    if (!dialog || !stack) {
+        return;
+    }
+    int pageWidth = 0;
+    int pageHeight = 0;
+    for (int index = 0; index < stack->count(); ++index) {
+        auto *scroll = qobject_cast<QScrollArea *>(stack->widget(index));
+        if (!scroll || !scroll->widget()) {
+            continue;
+        }
+        const QSize hint = scroll->widget()->sizeHint();
+        pageWidth = qMax(pageWidth, hint.width());
+        pageHeight = qMax(pageHeight, hint.height());
+    }
+    if (pageHeight <= 0) {
+        return;
+    }
+    int height = pageHeight + 16;
+    if (QLayout *layout = dialog->layout()) {
+        const QMargins margins = layout->contentsMargins();
+        height += margins.top() + margins.bottom() + layout->spacing();
+    }
+    if (buttons) {
+        height += buttons->sizeHint().height();
+    }
+    QSize available(1920, 1200);
+    QScreen *screen = dialog->screen();
+    if (!screen) {
+        screen = QGuiApplication::primaryScreen();
+    }
+    if (screen) {
+        available = screen->availableGeometry().size();
+    }
+    const int width = qMin(qMax(preferredWidth, pageWidth + 220),
+                           available.width() - 80);
+    dialog->resize(width, qMin(height, available.height() - 80));
+}
+
 }  // namespace
 
 PrayerSettingsDialog::PrayerSettingsDialog(void *core, QWidget *parent)
@@ -464,10 +507,19 @@ PrayerSettingsDialog::PrayerSettingsDialog(void *core, QWidget *parent)
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply,
         this);
     buttons->setObjectName(QStringLiteral("DialogButtons"));
+    m_applyButton = buttons->button(QDialogButtonBox::Apply);
+    if (m_applyButton) {
+        m_applyButton->setEnabled(false);
+    }
     QPushButton *restore = buttons->addButton(
         tr("Restore Defaults"), QDialogButtonBox::ResetRole);
     connect(restore, &QPushButton::clicked, this, [this] {
         populate(defaultConfigObject());
+        // The dialog now differs from the saved configuration, so the
+        // defaults can be applied.
+        if (m_applyButton) {
+            m_applyButton->setEnabled(true);
+        }
     });
     connect(buttons->button(QDialogButtonBox::Apply), &QPushButton::clicked, this,
             [this] {
@@ -488,7 +540,9 @@ PrayerSettingsDialog::PrayerSettingsDialog(void *core, QWidget *parent)
     connect(m_extreme, &QComboBox::currentIndexChanged, this,
             &PrayerSettingsDialog::updateExtremeDescription);
 
+    connectChangeTracking();
     populate(configObject(m_core));
+    fitDialogToPages(this, m_stack, buttons, 820);
 }
 
 void PrayerSettingsDialog::populateTimeZones() {
@@ -503,6 +557,50 @@ void PrayerSettingsDialog::populateTimeZones() {
     ids.sort(Qt::CaseInsensitive);
     for (const QString &id : ids) {
         m_timeZoneName->addItem(id, id);
+    }
+}
+
+void PrayerSettingsDialog::markDirty() {
+    if (m_updating || m_populating) {
+        return;
+    }
+    if (m_applyButton) {
+        m_applyButton->setEnabled(true);
+    }
+}
+
+void PrayerSettingsDialog::connectChangeTracking() {
+    for (QLineEdit *edit : findChildren<QLineEdit *>()) {
+        connect(edit, &QLineEdit::textEdited, this,
+                &PrayerSettingsDialog::markDirty);
+    }
+    for (QComboBox *combo : findChildren<QComboBox *>()) {
+        connect(combo, &QComboBox::currentIndexChanged, this,
+                &PrayerSettingsDialog::markDirty);
+    }
+    for (QSpinBox *spin : findChildren<QSpinBox *>()) {
+        connect(spin, &QSpinBox::valueChanged, this,
+                &PrayerSettingsDialog::markDirty);
+    }
+    for (QDoubleSpinBox *spin : findChildren<QDoubleSpinBox *>()) {
+        connect(spin, &QDoubleSpinBox::valueChanged, this,
+                &PrayerSettingsDialog::markDirty);
+    }
+    for (QCheckBox *check : findChildren<QCheckBox *>()) {
+        connect(check, &QCheckBox::toggled, this,
+                &PrayerSettingsDialog::markDirty);
+    }
+    for (QTimeEdit *time : findChildren<QTimeEdit *>()) {
+        connect(time, &QTimeEdit::timeChanged, this,
+                &PrayerSettingsDialog::markDirty);
+    }
+    // Selecting a country only fills the city list; choosing a city changes
+    // the coordinates and is a real edit.
+    if (m_cities) {
+        connect(m_cities, &QListWidget::currentRowChanged, this,
+                &PrayerSettingsDialog::markDirty);
+        connect(m_cities, &QListWidget::itemClicked, this,
+                [this](QListWidgetItem *) { markDirty(); });
     }
 }
 
@@ -556,6 +654,9 @@ void PrayerSettingsDialog::populate(const QJsonObject &config) {
     loadCountries();
     m_populating = false;
     m_updating = false;
+    if (m_applyButton) {
+        m_applyButton->setEnabled(false);
+    }
 }
 
 void PrayerSettingsDialog::loadCountries() {
@@ -764,6 +865,9 @@ bool PrayerSettingsDialog::apply() {
 
     const QByteArray json = QJsonDocument(config).toJson(QJsonDocument::Compact);
     if (namaz_core_apply_settings_json(m_core, json.constData())) {
+        if (m_applyButton) {
+            m_applyButton->setEnabled(false);
+        }
         emit applied();
         return true;
     }
@@ -1251,6 +1355,10 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply,
         this);
     buttons->setObjectName(QStringLiteral("DialogButtons"));
+    m_applyButton = buttons->button(QDialogButtonBox::Apply);
+    if (m_applyButton) {
+        m_applyButton->setEnabled(false);
+    }
     QPushButton *restore = buttons->addButton(
         tr("Restore Defaults"), QDialogButtonBox::ResetRole);
     connect(restore, &QPushButton::clicked, this,
@@ -1265,8 +1373,10 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
     layout->addWidget(buttons);
 
+    connectChangeTracking();
     updateMasjidScreens();
     populate(configObject(m_core));
+    fitDialogToPages(this, m_stack, buttons, 900);
 }
 
 void PreferencesDialog::setTabIndex(int index) {
@@ -1278,6 +1388,39 @@ void PreferencesDialog::setTabIndex(int index) {
 void PreferencesDialog::reload() {
     updateMasjidScreens();
     populate(configObject(m_core));
+}
+
+void PreferencesDialog::markDirty() {
+    if (m_applyButton) {
+        m_applyButton->setEnabled(true);
+    }
+}
+
+void PreferencesDialog::connectChangeTracking() {
+    for (QLineEdit *edit : findChildren<QLineEdit *>()) {
+        connect(edit, &QLineEdit::textEdited, this,
+                &PreferencesDialog::markDirty);
+    }
+    for (QComboBox *combo : findChildren<QComboBox *>()) {
+        connect(combo, &QComboBox::currentIndexChanged, this,
+                &PreferencesDialog::markDirty);
+    }
+    for (QSpinBox *spin : findChildren<QSpinBox *>()) {
+        connect(spin, &QSpinBox::valueChanged, this,
+                &PreferencesDialog::markDirty);
+    }
+    for (QCheckBox *check : findChildren<QCheckBox *>()) {
+        connect(check, &QCheckBox::toggled, this,
+                &PreferencesDialog::markDirty);
+    }
+    for (QSlider *slider : findChildren<QSlider *>()) {
+        connect(slider, &QSlider::valueChanged, this,
+                &PreferencesDialog::markDirty);
+    }
+    for (QTimeEdit *time : findChildren<QTimeEdit *>()) {
+        connect(time, &QTimeEdit::timeChanged, this,
+                &PreferencesDialog::markDirty);
+    }
 }
 
 void PreferencesDialog::updateAudioRow(int index) {
@@ -1500,10 +1643,17 @@ void PreferencesDialog::populate(const QJsonObject &config) {
     m_language->setCurrentIndex(qMax(0, m_language->findData(
         locale.isEmpty() ? QStringLiteral("system") : locale)));
     updateMasjidScreens();
+    if (m_applyButton) {
+        m_applyButton->setEnabled(false);
+    }
 }
 
 void PreferencesDialog::restoreDefaults() {
     populate(defaultConfigObject());
+    // Restoring defaults is a change that still has to be applied.
+    if (m_applyButton) {
+        m_applyButton->setEnabled(true);
+    }
 }
 
 bool PreferencesDialog::apply() {
@@ -1590,6 +1740,9 @@ bool PreferencesDialog::apply() {
 
     const QByteArray json = QJsonDocument(config).toJson(QJsonDocument::Compact);
     if (namaz_core_apply_preferences_json(m_core, json.constData())) {
+        if (m_applyButton) {
+            m_applyButton->setEnabled(false);
+        }
         emit applied();
         return true;
     }

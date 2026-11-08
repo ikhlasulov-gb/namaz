@@ -4,6 +4,17 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.4] - 2026-11-08
+
+### Fixed
+
+- The Prayer Settings and Preferences dialogs now open large enough to
+  show the tallest page without a vertical scrollbar on a normal desktop
+  screen.
+- The Apply button starts disabled, becomes enabled only after a change and
+  is disabled again after applying. "Restore Defaults" enables it so the
+  restored values can be applied.
+
 ## [1.0.3] - 2026-11-08
 
 ### Fixed

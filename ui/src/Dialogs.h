@@ -9,6 +9,7 @@ class QDoubleSpinBox;
 class QLabel;
 class QLineEdit;
 class QListWidget;
+class QPushButton;
 class QSlider;
 class QSpinBox;
 class QStackedWidget;
@@ -35,6 +36,8 @@ private:
     void updateMethodDescription();
     void updateExtremeDescription();
     void populateTimeZones();
+    void markDirty();
+    void connectChangeTracking();
 
     void *m_core;
     bool m_updating = false;
@@ -63,6 +66,7 @@ private:
     QSpinBox *m_dhuhrMinutes = nullptr;
     QSpinBox *m_maghribMinutes = nullptr;
     QSpinBox *m_adjust[6] = {};
+    QPushButton *m_applyButton = nullptr;
 };
 
 class PreferencesDialog : public QDialog {
@@ -79,6 +83,8 @@ private:
     void populate(const QJsonObject &config);
     bool apply();
     void restoreDefaults();
+    void markDirty();
+    void connectChangeTracking();
     void updateAudioRow(int index);
     void updateStartupRow();
     void updateReminderAudioRow();
@@ -147,4 +153,5 @@ private:
     QSpinBox *m_hijriOffset = nullptr;
     QComboBox *m_masjidScreen = nullptr;
     QComboBox *m_language = nullptr;
+    QPushButton *m_applyButton = nullptr;
 };
