@@ -4,6 +4,34 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.2] - 2026-11-08
+
+### Fixed
+
+- The Day view now uses the full card width: the Gregorian and Hijri dates
+  share one line, the current prayer and the next-prayer countdown sit on the
+  right, and the cards no longer leave a large empty area beside their text.
+- The Qiblah compass ring and ticks stay visible in dark colour schemes
+  instead of merging into the card background.
+- The prayer-times table no longer draws an unexplained line below the last
+  row, blends into the card background and is centred vertically.
+- The status bar no longer reserves space for the size grip after the method
+  label.
+- "Manual +1 hour" daylight saving now really adds one hour; the redundant
+  0/1-hour spinner that could contradict the selected mode is gone.
+- The Masjid-screen box in Preferences no longer leaves an empty area.
+
+### Removed
+
+- "Play Dua after Athan". The bundled adhan already contains the dua and no
+  standalone dua recording is shipped, so the option never did anything.
+- The duplicate "Bismi Allah" startup selector; the startup mode already
+  chooses the built-in Bismillah recording.
+- The "Iqama" reminder-audio choice: no iqama recording is shipped and the
+  option always stayed silent.
+- The twilight-angle fields are disabled unless the Custom method is
+  selected, because preset methods ignore them.
+
 ## [1.0.1] - 2026-11-08
 
 ### Fixed

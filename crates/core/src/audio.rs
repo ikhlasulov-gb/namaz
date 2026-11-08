@@ -2,7 +2,7 @@
 //!
 //! A dedicated worker thread keeps the output stream alive and makes
 //! "Stop Audio" reliable even while a long recitation is playing.  Audio is
-//! queued as a playlist so an athan can be followed by a dua without a gap.
+//! queued as a playlist so consecutive files play without a gap.
 
 use std::fs::File;
 use std::io::BufReader;

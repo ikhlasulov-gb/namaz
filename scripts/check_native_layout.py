@@ -82,10 +82,13 @@ def main() -> int:
     angle = widgets["QiblahAngle"]
 
     dx, dy, dw, dh = rect(day)
+    header = widgets["DateHeader"]
     c.check(date["y"] >= dx - 1 and date["y"] < cards["y"],
             "date header is above the cards")
-    c.check(hijri["y"] > date["y"] and hijri["y"] < cards["y"],
-            "Hijri date sits under the Gregorian date")
+    c.check(abs(hijri["y"] - date["y"]) <= 2 and hijri["y"] < cards["y"],
+            "Hijri date shares the Gregorian date line")
+    c.check(abs((hijri["x"] + hijri["w"]) - (header["x"] + header["w"])) <= 2,
+            "Hijri date is right-aligned in the header")
     c.check(cards["y"] > date["y"] and content["y"] > cards["y"],
             "cards and content are ordered top to bottom")
 
@@ -102,6 +105,12 @@ def main() -> int:
         c.check(abs(cw - nw) <= 2, f"cards have equal width: {cw} vs {nw}")
         c.check(abs(ch - nh) <= 2, f"cards have equal height: {ch} vs {nh}")
         c.check(nx >= cx + cw, "next-prayer card sits beside the time card")
+        current_prayer = widgets["CurrentPrayerLabel"]
+        countdown = widgets["NextPrayerCountdown"]
+        c.check(current_prayer["x"] > cx + cw / 2,
+                "current prayer is aligned to the card's right edge")
+        c.check(countdown["x"] > nx + nw / 2,
+                "countdown is aligned to the card's right edge")
         c.check(abs(ty - qy) <= 2, "prayer times and Qiblah share a row")
         c.check(abs(th - qh) <= 2,
                 f"sections have equal height: {th} vs {qh}")
@@ -129,6 +138,8 @@ def main() -> int:
             "day page side margins are symmetric")
 
     c.check(table.get("rows") == 6, f"prayer table rows: {table.get('rows')}")
+    c.check(table["h"] % 6 == 0,
+            f"prayer table has no extra bottom strip: {table['h']}px")
     c.check(table.get("columns") == 3,
             f"prayer table columns: {table.get('columns')}")
     widths = table.get("columnWidths", [])

@@ -289,10 +289,6 @@ PrayerSettingsDialog::PrayerSettingsDialog(void *core, QWidget *parent)
     m_dstMode->addItem(tr("No daylight saving"), 0);
     m_dstMode->addItem(tr("Automatic (use IANA time zone)"), 1);
     m_dstMode->addItem(tr("Manual +1 hour"), 2);
-    m_dstManual = new QSpinBox(manualBox);
-    m_dstManual->setObjectName(QStringLiteral("DstManualSpin"));
-    m_dstManual->setRange(0, 1);
-    m_dstManual->setSuffix(tr(" hour(s)"));
 
     Ui::setFieldWidth(m_city, 320);
     Ui::setFieldWidth(m_province, 280);
@@ -301,7 +297,6 @@ PrayerSettingsDialog::PrayerSettingsDialog(void *core, QWidget *parent)
     Ui::setFieldWidth(m_timeZoneName, 280);
     Ui::setFieldWidth(m_timezone, 120);
     Ui::setFieldWidth(m_dstMode, 300);
-    Ui::setFieldWidth(m_dstManual, 120);
 
     locationForm->addRow(tr("City"), m_city);
     locationForm->addRow(tr("Province / State"), m_province);
@@ -310,7 +305,6 @@ PrayerSettingsDialog::PrayerSettingsDialog(void *core, QWidget *parent)
     locationForm->addRow(tr("Time zone"), m_timeZoneName);
     locationForm->addRow(tr("UTC offset"), m_timezone);
     locationForm->addRow(tr("Daylight saving"), m_dstMode);
-    locationForm->addRow(tr("Manual DST offset"), m_dstManual);
     locationLayout->addWidget(manualBox);
 
     auto *timeNote = descriptionLabel(locationPage.widget);
@@ -364,11 +358,6 @@ PrayerSettingsDialog::PrayerSettingsDialog(void *core, QWidget *parent)
             }
         }
     });
-    connect(m_dstMode, &QComboBox::currentIndexChanged, this, [this](int) {
-        const bool manual = m_dstMode->currentData().toInt() == 2;
-        m_dstManual->setEnabled(manual);
-    });
-
     Page calculationPage = addScrollPage(nav, tr("Calculation Method"),
                                          QStringLiteral("preferences-system-time"));
     auto *calculationLayout = calculationPage.layout;
@@ -543,8 +532,6 @@ void PrayerSettingsDialog::populate(const QJsonObject &config) {
     int dstIndex = m_dstMode->findData(
         config.value(QStringLiteral("dst_mode")).toInt());
     m_dstMode->setCurrentIndex(qMax(0, dstIndex));
-    m_dstManual->setValue(config.value(QStringLiteral("dst_manual")).toInt());
-    m_dstManual->setEnabled(m_dstMode->currentData().toInt() == 2);
 
     int methodIndex = m_method->findData(config.value(QStringLiteral("method")).toInt());
     m_method->setCurrentIndex(qMax(0, methodIndex));
@@ -671,7 +658,6 @@ void PrayerSettingsDialog::selectCity() {
     if (dstIndex >= 0) {
         m_dstMode->setCurrentIndex(dstIndex);
     }
-    m_dstManual->setEnabled(dstMode == 2);
     m_updating = false;
 
     QString cityText = name;
@@ -693,6 +679,14 @@ void PrayerSettingsDialog::updateMethodDescription() {
     };
     const int index = qBound(0, m_method->currentIndex(), 5);
     m_methodDescription->setText(tr(descriptions[index]));
+    // Preset methods define their own twilight angles; the spin boxes were
+    // editable but silently ignored.  Only the custom method uses them.
+    const bool custom = m_method->currentData().toInt() == 0;
+    const QString angleHint = tr("Only used with Custom twilight angles.");
+    m_fajrAngle->setEnabled(custom);
+    m_ishaaAngle->setEnabled(custom);
+    m_fajrAngle->setToolTip(angleHint);
+    m_ishaaAngle->setToolTip(angleHint);
 }
 
 void PrayerSettingsDialog::updateExtremeDescription() {
@@ -750,7 +744,10 @@ bool PrayerSettingsDialog::apply() {
     config.insert(QStringLiteral("timezone_name"),
                   m_timeZoneName->currentData().toString());
     config.insert(QStringLiteral("dst_mode"), m_dstMode->currentData().toInt());
-    config.insert(QStringLiteral("dst_manual"), m_dstManual->value());
+    // The UI only offers "No DST", "Automatic" and "Manual +1 hour"; the old
+    // separate 0/1-hour spinner could contradict the selected mode.
+    config.insert(QStringLiteral("dst_manual"),
+                  m_dstMode->currentData().toInt() == 2 ? 1 : 0);
     config.insert(QStringLiteral("method"), m_method->currentData().toInt());
     config.insert(QStringLiteral("mathhab"), m_mathhab->currentData().toInt());
     config.insert(QStringLiteral("round"), m_rounding->currentData().toInt());
@@ -850,11 +847,9 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
     m_athanEnabled->setObjectName(QStringLiteral("AthanEnabledCheck"));
     m_notifications = new QCheckBox(tr("Show desktop notifications"), generalBox);
     m_notifications->setObjectName(QStringLiteral("NotificationsCheck"));
-    m_duaAfterAthan = new QCheckBox(tr("Play Dua after Athan"), generalBox);
     m_stopOnPrayer = new QCheckBox(tr("Stop other audio when a prayer starts"), generalBox);
     generalLayout->addWidget(m_athanEnabled);
     generalLayout->addWidget(m_notifications);
-    generalLayout->addWidget(m_duaAfterAthan);
     generalLayout->addWidget(m_stopOnPrayer);
     generalLayout->addWidget(volumeRow(generalBox, m_volume, m_volumeValue));
     connect(m_volume, &QSlider::valueChanged, this, [this](int value) {
@@ -941,13 +936,6 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
     m_startupMode->addItem(tr("Custom folder"), 4);
     Ui::setFieldWidth(m_startupMode, 220);
     startupForm->addRow(tr("Sound"), m_startupMode);
-
-    m_startupSound = new QComboBox(startupBox);
-    if (namaz_core_sound_exists("BISMILLAH")) {
-        m_startupSound->addItem(tr("Bismi Allah"), QStringLiteral("BISMILLAH"));
-    }
-    Ui::setFieldWidth(m_startupSound, 220);
-    startupForm->addRow(tr("Bismi Allah"), m_startupSound);
 
     m_startupStack = new QStackedWidget(startupBox);
     for (int mode = 0; mode < 3; ++mode) {
@@ -1114,7 +1102,6 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
     m_reminderAudioMode = new QComboBox(reminderAudioBox);
     m_reminderAudioMode->setObjectName(QStringLiteral("ReminderAudioModeCombo"));
     m_reminderAudioMode->addItem(tr("No audio"), 0);
-    m_reminderAudioMode->addItem(tr("Iqama"), 1);
     m_reminderAudioMode->addItem(tr("Bismi Allah"), 2);
     m_reminderAudioMode->addItem(tr("Quran"), 3);
     m_reminderAudioMode->addItem(tr("Custom reminder file"), 4);
@@ -1211,6 +1198,10 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
     m_masjidScreen = new QComboBox(masjidBox);
     Ui::setFieldWidth(m_masjidScreen, 260);
     masjidForm->addRow(tr("Display on"), m_masjidScreen);
+    auto *masjidNote = descriptionLabel(masjidBox);
+    masjidNote->setText(
+        tr("Shows the clock, the next prayer and today's times full-screen."));
+    masjidForm->addRow(QString(), masjidNote);
     otherGrid->addWidget(masjidBox, 2, 0);
 
     auto *securityBox = compactBox(tr("Security"), otherPage.widget);
@@ -1304,9 +1295,6 @@ void PreferencesDialog::updateStartupRow() {
     }
     const int mode = m_startupMode->currentData().toInt();
     m_startupStack->setCurrentIndex(qBound(0, mode, m_startupStack->count() - 1));
-    if (m_startupSound) {
-        m_startupSound->setEnabled(mode == 1);
-    }
 }
 
 void PreferencesDialog::updateReminderAudioRow() {
@@ -1406,8 +1394,6 @@ void PreferencesDialog::populate(const QJsonObject &config) {
     m_athanEnabled->setChecked(config.value(QStringLiteral("athan_enabled")).toBool(true));
     m_notifications->setChecked(
         config.value(QStringLiteral("notifications_enabled")).toBool(true));
-    m_duaAfterAthan->setChecked(
-        config.value(QStringLiteral("dua_after_athan")).toBool(false));
     m_stopOnPrayer->setChecked(
         config.value(QStringLiteral("stop_audio_on_prayer")).toBool(false));
     const int volume = config.value(QStringLiteral("volume")).toInt(90);
@@ -1444,10 +1430,6 @@ void PreferencesDialog::populate(const QJsonObject &config) {
 
     const int startupMode = config.value(QStringLiteral("startup_mode")).toInt(1);
     m_startupMode->setCurrentIndex(qMax(0, m_startupMode->findData(startupMode)));
-    const QString startupSound =
-        config.value(QStringLiteral("startup_sound")).toString();
-    m_startupSound->setCurrentIndex(
-        qMax(0, m_startupSound->findData(startupSound)));
     m_startupFile->setText(config.value(QStringLiteral("startup_file")).toString());
     m_startupFolder->setText(config.value(QStringLiteral("startup_folder")).toString());
     updateStartupRow();
@@ -1528,7 +1510,6 @@ bool PreferencesDialog::apply() {
     QJsonObject config;
     config.insert(QStringLiteral("athan_enabled"), m_athanEnabled->isChecked());
     config.insert(QStringLiteral("notifications_enabled"), m_notifications->isChecked());
-    config.insert(QStringLiteral("dua_after_athan"), m_duaAfterAthan->isChecked());
     config.insert(QStringLiteral("stop_audio_on_prayer"), m_stopOnPrayer->isChecked());
     config.insert(QStringLiteral("volume"), m_volume->value());
 
@@ -1549,7 +1530,6 @@ bool PreferencesDialog::apply() {
     config.insert(QStringLiteral("athan_folders"), folders);
 
     config.insert(QStringLiteral("startup_mode"), m_startupMode->currentData().toInt());
-    config.insert(QStringLiteral("startup_sound"), m_startupSound->currentData().toString());
     config.insert(QStringLiteral("startup_file"), m_startupFile->text());
     config.insert(QStringLiteral("startup_folder"), m_startupFolder->text());
 

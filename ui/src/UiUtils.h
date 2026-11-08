@@ -48,6 +48,10 @@ QString formatHijriLine(const QJsonObject &date);
 // A translucent accent used only as a row tint, never as text colour.
 QColor tintColor(const QColor &base, int alpha = 38);
 
+// Mix two opaque colours; amount 0 returns `first`, 1 returns `second`.
+// Useful for deriving subtle zebra/outline colours from palette roles.
+QColor mixColor(const QColor &first, const QColor &second, qreal amount);
+
 // One spacing scale for the whole application (logical pixels):
 // 4 tight related elements, 8 inside a group, 12 between neighbours,
 // 16 inside main sections, 24 between independent blocks.
