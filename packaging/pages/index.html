@@ -4,487 +4,161 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Namaz — prayer times for Linux</title>
-  <meta name="description" content="Namaz is a free, private Linux app for Muslim prayer times, Qibla and the Hijri calendar. Native Rust engine, Qt 6 interface, Flatpak.">
-  <meta name="theme-color" content="#0f766e" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0d0f12" media="(prefers-color-scheme: dark)">
-  <link rel="canonical" href="https://ikhlasulov-gb.github.io/namaz/">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Namaz — prayer times for Linux">
-  <meta property="og:description" content="Muslim prayer times, Qibla and the Hijri calendar for Linux. Free, offline and open source.">
-  <meta property="og:image" content="https://ikhlasulov-gb.github.io/namaz/screenshots/day.png">
+  <meta name="description" content="Namaz is a free Linux app for Muslim prayer times, Qibla and the Hijri calendar.">
   <link rel="icon" href="icon.png">
   <style>
     :root {
       color-scheme: light dark;
-      --bg: #f6f7f9;
-      --fg: #12151a;
-      --muted: #5c6470;
+      --bg: #f7f7f8;
+      --fg: #1b1c1e;
+      --muted: #5f6368;
       --card: #ffffff;
-      --border: #e2e6ec;
-      --accent: #0f766e;
-      --accent-soft: rgba(15, 118, 110, .1);
-      --accent-fg: #ffffff;
-      --shadow: 0 22px 60px rgba(15, 23, 42, .14);
-      --radius: 18px;
+      --accent: #2b6cb0;
+      --border: #dfe3e8;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #0d0f12;
-        --fg: #f1f3f6;
-        --muted: #9aa3af;
-        --card: #15181d;
-        --border: #272d35;
-        --accent: #5eead4;
-        --accent-soft: rgba(94, 234, 212, .12);
-        --accent-fg: #052a26;
-        --shadow: 0 22px 60px rgba(0, 0, 0, .55);
+        --bg: #17181a;
+        --fg: #f0f1f2;
+        --muted: #a6abb2;
+        --card: #202226;
+        --accent: #7ab7ff;
+        --border: #34383e;
       }
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       background: var(--bg);
       color: var(--fg);
-      font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      -webkit-font-smoothing: antialiased;
+      font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
     }
-    img { max-width: 100%; display: block; }
-    a { color: var(--accent); text-underline-offset: .2em; }
-    :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
-    .skip { position: absolute; left: -999px; top: 0; background: var(--card); padding: 12px 18px; z-index: 10; }
-    .skip:focus { left: 12px; top: 12px; }
-    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
-
-    /* Hero */
-    .hero {
-      position: relative;
-      overflow: hidden;
-      border-bottom: 1px solid var(--border);
-    }
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: -30% -10% auto auto;
-      width: 780px;
-      height: 780px;
-      background: radial-gradient(circle, var(--accent-soft) 0%, transparent 65%);
-      pointer-events: none;
-    }
-    .hero-inner {
-      position: relative;
-      display: grid;
-      grid-template-columns: 1.02fr .98fr;
-      gap: 54px;
-      align-items: center;
-      padding: 76px 0 68px;
-    }
-    .logo { width: 92px; height: 92px; border-radius: 22px; box-shadow: var(--shadow); }
-    .eyebrow {
-      margin: 22px 0 10px;
-      color: var(--accent);
-      font-size: .8rem;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
-    h1 {
-      margin: 0;
-      font-size: clamp(2.1rem, 4.6vw, 3.55rem);
-      line-height: 1.08;
-      letter-spacing: -.03em;
-    }
-    .lead { color: var(--muted); font-size: 1.13rem; max-width: 54ch; margin: 20px 0 0; }
-    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
-    .button {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 20px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--card);
-      color: var(--fg);
-      font-weight: 650;
-      text-decoration: none;
-      transition: transform .15s ease, border-color .15s ease;
-    }
-    .button:hover { transform: translateY(-1px); border-color: var(--accent); }
-    .button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
-    .button.primary:hover { filter: brightness(1.06); }
-    .meta { color: var(--muted); font-size: .88rem; margin: 18px 0 0; }
-    .preview {
-      position: relative;
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 8px;
-      background: var(--card);
-      box-shadow: var(--shadow);
-      transform: perspective(1200px) rotateY(-3deg) rotateX(1deg);
-    }
-    .preview button {
+    main { max-width: 980px; margin: 0 auto; padding: 48px 20px 64px; }
+    header { text-align: center; margin-bottom: 40px; }
+    header img { width: 128px; height: 128px; }
+    h1 { font-size: 2.4rem; margin: 12px 0 4px; }
+    p.lead { color: var(--muted); font-size: 1.1rem; margin-top: 0; }
+    section { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin: 22px 0; }
+    h2 { margin-top: 0; font-size: 1.35rem; }
+    pre { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; overflow-x: auto; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+    .grid a {
       display: block;
-      width: 100%;
-      padding: 0;
-      border: 0;
-      border-radius: 15px;
-      overflow: hidden;
-      background: none;
-      cursor: zoom-in;
-    }
-    .preview img { border-radius: 15px; }
-    .preview::after {
-      content: "Click to enlarge";
-      position: absolute;
-      right: 18px;
-      bottom: 18px;
-      padding: 7px 12px;
-      border-radius: 999px;
-      background: rgba(0,0,0,.62);
-      color: #fff;
-      font-size: .78rem;
-      letter-spacing: .02em;
-      pointer-events: none;
-    }
-
-    /* Sections */
-    section { padding: 68px 0; }
-    .section-head { max-width: 62ch; margin-bottom: 28px; }
-    h2 { font-size: clamp(1.6rem, 2.6vw, 2.1rem); letter-spacing: -.02em; margin: 0 0 8px; }
-    .section-lead { color: var(--muted); margin: 0; }
-    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-    .feature {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 22px;
-      transition: border-color .15s ease, transform .15s ease;
-    }
-    .feature:hover { border-color: var(--accent); transform: translateY(-2px); }
-    .feature .icon {
-      display: grid;
-      place-items: center;
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      margin-bottom: 14px;
-    }
-    .feature h3 { margin: 0 0 6px; font-size: 1.03rem; }
-    .feature p { margin: 0; color: var(--muted); font-size: .94rem; }
-
-    /* Screenshot gallery */
-    .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; }
-    .shot {
-      display: flex;
-      flex-direction: column;
-      padding: 0;
       overflow: hidden;
       border: 1px solid var(--border);
-      border-radius: var(--radius);
+      border-radius: 10px;
       background: var(--card);
-      color: inherit;
-      font: inherit;
-      text-align: left;
       cursor: zoom-in;
-      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
     }
-    .shot:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: var(--shadow); }
-    .shot img { width: 100%; aspect-ratio: 920 / 660; object-fit: cover; }
-    .shot span { padding: 12px 16px 14px; font-size: .9rem; font-weight: 600; }
-    .shot small { display: block; color: var(--muted); font-weight: 400; }
-
-    /* Install */
-    .install-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 16px; }
-    .install-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-    }
-    .install-card h3 { margin: 0 0 6px; font-size: 1.05rem; }
-    .install-card p { color: var(--muted); margin: 0 0 14px; }
-    .command {
-      position: relative;
-      margin: 0;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 18px;
-      overflow-x: auto;
-    }
-    .command code { font: .88rem/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .copy {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--card);
-      color: var(--fg);
-      padding: 5px 10px;
-      font: inherit;
-      font-size: .76rem;
-      cursor: pointer;
-    }
-    .copy:hover { border-color: var(--accent); color: var(--accent); }
-    .install-card ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: .92rem; }
-    .install-card li + li { margin-top: 8px; }
-
-    /* Footer */
-    footer { border-top: 1px solid var(--border); padding: 30px 0 42px; color: var(--muted); font-size: .9rem; }
-    .footer-inner { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: center; justify-content: space-between; }
-    .footer-links { display: flex; flex-wrap: wrap; gap: 18px; }
-    .footer-links a { color: var(--muted); text-decoration: none; }
-    .footer-links a:hover { color: var(--accent); }
-
-    /* Lightbox */
-    #lightbox {
-      border: 0;
-      padding: 0;
-      background: transparent;
-      max-width: 94vw;
-      max-height: 94vh;
-    }
-    #lightbox::backdrop { background: rgba(0, 0, 0, .82); backdrop-filter: blur(5px); }
+    .grid a:hover { border-color: var(--accent); }
+    .grid img { display: block; width: 100%; height: auto; border: 0; border-radius: 0; }
+    footer { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 36px; }
+    dialog#lightbox { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 96vh; }
+    dialog#lightbox::backdrop { background: rgba(0, 0, 0, .8); }
     .lightbox-inner { display: flex; flex-direction: column; gap: 10px; }
-    #lightbox img {
-      max-width: 92vw;
-      max-height: 82vh;
+    #lightbox-img {
       width: auto;
-      border-radius: 14px;
-      box-shadow: 0 30px 90px rgba(0, 0, 0, .6);
-      background: #101216;
+      height: auto;
+      max-width: 94vw;
+      max-height: 86vh;
+      border-radius: 10px;
+      background: #111;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
     }
-    .lightbox-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: #fff; }
-    .lightbox-bar p { margin: 0; color: #c9d1da; font-size: .9rem; }
+    .lightbox-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: #fff; font-size: .9rem; }
     .lightbox-close {
-      border: 1px solid rgba(255,255,255,.3);
+      border: 1px solid rgba(255, 255, 255, .35);
       border-radius: 8px;
       background: transparent;
       color: #fff;
       padding: 6px 12px;
       font: inherit;
-      font-size: .85rem;
       cursor: pointer;
     }
-    .lightbox-close:hover { background: rgba(255,255,255,.12); }
-
-    @media (max-width: 820px) {
-      .hero-inner { grid-template-columns: 1fr; gap: 34px; padding: 52px 0 48px; }
-      .preview { transform: none; }
-      .install-grid { grid-template-columns: 1fr; }
-      section { padding: 52px 0; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      *, *::before, *::after { transition: none !important; }
-    }
+    .lightbox-close:hover { background: rgba(255, 255, 255, .12); }
   </style>
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
+<main>
+  <header>
+    <img src="icon.png" alt="Namaz">
+    <h1>Namaz</h1>
+    <p class="lead">Muslim prayer times, Qibla and Hijri calendar for Linux.<br>
+      Native Rust engine + Qt 6 Widgets.</p>
+  </header>
 
-<header class="hero">
-  <div class="wrap hero-inner">
-    <div>
-      <img class="logo" src="icon.png" alt="Namaz application icon">
-      <p class="eyebrow">Free software for Linux</p>
-      <h1>Prayer times, Qibla and the Hijri calendar.</h1>
-      <p class="lead">Namaz is a native Linux app for Muslim prayer times. A Rust
-        prayer engine and a calm Qt 6 interface, with a full-screen Masjid mode,
-        adhan reminders and no account, tracking or cloud.</p>
-      <div class="actions">
-        <a class="button primary" href="#install">Install with Flatpak</a>
-        <a class="button" href="https://github.com/ikhlasulov-gb/namaz">View the source</a>
-      </div>
-      <p class="meta">GPL-3.0-or-later · Rust + Qt 6 · English, Русский, Bahasa Indonesia</p>
-    </div>
-    <div class="preview">
-      <button type="button" data-shot="screenshots/day.png" data-caption="Day view">
-        <img src="screenshots/day.png" width="920" height="660" alt="Namaz day view with current time, next prayer, prayer times and Qibla compass">
-      </button>
-    </div>
-  </div>
-</header>
-
-<main id="main">
-  <section class="wrap" aria-labelledby="features-title">
-    <div class="section-head">
-      <h2 id="features-title">What is inside</h2>
-      <p class="section-lead">A focused app for the everyday routine — not a dashboard full of things you never use.</p>
-    </div>
-    <div class="features">
-      <article class="feature">
-        <span class="icon" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg>
-        </span>
-        <h3>Accurate prayer times</h3>
-        <p>Six calculation methods, Standard or Hanafi Asr, high-latitude rules and per-prayer adjustments.</p>
-      </article>
-      <article class="feature">
-        <span class="icon" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11z"/></svg>
-        </span>
-        <h3>Qibla compass</h3>
-        <p>A true-bearing compass that stays readable in light and dark themes.</p>
-      </article>
-      <article class="feature">
-        <span class="icon" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10.3 21h3.4"/></svg>
-        </span>
-        <h3>Adhan and reminders</h3>
-        <p>Bundled CC0 recordings, iqama, before/after reminders and custom audio folders.</p>
-      </article>
-      <article class="feature">
-        <span class="icon" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
-        </span>
-        <h3>Hijri calendar</h3>
-        <p>Day, month and year views with a Gregorian/Hijri offset and PDF or CSV export.</p>
-      </article>
-      <article class="feature">
-        <span class="icon" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
-        </span>
-        <h3>Masjid screen</h3>
-        <p>A frameless full-screen clock with the next prayer and today's times for a mosque display.</p>
-      </article>
-      <article class="feature">
-        <span class="icon" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>
-        </span>
-        <h3>Private by default</h3>
-        <p>Everything runs offline. No accounts, telemetry or network requests for prayer calculations.</p>
-      </article>
-    </div>
-  </section>
-
-  <section class="wrap" aria-labelledby="screenshots-title">
-    <div class="section-head">
-      <h2 id="screenshots-title">Screenshots</h2>
-      <p class="section-lead">Click any screenshot to see it full size.</p>
-    </div>
-    <div class="gallery">
-      <button class="shot" type="button" data-shot="screenshots/day.png" data-caption="Day view — current time, next prayer, prayer times and Qibla">
-        <img src="screenshots/day.png" loading="lazy" width="920" height="660" alt="Day view">
-        <span>Day view<small>Current time, next prayer, times and Qibla</small></span>
-      </button>
-      <button class="shot" type="button" data-shot="screenshots/month.png" data-caption="Month view — Gregorian and Hijri calendars">
-        <img src="screenshots/month.png" loading="lazy" width="920" height="660" alt="Month view">
-        <span>Month view<small>Gregorian and Hijri calendars side by side</small></span>
-      </button>
-      <button class="shot" type="button" data-shot="screenshots/year.png" data-caption="Year view — prayer times for the next year">
-        <img src="screenshots/year.png" loading="lazy" width="920" height="660" alt="Year view">
-        <span>Year view<small>Prayer times for the next twelve months</small></span>
-      </button>
-      <button class="shot" type="button" data-shot="screenshots/settings.png" data-caption="Prayer settings — location, calculation and adjustments">
-        <img src="screenshots/settings.png" loading="lazy" width="920" height="660" alt="Prayer settings">
-        <span>Prayer settings<small>Location, method, angles and adjustments</small></span>
-      </button>
-      <button class="shot" type="button" data-shot="screenshots/preferences.png" data-caption="Preferences — audio, reminders and behaviour">
-        <img src="screenshots/preferences.png" loading="lazy" width="920" height="660" alt="Preferences">
-        <span>Preferences<small>Audio, reminders, time format and window behaviour</small></span>
-      </button>
-      <button class="shot" type="button" data-shot="screenshots/masjid.png" data-caption="Masjid screen — frameless full-screen clock">
-        <img src="screenshots/masjid.png" loading="lazy" width="920" height="660" alt="Masjid screen">
-        <span>Masjid screen<small>A full-screen clock for a mosque display</small></span>
-      </button>
-    </div>
-  </section>
-
-  <section class="wrap" id="install" aria-labelledby="install-title">
-    <div class="section-head">
-      <h2 id="install-title">Install</h2>
-      <p class="section-lead">The Flatpak is the recommended way to install and update Namaz.</p>
-    </div>
-    <div class="install-grid">
-      <div class="install-card">
-        <h3>Flatpak</h3>
-        <p>Add the signed repository once and install the app:</p>
-        <pre class="command"><code id="install-command">flatpak remote-add --if-not-exists --user namaz \
+  <section>
+    <h2>Install with Flatpak</h2>
+    <pre><code>flatpak remote-add --if-not-exists --user namaz \
   https://ikhlasulov-gb.github.io/namaz/namaz.flatpakrepo
-flatpak install --user namaz io.github.ikhlasulov_gb.Namaz</code><button class="copy" id="copy-install" type="button">Copy</button></pre>
-        <p style="margin-top:14px">Run it with <code>flatpak run io.github.ikhlasulov_gb.Namaz</code>.
-          Updates arrive through <code>flatpak update</code> or your software centre.</p>
-      </div>
-      <div class="install-card">
-        <h3>Other formats</h3>
-        <ul>
-          <li><a href="https://github.com/ikhlasulov-gb/namaz/releases">Portable archives and AppImages</a> on the Releases page.</li>
-          <li><a href="https://github.com/ikhlasulov-gb/namaz">Source code, issues and documentation</a> on GitHub.</li>
-          <li>Requires a Linux desktop with Qt 6 / KDE or GNOME runtimes.</li>
-          <li>GPL-3.0-or-later — free to use, study, share and improve.</li>
-        </ul>
-      </div>
+flatpak install --user namaz io.github.ikhlasulov_gb.Namaz
+flatpak run io.github.ikhlasulov_gb.Namaz</code></pre>
+    <p>Updates arrive through <code>flatpak update</code> or your software centre.</p>
+  </section>
+
+  <section>
+    <h2>Other formats</h2>
+    <p>AppImage and portable archives are available on the
+      <a href="https://github.com/ikhlasulov-gb/namaz/releases">Releases page</a>.</p>
+    <p><a href="https://github.com/ikhlasulov-gb/namaz">Source code and documentation</a></p>
+  </section>
+
+  <section>
+    <h2>Screenshots</h2>
+    <p class="lead" style="font-size: .95rem">Click a screenshot to see it full size.</p>
+    <div class="grid">
+      <a href="screenshots/day.png" data-caption="Day view"><img src="screenshots/day.png" alt="Day view" loading="lazy"></a>
+      <a href="screenshots/month.png" data-caption="Month view"><img src="screenshots/month.png" alt="Month view" loading="lazy"></a>
+      <a href="screenshots/year.png" data-caption="Year view"><img src="screenshots/year.png" alt="Year view" loading="lazy"></a>
+      <a href="screenshots/settings.png" data-caption="Prayer settings"><img src="screenshots/settings.png" alt="Prayer settings" loading="lazy"></a>
+      <a href="screenshots/preferences.png" data-caption="Preferences"><img src="screenshots/preferences.png" alt="Preferences" loading="lazy"></a>
+      <a href="screenshots/masjid.png" data-caption="Masjid screen"><img src="screenshots/masjid.png" alt="Masjid screen" loading="lazy"></a>
     </div>
   </section>
+
+  <footer>
+    <p>Namaz is free software under the GNU GPL v3 or later. Author: Ikhlasulov.</p>
+    <p>Inspired by Salaat Time 3.0. Independent project, not affiliated with it.</p>
+  </footer>
 </main>
 
-<footer>
-  <div class="wrap footer-inner">
-    <p>Namaz — free software under the GNU GPL v3 or later. Author: Ikhlasulov.</p>
-    <nav class="footer-links" aria-label="Footer">
-      <a href="https://github.com/ikhlasulov-gb/namaz">GitHub</a>
-      <a href="https://github.com/ikhlasulov-gb/namaz/releases">Releases</a>
-      <a href="https://github.com/ikhlasulov-gb/namaz/issues">Issues</a>
-      <a href="https://www.gnu.org/licenses/gpl-3.0.html">License</a>
-    </nav>
-  </div>
-</footer>
-
-<dialog id="lightbox" aria-label="Screenshot viewer">
+<dialog id="lightbox" aria-label="Screenshot">
   <div class="lightbox-inner">
     <img id="lightbox-img" alt="">
     <div class="lightbox-bar">
-      <p id="lightbox-caption"></p>
-      <button class="lightbox-close" type="button" id="lightbox-close">Close</button>
+      <span id="lightbox-caption"></span>
+      <button class="lightbox-close" id="lightbox-close" type="button">Close</button>
     </div>
   </div>
 </dialog>
-
 <script>
   (function () {
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    const lightboxCaption = document.getElementById('lightbox-caption');
-    const closeButton = document.getElementById('lightbox-close');
-
-    document.querySelectorAll('[data-shot]').forEach(function (button) {
-      button.addEventListener('click', function () {
-        const src = button.getAttribute('data-shot');
-        const caption = button.getAttribute('data-caption') || '';
-        lightboxImg.src = src;
-        lightboxImg.alt = caption;
-        lightboxCaption.textContent = caption;
-        if (typeof lightbox.showModal === 'function') {
-          lightbox.showModal();
+    const dialog = document.getElementById('lightbox');
+    const image = document.getElementById('lightbox-img');
+    const caption = document.getElementById('lightbox-caption');
+    document.querySelectorAll('.grid a').forEach(function (link) {
+      link.addEventListener('click', function (event) {
+        event.preventDefault();
+        image.src = link.getAttribute('href');
+        image.alt = link.getAttribute('data-caption') || '';
+        caption.textContent = link.getAttribute('data-caption') || '';
+        if (typeof dialog.showModal === 'function') {
+          dialog.showModal();
         } else {
-          window.open(src, '_blank', 'noopener');
+          window.open(link.href, '_blank', 'noopener');
         }
       });
     });
-
-    closeButton.addEventListener('click', function () { lightbox.close(); });
-    lightbox.addEventListener('click', function (event) {
-      const rect = lightbox.getBoundingClientRect();
+    document.getElementById('lightbox-close').addEventListener('click', function () { dialog.close(); });
+    dialog.addEventListener('click', function (event) {
+      const rect = dialog.getBoundingClientRect();
       if (event.clientX < rect.left || event.clientX > rect.right ||
           event.clientY < rect.top || event.clientY > rect.bottom) {
-        lightbox.close();
-      }
-    });
-
-    const copyButton = document.getElementById('copy-install');
-    const command = document.getElementById('install-command');
-    copyButton.addEventListener('click', function () {
-      const text = command.innerText;
-      const done = function () {
-        copyButton.textContent = 'Copied';
-        window.setTimeout(function () { copyButton.textContent = 'Copy'; }, 1600);
-      };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done, function () {});
+        dialog.close();
       }
     });
   })();
