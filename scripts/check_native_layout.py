@@ -145,10 +145,10 @@ def main() -> int:
     widths = table.get("columnWidths", [])
     c.check(len(widths) == 3, "prayer table exposes three column widths")
     if len(widths) == 3:
-        c.check(widths[0] > widths[1] and widths[0] > widths[2],
-                f"prayer name column gets the free width: {widths}")
-        c.check(widths[1] > 0 and widths[2] > 0,
-                f"info and time columns keep their content width: {widths}")
+        c.check(abs(widths[0] - widths[2]) <= 2,
+                f"Raka'as column is centred between name and time: {widths}")
+        c.check(widths[0] > widths[1] and widths[2] > widths[1],
+                f"name and time columns are wider than the info column: {widths}")
     row_height = table["h"] / 6
     # Qt/font metrics differ between distributions: 32.3 px on Ubuntu 24.04,
     # 35.3 px on AlmaLinux 10.  Keep the row in the HIG ballpark without
