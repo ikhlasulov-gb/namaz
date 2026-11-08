@@ -138,8 +138,9 @@ def main() -> int:
             "day page side margins are symmetric")
 
     c.check(table.get("rows") == 6, f"prayer table rows: {table.get('rows')}")
-    c.check(table["h"] % 6 == 0,
-            f"prayer table has no extra bottom strip: {table['h']}px")
+    viewport_height = table.get("viewportHeight", table["h"])
+    c.check(viewport_height % 6 == 0,
+            f"prayer table rows fill the viewport: {viewport_height}px")
     c.check(table.get("columns") == 3,
             f"prayer table columns: {table.get('columns')}")
     widths = table.get("columnWidths", [])

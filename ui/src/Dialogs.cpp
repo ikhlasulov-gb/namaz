@@ -982,9 +982,18 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
 
         m_audioStack[index] = new QStackedWidget(prayerBox);
 
+        // A plain label looked like accidental text between the combo boxes.
+        // Give it the same field-like surface as the controls around it.
         auto *empty = new QLabel(tr("No athan will be played."), prayerBox);
-        empty->setContentsMargins(Ui::controlSpacing(), 0, 0, 0);
-        empty->setForegroundRole(QPalette::PlaceholderText);
+        empty->setContentsMargins(Ui::controlSpacing(), 4,
+                                  Ui::controlSpacing(), 4);
+        empty->setAutoFillBackground(true);
+        empty->setFrameShape(QFrame::StyledPanel);
+        empty->setFrameShadow(QFrame::Plain);
+        QPalette emptyPalette = empty->palette();
+        emptyPalette.setColor(QPalette::Window,
+                              emptyPalette.color(QPalette::Base));
+        empty->setPalette(emptyPalette);
 
         auto *selectedPage = new QWidget(prayerBox);
         auto *selectedLayout = new QHBoxLayout(selectedPage);
@@ -1291,13 +1300,13 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
     timeFormatLayout->addWidget(new QLabel(tr("Time format"), timeFormatRow));
     m_timeFormat = new QComboBox(timeFormatRow);
     m_timeFormat->setObjectName(QStringLiteral("TimeFormatCombo"));
-    m_timeFormat->addItem(QStringLiteral("08:00 PM"), 1);
-    m_timeFormat->addItem(QStringLiteral("08:00:33 PM"), 0);
-    m_timeFormat->addItem(QStringLiteral("20:00"), 2);
-    m_timeFormat->addItem(QStringLiteral("20:00:33"), 3);
+    m_timeFormat->addItem(tr("12-hour: hh:mm AM/PM"), 1);
+    m_timeFormat->addItem(tr("12-hour: hh:mm:ss AM/PM"), 0);
+    m_timeFormat->addItem(tr("24-hour: HH:mm"), 2);
+    m_timeFormat->addItem(tr("24-hour: HH:mm:ss"), 3);
     m_timeFormat->setToolTip(
         tr("12-hour or 24-hour clock; the current time can also show seconds."));
-    Ui::setFieldWidth(m_timeFormat, 160);
+    Ui::setFieldWidth(m_timeFormat, 230);
     timeFormatLayout->addWidget(m_timeFormat);
     timeFormatLayout->addStretch(1);
     calendarLayout->addWidget(timeFormatRow);

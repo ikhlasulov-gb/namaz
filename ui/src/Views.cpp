@@ -323,7 +323,9 @@ PrayerTimesWidget::PrayerTimesWidget(QWidget *parent)
     m_table->setSelectionMode(QAbstractItemView::NoSelection);
     m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_table->setFocusPolicy(Qt::NoFocus);
-    m_table->setFrameShape(QFrame::NoFrame);
+    m_table->setFrameShape(QFrame::StyledPanel);
+    m_table->setFrameShadow(QFrame::Plain);
+    m_table->setLineWidth(1);
     m_table->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_table->setWordWrap(false);
@@ -333,12 +335,12 @@ PrayerTimesWidget::PrayerTimesWidget(QWidget *parent)
     m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
     m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
     m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Fixed);
-    m_table->installEventFilter(this);
+    m_table->viewport()->installEventFilter(this);
     Ui::compactTable(m_table, 18);
-    // Exactly six rows: the previous extra 2 px looked like an unexplained
-    // line under the last row.
+    // Exactly six rows plus the minimal frame around the table.
     m_table->setFixedHeight(
-        m_table->verticalHeader()->defaultSectionSize() * 6);
+        m_table->verticalHeader()->defaultSectionSize() * 6
+        + 2 * m_table->frameWidth());
     m_table->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     applyTablePalette();
     updateColumnWidths();
@@ -374,10 +376,10 @@ void PrayerTimesWidget::changeEvent(QEvent *event) {
 }
 
 void PrayerTimesWidget::updateColumnWidths() {
-    if (!m_table) {
+    if (!m_table || !m_table->viewport()) {
         return;
     }
-    const int available = m_table->width();
+    const int available = m_table->viewport()->width();
     if (available <= 0) {
         return;
     }
@@ -399,7 +401,8 @@ void PrayerTimesWidget::updateColumnWidths() {
 }
 
 bool PrayerTimesWidget::eventFilter(QObject *watched, QEvent *event) {
-    if (watched == m_table && event->type() == QEvent::Resize) {
+    if (m_table && watched == m_table->viewport()
+        && event->type() == QEvent::Resize) {
         updateColumnWidths();
     }
     return QGroupBox::eventFilter(watched, event);

@@ -4,6 +4,18 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.6] - 2026-11-08
+
+### Changed
+
+- The prayer-times table now has a subtle one-pixel frame instead of
+  blending into the card.
+- The "No athan will be played." message is shown on a field-like surface,
+  consistent with the combo boxes around it, instead of plain muted text.
+- The time-format choices use template patterns (`hh:mm AM/PM`,
+  `hh:mm:ss AM/PM`, `HH:mm`, `HH:mm:ss`) instead of a hard-coded example
+  time.
+
 ## [1.0.5] - 2026-11-08
 
 ### Added
