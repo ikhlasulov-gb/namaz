@@ -99,7 +99,11 @@ void DialogTest::init() {
 }
 
 void DialogTest::appIconIsAlwaysAvailable() {
-    QVERIFY(!Ui::appIcon().isNull());
+    const QIcon icon = Ui::appIcon();
+    QVERIFY(!icon.isNull());
+    // A theme lookup may return a non-null icon without any pixmap.  The
+    // window and tray need a real image, so insist on a usable fallback.
+    QVERIFY(!icon.pixmap(32).isNull());
 }
 
 namespace {
