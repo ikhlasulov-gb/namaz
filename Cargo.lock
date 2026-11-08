@@ -955,7 +955,7 @@ checksum = "743fb55ba31b18fb1ecef6bdc9aa2743314978ac084044301a7eee33fb99a20d"
 
 [[package]]
 name = "namaz-core"
-version = "1.0.2"
+version = "1.0.3"
 dependencies = [
  "chrono",
  "chrono-tz",
@@ -1238,7 +1238,7 @@ checksum = "a2145d14f09d5fc7fe7134b556146599c2929af5b1f1e3a0ecc9d582a9b85e4d"
 
 [[package]]
 name = "prayer-core"
-version = "1.0.2"
+version = "1.0.3"
 
 [[package]]
 name = "proc-macro-crate"
