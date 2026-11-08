@@ -19,7 +19,11 @@ namespace Ui {
 
 QIcon appIcon() {
     QIcon icon = QIcon::fromTheme(QStringLiteral("io.github.ikhlasulov_gb.Namaz"));
-    if (!icon.isNull()) {
+    // A theme lookup can return a non-null QIcon with no actual pixmaps when
+    // the icon theme cache is incomplete (for example inside a minimal
+    // sandbox).  In that case the embedded PNG still gives the tray and the
+    // window a visible icon.
+    if (!icon.isNull() && !icon.availableSizes().isEmpty()) {
         return icon;
     }
     icon = QIcon(QStringLiteral(":/assets/skins/app-icon.png"));

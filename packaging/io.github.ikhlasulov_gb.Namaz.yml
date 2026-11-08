@@ -52,6 +52,8 @@ modules:
         done
       - install -Dm644 packaging/icons/io.github.ikhlasulov_gb.Namaz.svg
         /app/share/icons/hicolor/scalable/apps/io.github.ikhlasulov_gb.Namaz.svg
+      - install -Dm644 /usr/share/icons/hicolor/index.theme
+        /app/share/icons/hicolor/index.theme
     sources:
       - cargo-sources.json
       - type: dir
