@@ -76,6 +76,7 @@ private slots:
     void preferencesCancelDoesNotApplyVolume();
     void preferencesShuruqIsDisabled();
     void applyButtonTracksChanges();
+    void timeFormatFollowsPreference();
     void viewActionsStayExclusive();
     void windowRestoresSavedTab();
     void showFromTrayKeepsWindowState();
@@ -508,6 +509,35 @@ void DialogTest::applyButtonTracksChanges() {
     QVERIFY(settingsApply->isEnabled());
     settingsApply->click();
     QVERIFY(!settingsApply->isEnabled());
+
+    auto *timeFormat =
+        prefs.findChild<QComboBox *>(QStringLiteral("TimeFormatCombo"));
+    QVERIFY(timeFormat);
+    timeFormat->setCurrentIndex(
+        (timeFormat->currentIndex() + 1) % timeFormat->count());
+    QVERIFY(apply->isEnabled());
+    apply->click();
+    QVERIFY(!apply->isEnabled());
+    QCOMPARE(configOf(core).value(QStringLiteral("time_format")).toInt(),
+             timeFormat->currentData().toInt());
+}
+
+void DialogTest::timeFormatFollowsPreference() {
+    const QLocale previous = QLocale();
+    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+    const int seconds = 20 * 3600 + 33;
+    Ui::setTimeFormat(0);
+    QCOMPARE(Ui::formatTime(seconds, true), QStringLiteral("08:00:33 PM"));
+    QCOMPARE(Ui::formatTime(seconds), QStringLiteral("08:00 PM"));
+    Ui::setTimeFormat(1);
+    QCOMPARE(Ui::formatTime(seconds, true), QStringLiteral("08:00 PM"));
+    Ui::setTimeFormat(2);
+    QCOMPARE(Ui::formatTime(seconds, true), QStringLiteral("20:00"));
+    Ui::setTimeFormat(3);
+    QCOMPARE(Ui::formatTime(seconds, true), QStringLiteral("20:00:33"));
+    QCOMPARE(Ui::formatTime(seconds), QStringLiteral("20:00"));
+    Ui::setTimeFormat(0);
+    QLocale::setDefault(previous);
 }
 
 namespace {

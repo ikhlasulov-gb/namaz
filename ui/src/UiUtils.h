@@ -31,7 +31,13 @@ QFont tabularFont(const QFont &base, qreal factor, bool bold = false);
 void styleCaption(QLabel *label);
 
 // Locale-aware time formatting.  Negative seconds mean "not available".
+// The 12/24-hour choice is global; `withSeconds` is honoured only when the
+// selected format includes seconds (the clock, not the prayer tables).
 QString formatTime(int seconds, bool withSeconds = false);
+
+// 0 = 12-hour with seconds, 1 = 12-hour, 2 = 24-hour, 3 = 24-hour with
+// seconds.  Called once when the preferences are loaded/applied.
+void setTimeFormat(int format);
 QString formatCountdown(int seconds);
 
 // Stable English source strings translated with the current UI language.

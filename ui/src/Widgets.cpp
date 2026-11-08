@@ -1097,6 +1097,8 @@ void MainWindow::openPreferencesDialog(int tab) {
     if (!m_preferencesDialog) {
         m_preferencesDialog = new PreferencesDialog(m_core.handle(), this);
         connect(m_preferencesDialog, &PreferencesDialog::applied, this, [this] {
+            Ui::setTimeFormat(
+                config().value(QStringLiteral("time_format")).toInt(0));
             refreshAll();
             applyPreferencesToWindow();
         });
@@ -1112,6 +1114,7 @@ void MainWindow::openPreferencesDialog(int tab) {
 
 void MainWindow::applyPreferencesToWindow() {
     const QJsonObject cfg = config();
+    Ui::setTimeFormat(cfg.value(QStringLiteral("time_format")).toInt(0));
     QString locale = cfg.value(QStringLiteral("locale")).toString();
     if (locale.isEmpty()) {
         locale = QStringLiteral("system");

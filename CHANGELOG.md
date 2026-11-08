@@ -4,6 +4,15 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.5] - 2026-11-08
+
+### Added
+
+- Time-format preference: 12-hour or 24-hour clock, with or without seconds
+  for the current time (`08:00 PM`, `08:00:33 PM`, `20:00`, `20:00:33`).
+  The 12/24-hour choice applies to every displayed time; the seconds choice
+  applies to the live clock and the Masjid screen.
+
 ## [1.0.4] - 2026-11-08
 
 ### Fixed
