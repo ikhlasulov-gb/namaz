@@ -4,6 +4,14 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.7] - 2026-11-08
+
+### Fixed
+
+- The prayer-times table contour is now a visible one-pixel border derived
+  from the palette; the themed frame was invisible against the card in
+  Breeze Dark.
+
 ## [1.0.6] - 2026-11-08
 
 ### Changed

@@ -323,9 +323,7 @@ PrayerTimesWidget::PrayerTimesWidget(QWidget *parent)
     m_table->setSelectionMode(QAbstractItemView::NoSelection);
     m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_table->setFocusPolicy(Qt::NoFocus);
-    m_table->setFrameShape(QFrame::StyledPanel);
-    m_table->setFrameShadow(QFrame::Plain);
-    m_table->setLineWidth(1);
+    m_table->setFrameShape(QFrame::NoFrame);
     m_table->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_table->setWordWrap(false);
@@ -337,10 +335,9 @@ PrayerTimesWidget::PrayerTimesWidget(QWidget *parent)
     m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Fixed);
     m_table->viewport()->installEventFilter(this);
     Ui::compactTable(m_table, 18);
-    // Exactly six rows plus the minimal frame around the table.
+    // Exactly six rows plus the one-pixel contour drawn by the stylesheet.
     m_table->setFixedHeight(
-        m_table->verticalHeader()->defaultSectionSize() * 6
-        + 2 * m_table->frameWidth());
+        m_table->verticalHeader()->defaultSectionSize() * 6 + 2);
     m_table->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     applyTablePalette();
     updateColumnWidths();
@@ -366,6 +363,13 @@ void PrayerTimesWidget::applyTablePalette() {
                           Ui::mixColor(base, pal.color(QPalette::WindowText),
                                        0.05));
     m_table->setPalette(tablePalette);
+    // QFrame's themed panel is invisible against the card in Breeze Dark, so
+    // draw a minimal one-pixel contour in a palette-derived colour.
+    const QColor border =
+        Ui::mixColor(base, pal.color(QPalette::WindowText), 0.30);
+    m_table->setStyleSheet(
+        QStringLiteral("QTableWidget { border: 1px solid %1; }")
+            .arg(border.name()));
 }
 
 void PrayerTimesWidget::changeEvent(QEvent *event) {
