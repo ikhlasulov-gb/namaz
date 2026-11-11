@@ -50,8 +50,8 @@ esac
 
 mkdir -p "$CACHE"
 fetch_tool() {
-    local url="$1"
-    local output="$2"
+    local output="$1"
+    local url="$2"
     local attempt
     for attempt in 1 2 3 4 5 6; do
         if curl -fL --retry 5 --retry-delay 5 --retry-all-errors \

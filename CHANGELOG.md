@@ -4,6 +4,15 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.9] - 2026-11-11
+
+### Fixed
+
+- The AppImage build downloads `linuxdeploy` again: `fetch_tool` received its
+  arguments in the wrong order, so `curl` was handed a local path instead of
+  the release URL and every AppImage job failed.  1.0.8 therefore shipped
+  without AppImage packages.
+
 ## [1.0.8] - 2026-11-11
 
 ### Added
