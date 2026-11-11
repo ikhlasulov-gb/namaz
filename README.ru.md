@@ -154,7 +154,7 @@ crates/prayer-core   порт ITL + golden- и differential-тесты
 crates/core          конфиг, календари, хиджра, Кибла, аудио, C ABI
 ui/                  интерфейс Qt 6 Widgets, диалоги, трей, D-Bus
 ui/tests/            тесты Qt Test
-assets/              аудио CC0, база GeoNames, иконки
+assets/              аудио, база GeoNames, иконки
 packaging/           Flatpak, desktop, AppStream
 scripts/             сборка, релизы, smoke-тесты
 third_party/itl/     исходники ITL (LGPL) для differential-тестов
@@ -176,7 +176,8 @@ Namaz вдохновлён **Salaat Time 3.0**. Мы благодарим авт
   от Arabeyes / Thamer Mahmoud (LGPL-2.1-or-later).
 - **База городов**: [GeoNames](https://www.geonames.org/) `cities5000`
   (CC BY 4.0).
-- **Аудио**: оригинальные записи Ikhlasulov (CC0 1.0).
+- **Аудио**: чтение Корана (Басмала, Аль-Ихлас) — Мишари Рашид аль-Афаси,
+  азан — Ахмад ибн Абдул-Азиз ан-Нуфайс (лицензия не указана).
 - **Иконки**: оригинальная графика Ikhlasulov.
 - **Рабочий стол**: Qt 6 и рекомендации KDE Plasma.
 

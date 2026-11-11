@@ -4,6 +4,15 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.10] - 2026-11-11
+
+### Changed
+
+- The bundled recordings are credited to their reciters instead of being
+  described as original CC0 recordings: the adhan is by Ahmad bin
+  Abdul-Aziz Al-Nufais, the Bismillah and Al-Ikhlas recitation by Mishary
+  Rashid Alafasy.  The reciters did not state a licence.
+
 ## [1.0.9] - 2026-11-11
 
 ### Fixed
@@ -148,7 +157,7 @@ All notable changes to Namaz are documented here.  The format is based on
 - Flatpak packaging with a signed OSTree repository, portable archives and
   AppImage builds.
 - In-app update check against GitHub Releases with AppImage self-update.
-- CC0 adhan, Bismillah and Al-Ikhlas recordings by Ikhlasulov.
+- Bundled adhan, Bismillah and Al-Ikhlas recordings.
 - GeoNames `cities5000` city database (CC BY 4.0).
 
 ### Changed

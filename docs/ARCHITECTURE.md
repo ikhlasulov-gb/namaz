@@ -9,7 +9,7 @@ crates/prayer-core   pure prayer-time and astronomy engine (ITL port)
 crates/core          config, calendars, Hijri, Qibla, audio, reminders, C ABI
 ui/src               Qt 6 Widgets: main window, views, dialogs, tray, D-Bus
 ui/tests             Qt Test suite
-assets/              CC0 audio, GeoNames city database, icons
+assets/              audio, GeoNames city database, icons
 packaging/           Flatpak, desktop entry, AppStream, Pages landing page
 scripts/             build, release, smoke tests
 third_party/itl      original LGPL ITL C sources (test reference)

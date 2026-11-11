@@ -247,7 +247,7 @@ release is broken, publish the next patch version.
 - Version: `VERSION` is the single source of truth; tag is `vX.Y.Z`
 - Licence: GPL-3.0-or-later
 - Free assets only:
-  - audio: CC0 recordings by Ikhlasulov (`assets/audio/`)
+  - audio: Quran recitation (Bismillah, Al-Ikhlas) by Mishary Rashid Alafasy, adhan by Ahmad bin Abdul-Aziz Al-Nufais (no licence stated)
   - cities: GeoNames `cities5000` (`assets/cities.json`, CC BY 4.0)
   - no Salaat Time executables, DLLs, WAVs, screenshots or city XML
 
