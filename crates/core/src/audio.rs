@@ -41,7 +41,7 @@ static WAVE_DIR: OnceLock<PathBuf> = OnceLock::new();
 static PLAYING: AtomicBool = AtomicBool::new(false);
 static VOLUME: AtomicU32 = AtomicU32::new(90);
 
-/// Audio shipped with Namaz.  The public build includes one CC0 adhan, one
+/// Audio shipped with Namaz.  The public build includes one adhan, one
 /// Bismillah and one short surah; users can add their own recordings through
 /// the preferences dialog.
 pub const ATHAN_SOUNDS: &[&str] = &["ADHAN"];

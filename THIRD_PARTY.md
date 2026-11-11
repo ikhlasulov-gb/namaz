@@ -38,8 +38,14 @@ and attribution.
 
 ## Bundled audio
 
-`assets/audio/*.ogg` are original recordings by **Ikhlasulov**, dedicated to
-the public domain under CC0 1.0.  See `assets/audio/audio.LICENSE`.
+`assets/audio/*.ogg` are third-party recordings:
+
+- `ADHAN.ogg` — adhan (call to prayer) by **Ahmad bin Abdul-Aziz Al-Nufais**
+- `BISMILLAH.ogg`, `ALIHLAS.ogg` — Quran recitation by **Mishary Rashid
+  Alafasy**
+
+The recordings are freely available and may be used by anyone, but the
+reciters did not state a licence.  See `assets/audio/audio.LICENSE`.
 
 ## Qt and KDE
 

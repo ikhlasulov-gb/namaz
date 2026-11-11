@@ -157,7 +157,7 @@ crates/prayer-core   ITL port + golden and differential tests
 crates/core          config, calendars, Hijri, Qibla, audio, C ABI
 ui/                  Qt 6 Widgets frontend, dialogs, tray, D-Bus
 ui/tests/            Qt Test suite
-assets/              CC0 audio, GeoNames city database, icons
+assets/              audio, GeoNames city database, icons
 packaging/           Flatpak, desktop entry, AppStream metadata
 scripts/             build, release, smoke tests
 third_party/itl/     original LGPL ITL C sources (test reference)
@@ -179,7 +179,8 @@ The public build contains only free assets:
   by Arabeyes / Thamer Mahmoud (LGPL-2.1-or-later).
 - **City database**: [GeoNames](https://www.geonames.org/) `cities5000`
   (CC BY 4.0).
-- **Audio**: original recordings by Ikhlasulov (CC0 1.0).
+- **Audio**: Quran recitation (Bismillah, Al-Ikhlas) by Mishary Rashid
+  Alafasy, adhan by Ahmad bin Abdul-Aziz Al-Nufais (no licence stated).
 - **Icons**: original artwork by Ikhlasulov.
 - **Desktop**: Qt 6 and the KDE Plasma guidelines.
 

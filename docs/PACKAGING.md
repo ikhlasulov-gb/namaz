@@ -72,7 +72,7 @@ The install step provides:
 | `share/metainfo/io.github.ikhlasulov_gb.Namaz.metainfo.xml` | AppStream data |
 | `share/icons/hicolor/*/apps/io.github.ikhlasulov_gb.Namaz.png` | 16–512 px icons |
 | `share/icons/hicolor/scalable/apps/io.github.ikhlasulov_gb.Namaz.svg` | scalable icon |
-| `share/namaz/wave/*.ogg` | bundled CC0 recordings |
+| `share/namaz/wave/*.ogg` | bundled recordings |
 | `share/namaz/audio.LICENSE`, `share/namaz/cities.LICENSE` | asset licences |
 | `share/licenses/namaz/LICENSE` | GPL text |
 
