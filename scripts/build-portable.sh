@@ -31,7 +31,7 @@ if command -v chrpath >/dev/null 2>&1; then
 fi
 
 cp "$ROOT"/assets/audio/*.ogg "$DIST/share/namaz/wave/"
-install -m644 "$ROOT/assets/audio/LICENSE" "$DIST/share/namaz/audio.LICENSE"
+install -m644 "$ROOT/assets/audio/audio.LICENSE" "$DIST/share/namaz/audio.LICENSE"
 install -m644 "$ROOT/assets/cities.LICENSE" "$DIST/share/namaz/cities.LICENSE"
 install -m644 "$ROOT/packaging/io.github.ikhlasulov_gb.Namaz.desktop" \
   "$DIST/share/applications/"

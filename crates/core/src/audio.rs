@@ -3,6 +3,12 @@
 //! A dedicated worker thread keeps the output stream alive and makes
 //! "Stop Audio" reliable even while a long recitation is playing.  Audio is
 //! queued as a playlist so consecutive files play without a gap.
+//!
+//! rodio is built with its `tracing` feature on purpose: without it, every
+//! ALSA stream error is printed to stderr directly from the audio thread, so a
+//! single dead device floods the terminal with identical lines.  Namaz has no
+//! tracing subscriber, so those events are dropped and the watchdog below
+//! reports the failure once.
 
 use std::fs::File;
 use std::io::BufReader;
@@ -11,9 +17,18 @@ use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::mpsc::{self, RecvTimeoutError, Sender};
 use std::sync::{Mutex, OnceLock};
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
+
+/// Device loss (Bluetooth headset unplugged, PipeWire restarted, resume from
+/// suspend) surfaces as a stream error: cpal keeps polling the dead ALSA
+/// descriptor and the sink stops draining.  Without a watchdog the playback
+/// flag would stay set forever, the current recitation would be lost silently
+/// and the UI would keep showing "playing".  Watch the playback position and
+/// tear the stream down once it stops moving; the next Play reopens the
+/// device.
+const STALL_TIMEOUT: Duration = Duration::from_secs(3);
 
 enum Command {
     Play(Vec<PathBuf>, f32),
@@ -156,9 +171,13 @@ fn sender() -> &'static Mutex<Sender<Command>> {
             let mut _stream: Option<OutputStream> = None;
             let mut handle: Option<OutputStreamHandle> = None;
             let mut sink: Option<Sink> = None;
+            let mut last_position = Duration::ZERO;
+            let mut last_progress = Instant::now();
             loop {
                 match rx.recv_timeout(Duration::from_millis(250)) {
                     Ok(Command::Play(paths, volume)) => {
+                        last_position = Duration::ZERO;
+                        last_progress = Instant::now();
                         if let Some(current) = sink.take() {
                             current.stop();
                         }
@@ -225,7 +244,36 @@ fn sender() -> &'static Mutex<Sender<Command>> {
                         }
                     }
                     Err(RecvTimeoutError::Timeout) => {
-                        if sink.as_ref().map(Sink::empty).unwrap_or(true) {
+                        let mut finished = false;
+                        let mut stalled = false;
+                        match sink.as_ref() {
+                            None => finished = true,
+                            Some(current) if current.empty() => finished = true,
+                            Some(current) => {
+                                let position = current.get_pos();
+                                if position != last_position {
+                                    last_position = position;
+                                    last_progress = Instant::now();
+                                } else if !current.is_paused()
+                                    && last_progress.elapsed() >= STALL_TIMEOUT
+                                {
+                                    stalled = true;
+                                }
+                            }
+                        }
+                        if stalled {
+                            // rodio's error callback only emits a tracing
+                            // event, which Namaz does not subscribe to.  Report
+                            // the recovery once instead of on every poll
+                            // iteration.
+                            eprintln!(
+                                "audio: output stream stalled, closing it until the next playback"
+                            );
+                            sink = None;
+                            handle = None;
+                            _stream = None;
+                            PLAYING.store(false, Ordering::Relaxed);
+                        } else if finished {
                             PLAYING.store(false, Ordering::Relaxed);
                             sink = None;
                         }

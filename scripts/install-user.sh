@@ -32,7 +32,7 @@ if command -v chrpath >/dev/null 2>&1; then
 fi
 install -d "$DATA_DIR/wave"
 cp "$ROOT"/assets/audio/*.ogg "$DATA_DIR/wave/"
-install -Dm644 "$ROOT/assets/audio/LICENSE" "$DATA_DIR/audio.LICENSE"
+install -Dm644 "$ROOT/assets/audio/audio.LICENSE" "$DATA_DIR/audio.LICENSE"
 install -Dm644 "$ROOT/assets/cities.LICENSE" "$DATA_DIR/cities.LICENSE"
 install -Dm644 "$ROOT/packaging/io.github.ikhlasulov_gb.Namaz.desktop" \
   "$APP_DIR/io.github.ikhlasulov_gb.Namaz.desktop"

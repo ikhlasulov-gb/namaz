@@ -39,7 +39,7 @@ and attribution.
 ## Bundled audio
 
 `assets/audio/*.ogg` are original recordings by **Ikhlasulov**, dedicated to
-the public domain under CC0 1.0.  See `assets/audio/LICENSE`.
+the public domain under CC0 1.0.  See `assets/audio/audio.LICENSE`.
 
 ## Qt and KDE
 

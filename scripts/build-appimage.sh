@@ -98,7 +98,7 @@ install -m644 "$ROOT/packaging/io.github.ikhlasulov_gb.Namaz.desktop" \
 install -m644 "$ROOT/packaging/icons/io.github.ikhlasulov_gb.Namaz-256.png" \
     "$APPDIR/usr/share/icons/hicolor/256x256/apps/io.github.ikhlasulov_gb.Namaz.png"
 cp "$ROOT"/assets/audio/*.ogg "$APPDIR/usr/share/namaz/wave/"
-install -m644 "$ROOT/assets/audio/LICENSE" "$APPDIR/usr/share/namaz/audio.LICENSE"
+install -m644 "$ROOT/assets/audio/audio.LICENSE" "$APPDIR/usr/share/namaz/audio.LICENSE"
 install -m644 "$ROOT/assets/cities.LICENSE" "$APPDIR/usr/share/namaz/cities.LICENSE"
 
 # linuxdeploy ships a very old strip that cannot read RELR sections produced by
