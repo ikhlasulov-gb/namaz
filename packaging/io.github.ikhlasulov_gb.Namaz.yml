@@ -40,7 +40,7 @@ modules:
       - install -Dm755 build/cargo/release/libnamaz_core.so /app/lib/libnamaz_core.so
       - install -d /app/share/namaz/wave
       - cp assets/audio/*.ogg /app/share/namaz/wave/
-      - install -Dm644 assets/audio/LICENSE /app/share/namaz/audio.LICENSE
+      - install -Dm644 assets/audio/audio.LICENSE /app/share/namaz/audio.LICENSE
       - install -Dm644 assets/cities.LICENSE /app/share/namaz/cities.LICENSE
       - install -Dm644 packaging/io.github.ikhlasulov_gb.Namaz.desktop
         /app/share/applications/io.github.ikhlasulov_gb.Namaz.desktop

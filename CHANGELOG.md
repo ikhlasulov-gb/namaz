@@ -4,6 +4,35 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.8] - 2026-11-11
+
+### Added
+
+- `cmake --install` now installs a complete layout for distributions: the
+  binary, `libnamaz_core.so`, desktop entry, AppStream metadata, every hicolor
+  icon size plus the scalable SVG, the bundled recordings and the licence
+  files.  `CMAKE_INSTALL_LIBDIR` is respected and the install RPATH is derived
+  from it, so `lib64` systems work without a packaging patch.
+- `NAMAZ_CARGO_OFFLINE=ON` builds the Rust core with `cargo --offline`, which
+  lets packagers build from a source archive with vendored dependencies.
+
+### Changed
+
+- `assets/audio/LICENSE` is now `assets/audio/audio.LICENSE`, matching the
+  installed name and `assets/cities.LICENSE`.
+
+### Fixed
+
+- A lost audio device no longer leaves playback stuck.  When the output stream
+  stops delivering samples (unplugged headset, PipeWire restart,
+  suspend/resume), the worker closes the stream instead of keeping the
+  "playing" flag set forever and losing the current adhan silently.
+- The flood of `an error occurred on output stream: A backend-specific error
+  has occurred: alsa::poll() returned POLLERR` lines is gone: rodio is built
+  with its `tracing` feature, so a single device failure no longer prints the
+  same message from every poll iteration, and the watchdog reports the failure
+  once.
+
 ## [1.0.7] - 2026-11-08
 
 ### Fixed
