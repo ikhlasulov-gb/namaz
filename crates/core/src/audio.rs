@@ -237,6 +237,12 @@ fn sender() -> &'static Mutex<Sender<Command>> {
                             current.stop();
                         }
                         PLAYING.store(false, Ordering::Relaxed);
+                        // cpal keeps an idle ALSA stream polling its file
+                        // descriptor.  Release the device together with the
+                        // sink so a device that disappears while nothing is
+                        // playing cannot spin in its error callback.
+                        handle = None;
+                        _stream = None;
                     }
                     Ok(Command::SetVolume(volume)) => {
                         if let Some(current) = sink.as_ref() {
@@ -276,6 +282,14 @@ fn sender() -> &'static Mutex<Sender<Command>> {
                         } else if finished {
                             PLAYING.store(false, Ordering::Relaxed);
                             sink = None;
+                            // Close the device when playback ends.  cpal's
+                            // ALSA worker keeps polling even with an empty
+                            // sink, and a sink-only watchdog cannot see a
+                            // device that is lost while idle: the worker then
+                            // spins on POLLERR forever and burns CPU without
+                            // printing anything.  Play reopens the device.
+                            handle = None;
+                            _stream = None;
                         }
                     }
                     Err(RecvTimeoutError::Disconnected) => break,
