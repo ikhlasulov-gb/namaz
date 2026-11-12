@@ -4,6 +4,16 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- The output device is released as soon as playback ends or is stopped.
+  cpal's ALSA worker keeps polling an open device even with an empty sink, so
+  a device lost while idle could spin in its error callback and consume a
+  whole CPU core without printing anything.  The next playback reopens the
+  device.
+
 ## [1.0.10] - 2026-11-11
 
 ### Changed
