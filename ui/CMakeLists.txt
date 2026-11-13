@@ -38,6 +38,8 @@ set(CORE_LIB
 file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/../crates/core/src/*.rs"
     "${CMAKE_CURRENT_SOURCE_DIR}/../crates/prayer-core/src/*.rs")
+file(GLOB_RECURSE CPAL_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpal/src/*.rs")
 add_custom_command(
     OUTPUT "${CORE_LIB}"
     COMMAND "${CARGO_EXECUTABLE}" build -p namaz-core ${CARGO_PROFILE_FLAG} ${NAMAZ_CARGO_NET_FLAG}
@@ -45,10 +47,13 @@ add_custom_command(
             --target-dir "${CORE_TARGET_DIR}"
     DEPENDS
         ${CORE_SOURCES}
+        ${CPAL_SOURCES}
         "${CMAKE_CURRENT_SOURCE_DIR}/../Cargo.toml"
         "${CMAKE_CURRENT_SOURCE_DIR}/../Cargo.lock"
         "${CMAKE_CURRENT_SOURCE_DIR}/../crates/core/Cargo.toml"
         "${CMAKE_CURRENT_SOURCE_DIR}/../crates/prayer-core/Cargo.toml"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpal/Cargo.toml"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cpal/build.rs"
         "${CMAKE_CURRENT_SOURCE_DIR}/../assets/cities.json"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.."
     COMMENT "Building Rust namaz-core (${CARGO_PROFILE})"
