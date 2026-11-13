@@ -4,6 +4,18 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- A failed ALSA write no longer sends the audio worker into a 100 % CPU loop.
+  cpal 0.15.3 retried `writei()` forever when the device returned an error
+  (for example after a PipeWire restart or when an ALSA file PCM hits
+  `ENOSPC`).  The vendored copy in `third_party/cpal` returns the error,
+  backs off, and stops the worker after repeated failures.  `Stop` and
+  `Stream::drop()` no longer risk hanging in `join()`, and the playback
+  watchdog can detect the stalled sink and release the device.
+
 ## [1.0.11] - 2026-11-12
 
 ### Fixed

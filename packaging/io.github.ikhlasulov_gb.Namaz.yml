@@ -65,4 +65,3 @@ modules:
           - target
           - ui/build
           - dist
-          - third_party

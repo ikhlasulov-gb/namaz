@@ -54,6 +54,19 @@ guidelines.  Qt and the KDE Frameworks are used under their respective
 licences (LGPL-3.0 / GPL-2.0+ / GPL-3.0).  They are not vendored in this
 repository.
 
+## cpal
+
+`third_party/cpal` is a patched copy of cpal 0.15.3.  It is used through
+`[patch.crates-io]` because rodio 0.20 still depends on the cpal 0.15 API.
+
+- Copyright: the cpal contributors
+- Licence: Apache-2.0 (see `third_party/cpal/LICENSE`)
+- Upstream: https://github.com/RustAudio/cpal
+- Local changes: see `third_party/cpal/PATCHES.md`
+
+The patch stops the ALSA output worker from retrying a failed write forever,
+so a lost device cannot spin at 100 % CPU or make `Stream::drop()` hang.
+
 ## Rust crates
 
 The Rust dependencies are listed in `Cargo.lock`.  Their licences are

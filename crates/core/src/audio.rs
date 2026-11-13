@@ -9,6 +9,11 @@
 //! single dead device floods the terminal with identical lines.  Namaz has no
 //! tracing subscriber, so those events are dropped and the watchdog below
 //! reports the failure once.
+//!
+//! cpal is vendored in `third_party/cpal` because 0.15.3 retries a failed
+//! ALSA write forever.  The patched worker backs off and exits after repeated
+//! write errors, so `Stop`/`Drop` can join it and the sink position stops
+//! advancing, which lets the watchdog below recover the device.
 
 use std::fs::File;
 use std::io::BufReader;

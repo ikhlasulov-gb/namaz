@@ -12,6 +12,14 @@ license = "GPL-3.0-or-later"
 authors = ["Ikhlasulov"]
 repository = "https://github.com/ikhlasulov-gb/namaz"
 
+# cpal 0.15.3 retries a failed ALSA write forever inside its output worker.
+# A dead device (PipeWire restart, ENOSPC, unplugged USB/BT sink) therefore
+# pins a CPU core and makes Stream::drop hang in join().  The local copy
+# returns the write error to the worker, backs off and shuts the worker down
+# after repeated failures.  See third_party/cpal/PATCHES.md.
+[patch.crates-io]
+cpal = { path = "third_party/cpal" }
+
 [profile.release]
 lto = "thin"
 codegen-units = 1
