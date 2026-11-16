@@ -78,6 +78,11 @@
   </screenshots>
 
   <releases>
+    <release version="1.0.14" date="2026-11-17">
+      <description>
+        <p>See CHANGELOG.md for the full list of changes.</p>
+      </description>
+    </release>
     <release version="1.0.13" date="2026-11-16">
       <description>
         <p>See CHANGELOG.md for the full list of changes.</p>
