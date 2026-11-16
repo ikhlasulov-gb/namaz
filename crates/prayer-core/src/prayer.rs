@@ -56,6 +56,7 @@ pub const EGYPT_NEW: i32 = 8;
 pub const UMM_ALQURRA_RAMADAN: i32 = 9;
 pub const MOONSIGHTING_COMMITTEE: i32 = 10;
 pub const MOROCCO_AWQAF: i32 = 11;
+pub const INDONESIA_SINGAPORE: i32 = 12;
 
 pub fn get_method(n: i32) -> Method {
     let mut conf = Method {
@@ -126,6 +127,11 @@ pub fn get_method(n: i32) -> Method {
             conf.offset = 1;
             conf.off_list[ZUHR] = 5.0;
             conf.off_list[MAGHRIB] = 5.0;
+        }
+        // Kemenag (Indonesia) and MUIS (Singapore) both use 20°/18°.
+        INDONESIA_SINGAPORE => {
+            conf.fajr_ang = 20.0;
+            conf.ishaa_ang = 18.0;
         }
         _ => {}
     }

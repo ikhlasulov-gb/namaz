@@ -199,6 +199,9 @@ QString methodName(int method) {
                                            "Muslim World League");
     case 6:
         return QCoreApplication::translate("PrayerSettingsDialog", "Umm al-Qura");
+    case 9:
+        return QCoreApplication::translate(
+            "PrayerSettingsDialog", "Kemenag / MUIS (Indonesia, Singapore)");
     default:
         return QCoreApplication::translate("PrayerSettingsDialog",
                                            "Custom twilight angles");
@@ -217,6 +220,8 @@ QString methodShortName(int method) {
         return QStringLiteral("MWL");
     case 6:
         return QCoreApplication::translate("MainWindow", "Umm al-Qura");
+    case 9:
+        return QStringLiteral("Kemenag/MUIS");
     default:
         return QCoreApplication::translate("MainWindow", "Custom");
     }

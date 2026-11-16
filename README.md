@@ -41,8 +41,9 @@ Qt 6 Widgets.
 
 - **Day, Month and Year views** with Gregorian and Hijri calendars.
 - **Accurate prayer engine** ported from the Islamic Times Library (ITL).
-- **Calculation methods**: Custom, Egyptian, ISNA, MWL, Umm al-Qura, Karachi
-  and more, with Standard/Hanafi Asr and high-latitude rules.
+- **Calculation methods**: Custom, Egyptian, ISNA, MWL, Umm al-Qura, Karachi,
+  Kemenag/MUIS (Indonesia and Singapore) and more, with Standard/Hanafi Asr
+  and high-latitude rules.
 - **Qibla compass** with true bearing and cardinal direction.
 - **Adhan, reminders and iqama**: built-in audio, per-prayer modes, custom
   files and folders.
