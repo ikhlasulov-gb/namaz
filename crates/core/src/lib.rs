@@ -433,6 +433,11 @@ fn app_method(index: i32, cfg: &Config) -> Method {
             m.fajr_ang = 19.5;
             m.ishaa_ang = 17.5;
         }
+        9 => {
+            // Kemenag (Indonesia) and MUIS (Singapore).
+            m.fajr_ang = 20.0;
+            m.ishaa_ang = 18.0;
+        }
         _ => {}
     }
     m
@@ -1967,7 +1972,7 @@ pub extern "C" fn namaz_core_apply_settings_json(core: *mut Core, json_ptr: *con
     core.cfg.dst_manual = json_i32(&value, "dst_manual", core.cfg.dst_manual).clamp(0, 1);
     core.cfg.city = json_string(&value, "city", &core.cfg.city);
     core.cfg.province = json_string(&value, "province", &core.cfg.province);
-    core.cfg.method = json_i32(&value, "method", core.cfg.method).clamp(0, 8);
+    core.cfg.method = json_i32(&value, "method", core.cfg.method).clamp(0, 9);
     core.cfg.mathhab = if json_i32(&value, "mathhab", core.cfg.mathhab) == 2 {
         2
     } else {
@@ -2527,6 +2532,8 @@ mod tests {
             (umm.fajr_ang, umm.ishaa_ang, umm.ishaa_inv),
             (15.0, 0.0, 90)
         );
+        let kemenag = app_method(9, &cfg);
+        assert_eq!((kemenag.fajr_ang, kemenag.ishaa_ang), (20.0, 18.0));
     }
 
     #[test]

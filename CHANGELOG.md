@@ -4,6 +4,14 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.14] - 2026-11-17
+
+### Added
+
+- A calculation method for Indonesia and Singapore.  Kemenag (Kementerian
+  Agama Republik Indonesia) and MUIS (Majlis Ugama Islam Singapura) both use
+  Fajr 20° and Ishaa 18°, so one selection covers both countries.
+
 ## [1.0.13] - 2026-11-16
 
 ### Fixed

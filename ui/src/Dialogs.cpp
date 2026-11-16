@@ -416,6 +416,7 @@ PrayerSettingsDialog::PrayerSettingsDialog(void *core, QWidget *parent)
     m_method->addItem(tr("Muslim World League"), 5);
     m_method->addItem(tr("Umm al-Qura"), 6);
     m_method->addItem(tr("University of Islamic Sciences, Karachi"), 2);
+    m_method->addItem(tr("Kemenag / MUIS (Indonesia, Singapore)"), 9);
     Ui::setFieldWidth(m_method, 340);
     methodForm->addRow(tr("Method"), m_method);
     m_methodDescription = descriptionLabel(methodBox);
@@ -777,8 +778,9 @@ void PrayerSettingsDialog::updateMethodDescription() {
         QT_TR_NOOP("Muslim World League: Fajr 18°, Ishaa 17°."),
         QT_TR_NOOP("Umm al-Qura: Fajr 15°, Ishaa 90 minutes after Maghrib."),
         QT_TR_NOOP("University of Islamic Sciences, Karachi: Fajr 18°, Ishaa 18°."),
+        QT_TR_NOOP("Kemenag (Indonesia) and MUIS (Singapore): Fajr 20°, Ishaa 18°."),
     };
-    const int index = qBound(0, m_method->currentIndex(), 5);
+    const int index = qBound(0, m_method->currentIndex(), 6);
     m_methodDescription->setText(tr(descriptions[index]));
     // Preset methods define their own twilight angles; the spin boxes were
     // editable but silently ignored.  Only the custom method uses them.
