@@ -9,6 +9,7 @@ void namaz_core_free(void *core);
 void namaz_core_free_string(char *value);
 
 char *namaz_core_day_json(void *core);
+char *namaz_core_today_json(void *core);
 char *namaz_core_month_json(void *core);
 char *namaz_core_year_json(void *core);
 

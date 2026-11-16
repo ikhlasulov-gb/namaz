@@ -750,9 +750,19 @@ impl Core {
     }
 
     pub fn day_json(&self) -> Value {
+        self.day_json_for(self.selected, self.now())
+    }
+
+    /// Today's state, regardless of the date currently selected in the UI.
+    /// The tray icon must keep showing the real next prayer while the user is
+    /// browsing another day in the calendar.
+    pub fn today_json(&self) -> Value {
         let now = self.now();
+        self.day_json_for(now.date_naive(), now)
+    }
+
+    fn day_json_for(&self, selected: NaiveDate, now: chrono::DateTime<FixedOffset>) -> Value {
         let today = now.date_naive();
-        let selected = self.selected;
         let cfg = &self.cfg;
         let loc = location(cfg, selected);
         let conf = method(cfg);
@@ -1022,6 +1032,12 @@ impl Core {
             let today_key = today.format("%Y-%m-%d").to_string();
             self.seen_events
                 .retain(|key| key.starts_with(&yesterday) || key.starts_with(&today_key));
+            // If the user was looking at "today" when the date changed, follow
+            // the new day.  Otherwise a long-running window would keep the old
+            // date selected and show no next prayer until "Today" is pressed.
+            if self.selected == self.last_date {
+                self.selected = today;
+            }
             self.last_date = today;
         }
         let mut events = Vec::new();
@@ -1585,6 +1601,15 @@ pub extern "C" fn namaz_core_day_json(core: *mut Core) -> *mut c_char {
     }
     let core = unsafe { &*core };
     into_c_string(core.day_json())
+}
+
+#[no_mangle]
+pub extern "C" fn namaz_core_today_json(core: *mut Core) -> *mut c_char {
+    if core.is_null() {
+        return std::ptr::null_mut();
+    }
+    let core = unsafe { &*core };
+    into_c_string(core.today_json())
 }
 
 #[no_mangle]
@@ -2553,6 +2578,56 @@ mod tests {
         assert_eq!(value["current"]["name"], "");
         assert_eq!(value["current"]["windowTitle"], "Namaz");
         assert_eq!(value["next"]["index"], -1);
+    }
+
+    #[test]
+    fn today_json_has_next_prayer_while_another_date_is_selected() {
+        let core = test_core(
+            Config::default(),
+            NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
+        );
+        let selected = core.day_json();
+        assert_eq!(selected["next"]["index"], -1);
+
+        // The tray must keep showing the real next prayer even when the user
+        // has navigated away from today in the calendar.
+        let today = core.today_json();
+        assert_eq!(today["date"]["today"], true);
+        assert!(today["next"]["index"].as_i64().unwrap() >= 0);
+    }
+
+    #[test]
+    fn tick_advances_selected_date_when_following_today() {
+        let mut cfg = Config::default();
+        cfg.athan_enabled = false;
+        cfg.notifications_enabled = false;
+        cfg.reminder_visual_notification = false;
+        let offset = FixedOffset::east_opt(7 * 3600).unwrap();
+        let mut core = test_core(cfg, NaiveDate::from_ymd_opt(2026, 11, 8).unwrap());
+        let now = offset
+            .with_ymd_and_hms(2026, 11, 9, 0, 0, 30)
+            .single()
+            .unwrap();
+        core.tick_at(now);
+        assert_eq!(core.selected, NaiveDate::from_ymd_opt(2026, 11, 9).unwrap());
+    }
+
+    #[test]
+    fn tick_keeps_manually_selected_date_after_midnight() {
+        let mut cfg = Config::default();
+        cfg.athan_enabled = false;
+        cfg.notifications_enabled = false;
+        cfg.reminder_visual_notification = false;
+        let offset = FixedOffset::east_opt(7 * 3600).unwrap();
+        let mut core = test_core(cfg, NaiveDate::from_ymd_opt(2026, 11, 8).unwrap());
+        let browsing = NaiveDate::from_ymd_opt(2026, 11, 6).unwrap();
+        core.set_date(browsing);
+        let now = offset
+            .with_ymd_and_hms(2026, 11, 9, 0, 0, 30)
+            .single()
+            .unwrap();
+        core.tick_at(now);
+        assert_eq!(core.selected, browsing);
     }
 
     #[test]

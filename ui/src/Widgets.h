@@ -69,7 +69,7 @@ private:
     void applyPreferencesToWindow();
     void saveWindowState();
     void restoreWindowState();
-    void updateTray();
+    void updateTray(const QJsonObject &day);
     void flashTray();
     void playSound(const QString &name);
     void showAudioError(const QString &name);

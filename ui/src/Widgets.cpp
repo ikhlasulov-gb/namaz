@@ -686,7 +686,7 @@ void MainWindow::refreshFromCore() {
         m_dbus->update(root,
                        cfg.value(QStringLiteral("dbus_interval")).toInt(60));
     }
-    updateTray();
+    updateTray(root);
 }
 
 void MainWindow::refreshCalendar() {
@@ -744,13 +744,21 @@ void MainWindow::setSelectedDate(const QDate &date) {
     refreshAll();
 }
 
-void MainWindow::updateTray() {
+void MainWindow::updateTray(const QJsonObject &day) {
     if (!m_tray) {
         return;
     }
-    const QString text = takeCoreString(namaz_core_day_json(m_core.handle()));
-    const QJsonObject root = QJsonDocument::fromJson(text.toUtf8()).object();
-    const QJsonObject next = root.value(QStringLiteral("next")).toObject();
+    QJsonObject next = day.value(QStringLiteral("next")).toObject();
+    if (!day.value(QStringLiteral("date"))
+             .toObject()
+             .value(QStringLiteral("today"))
+             .toBool(false)) {
+        // The calendar may be showing another date, but the tray describes
+        // the real next prayer, so always read today's state in that case.
+        const QString text = takeCoreString(namaz_core_today_json(m_core.handle()));
+        const QJsonObject today = QJsonDocument::fromJson(text.toUtf8()).object();
+        next = today.value(QStringLiteral("next")).toObject();
+    }
     const QString name = Ui::prayerName(
         next.value(QStringLiteral("index")).toInt(-1));
     const int seconds = next.value(QStringLiteral("seconds")).toInt(-1);
