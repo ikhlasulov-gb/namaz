@@ -4,6 +4,16 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.13] - 2026-11-16
+
+### Fixed
+
+- The selected date now follows the new day after midnight.  Previously a
+  long-running window stayed on the previous date, so the next prayer and its
+  countdown disappeared until "Today" was pressed.
+- The tray tooltip and its "Next" menu item keep showing the real next prayer
+  while another date is selected in the calendar.
+
 ## [1.0.12] - 2026-11-13
 
 ### Fixed
