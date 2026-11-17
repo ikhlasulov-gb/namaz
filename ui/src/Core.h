@@ -9,6 +9,7 @@ void namaz_core_free(void *core);
 void namaz_core_free_string(char *value);
 
 char *namaz_core_day_json(void *core);
+char *namaz_core_day_json_for_date(void *core, const char *iso_date);
 char *namaz_core_today_json(void *core);
 char *namaz_core_month_json(void *core);
 char *namaz_core_year_json(void *core);
@@ -28,6 +29,7 @@ void namaz_core_shift_year(void *core, int years);
 void namaz_core_go_today(void *core);
 void namaz_core_set_date(void *core, const char *iso_date);
 void namaz_core_set_view(void *core, int view);
+void namaz_core_set_tracker_mask(void *core, unsigned int mask);
 
 void namaz_core_set_location(void *core, double latitude, double longitude,
                               double timezone, const char *city);
