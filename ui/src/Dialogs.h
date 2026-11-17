@@ -16,6 +16,8 @@ class QStackedWidget;
 class QTimeEdit;
 class QWidget;
 
+class PrayerTracker;
+
 class PrayerSettingsDialog : public QDialog {
     Q_OBJECT
 public:
@@ -73,6 +75,7 @@ class PreferencesDialog : public QDialog {
     Q_OBJECT
 public:
     explicit PreferencesDialog(void *core, QWidget *parent = nullptr);
+    void setTracker(PrayerTracker *tracker) { m_tracker = tracker; }
     void setTabIndex(int index);
     void reload();
 
@@ -82,6 +85,9 @@ signals:
 private:
     void populate(const QJsonObject &config);
     bool apply();
+    void populateTracker();
+    void applyTracker();
+    void resetTrackerData();
     void restoreDefaults();
     void markDirty();
     void connectChangeTracking();
@@ -105,6 +111,16 @@ private:
     QCheckBox *m_stopOnPrayer = nullptr;
     QSlider *m_volume = nullptr;
     QLabel *m_volumeValue = nullptr;
+
+    QCheckBox *m_trackerEnabled = nullptr;
+    QCheckBox *m_trackerNotify[6] = {};
+    QCheckBox *m_trackerAuto[6] = {};
+    QCheckBox *m_trackerNotifyButtons = nullptr;
+    QSpinBox *m_trackerQadaReminder = nullptr;
+    QSpinBox *m_trackerHistoryDays = nullptr;
+    QPushButton *m_trackerExport = nullptr;
+    QPushButton *m_trackerReset = nullptr;
+    PrayerTracker *m_tracker = nullptr;
 
     QComboBox *m_audioMode[6] = {};
     QComboBox *m_sounds[6] = {};

@@ -2,6 +2,9 @@
 
 #include "DBusService.h"
 #include "Dialogs.h"
+#include "Tracker.h"
+#include "TrackerNotifications.h"
+#include "TrackerView.h"
 #include "UiUtils.h"
 #include "Views.h"
 
@@ -23,6 +26,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFont>
+#include <QFrame>
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QIcon>
@@ -123,17 +127,52 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     m_monthView = new MonthView(m_views);
     m_yearView = new YearView(m_views);
 
+    m_tracker = new PrayerTracker(new CorePrayerTimeSource(m_core.handle()), this);
+    m_tracker->load();
+    m_trackerView = new TrackerView(m_tracker, m_views);
+
     m_views->addWidget(m_dayView);
     m_views->addWidget(m_monthView);
     m_views->addWidget(m_yearView);
+    m_views->addWidget(m_trackerView);
 
     // Keep the content from stretching across very wide screens.
     auto *central = new QWidget(this);
-    m_centralLayout = new QHBoxLayout(central);
+    m_centralLayout = new QVBoxLayout(central);
     m_centralLayout->setContentsMargins(0, 0, 0, 0);
     m_centralLayout->setSpacing(0);
-    m_centralLayout->addWidget(m_views);
+
+    // Fallback for systems without a notification daemon that supports
+    // actions: a banner with the same Confirm/Skip buttons.
+    m_trackerBanner = new QFrame(central);
+    m_trackerBanner->setObjectName(QStringLiteral("TrackerBanner"));
+    m_trackerBanner->setFrameShape(QFrame::StyledPanel);
+    auto *bannerLayout = new QHBoxLayout(m_trackerBanner);
+    bannerLayout->setContentsMargins(Ui::pageMargin(), Ui::controlSpacing(),
+                                     Ui::pageMargin(), Ui::controlSpacing());
+    bannerLayout->setSpacing(Ui::controlSpacing());
+    m_trackerBannerLabel = new QLabel(m_trackerBanner);
+    m_trackerBannerLabel->setWordWrap(true);
+    bannerLayout->addWidget(m_trackerBannerLabel, 1);
+    auto *bannerConfirm = new QPushButton(tr("Confirm"), m_trackerBanner);
+    bannerConfirm->setObjectName(QStringLiteral("TrackerBannerConfirm"));
+    auto *bannerSkip = new QPushButton(tr("Skip"), m_trackerBanner);
+    bannerSkip->setObjectName(QStringLiteral("TrackerBannerSkip"));
+    bannerLayout->addWidget(bannerConfirm);
+    bannerLayout->addWidget(bannerSkip);
+    m_trackerBanner->hide();
+    m_centralLayout->addWidget(m_trackerBanner);
+    m_centralLayout->addWidget(m_views, 1);
     setCentralWidget(central);
+
+    connect(bannerConfirm, &QPushButton::clicked, this, [this] {
+        confirmTrackerEntry(m_bannerPrayer, m_bannerDate);
+        hideTrackerBanner();
+    });
+    connect(bannerSkip, &QPushButton::clicked, this, [this] {
+        skipTrackerEntry(m_bannerPrayer, m_bannerDate);
+        hideTrackerBanner();
+    });
 
     restoreWindowState();
 
@@ -154,7 +193,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         namaz_core_set_view(m_core.handle(), index);
         // QActionGroup keeps exactly one action checked; blocking the signal
         // here would leave the previous action checked as well.
-        if (index >= 0 && index < 3 && m_viewActions[index]) {
+        if (index >= 0 && index < 4 && m_viewActions[index]) {
             m_viewActions[index]->setChecked(true);
         }
         if (m_dayLeftShortcut) {
@@ -174,6 +213,38 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(m_dbus, &DBusService::quitRequested, qApp, &QApplication::quit);
     connect(qApp, &QCoreApplication::aboutToQuit, m_dbus, &DBusService::disable);
     connect(qApp, &QCoreApplication::aboutToQuit, this, &MainWindow::saveWindowState);
+
+    m_trackerNotifications = new TrackerNotifications(this);
+    connect(m_trackerNotifications, &TrackerNotifications::confirmRequested, this,
+            &MainWindow::confirmTrackerEntry);
+    connect(m_trackerNotifications, &TrackerNotifications::skipRequested, this,
+            &MainWindow::skipTrackerEntry);
+    connect(m_trackerNotifications, &TrackerNotifications::fallback, this,
+            &MainWindow::showTrackerBanner);
+    connect(m_tracker, &PrayerTracker::due, this,
+            [this](const QString &prayer, const QDate &date, bool witr) {
+                if (!config()
+                         .value(QStringLiteral("notifications_enabled"))
+                         .toBool(true)) {
+                    return;
+                }
+                m_trackerNotifications->notify(
+                    prayer, date, witr,
+                    m_tracker->notifyButtons());
+            });
+    connect(m_tracker, &PrayerTracker::qadaDue, this,
+            [this](int index, qint64 debt) {
+                statusBar()->showMessage(
+                    tr("Qada reminder: %1 — debt %2")
+                        .arg(PrayerTracker::prayerName(index))
+                        .arg(debt),
+                    15000);
+                flashTray();
+            });
+    connect(m_tracker, &PrayerTracker::changed, this,
+            &MainWindow::syncTrackerMask);
+    m_tracker->ensureToday();
+    syncTrackerMask();
 
     m_updater = new UpdateChecker(this);
     connect(m_updater, &UpdateChecker::updateAvailable, this,
@@ -218,8 +289,9 @@ void MainWindow::buildActions() {
         {QT_TR_NOOP("&Day"), "view-calendar-day", "Ctrl+1"},
         {QT_TR_NOOP("&Month"), "view-calendar-month", "Ctrl+2"},
         {QT_TR_NOOP("&Year"), "view-calendar-year", "Ctrl+3"},
+        {QT_TR_NOOP("&Journal"), "view-calendar-journal", "Ctrl+4"},
     };
-    for (int index = 0; index < 3; ++index) {
+    for (int index = 0; index < 4; ++index) {
         QAction *action = new QAction(Ui::themeIcon(QString::fromLatin1(views[index].icon),
                                                     QStringLiteral("view-calendar")),
                                       tr(views[index].label), this);
@@ -259,6 +331,7 @@ void MainWindow::buildToolBar() {
     m_toolBar->addAction(m_viewActions[0]);
     m_toolBar->addAction(m_viewActions[1]);
     m_toolBar->addAction(m_viewActions[2]);
+    m_toolBar->addAction(m_viewActions[3]);
     m_toolBar->addSeparator();
     m_toolBar->addAction(m_previousAction);
     m_toolBar->addAction(m_todayAction);
@@ -349,7 +422,7 @@ void MainWindow::buildMenus() {
     connect(quit, &QAction::triggered, qApp, &QApplication::quit);
 
     QMenu *view = menuBar()->addMenu(tr("&View"));
-    for (int index = 0; index < 3; ++index) {
+    for (int index = 0; index < 4; ++index) {
         view->addAction(m_viewActions[index]);
     }
     view->addSeparator();
@@ -454,6 +527,8 @@ void MainWindow::buildMenus() {
                "Rust prayer engine + Qt 6 Widgets.<br>"
                "Author: Ikhlasulov<br>"
                "Inspired by Salaat Time 3.0.<br>"
+               "The prayer journal is inspired by Dosage "
+               "(GPL-3.0-only, no code reused).<br>"
                "Version %1")
                 .arg(QCoreApplication::applicationVersion()));
     });
@@ -501,6 +576,15 @@ void MainWindow::buildTray() {
     connect(open, &QAction::triggered, this, &MainWindow::showFromTray);
     m_trayNextAction = menu->addAction(tr("Next: —"));
     m_trayNextAction->setEnabled(false);
+    m_trayConfirmAction = menu->addAction(tr("Confirm Next Prayer"));
+    connect(m_trayConfirmAction, &QAction::triggered, this,
+            &MainWindow::confirmNextPrayer);
+    QAction *journal = menu->addAction(Ui::themeIcon(QStringLiteral("view-calendar-journal")),
+                                       tr("Open Journal"));
+    connect(journal, &QAction::triggered, this, [this] {
+        setTab(3);
+        showFromTray();
+    });
     QAction *pray = menu->addAction(Ui::themeIcon(QStringLiteral("media-playback-start")),
                                     tr("Pray Now"));
     connect(pray, &QAction::triggered, this, &MainWindow::prayNow);
@@ -591,7 +675,7 @@ void MainWindow::setTab(int index) {
     }
     const int bounded = qBound(0, index, m_views->count() - 1);
     m_views->setCurrentIndex(bounded);
-    if (bounded >= 0 && bounded < 3 && m_viewActions[bounded]) {
+    if (bounded >= 0 && bounded < 4 && m_viewActions[bounded]) {
         // The action group unchecks its previous member through the action's
         // own signals; do not block them.
         m_viewActions[bounded]->setChecked(true);
@@ -599,6 +683,9 @@ void MainWindow::setTab(int index) {
 }
 
 void MainWindow::tick() {
+    if (m_tracker) {
+        m_tracker->tick();
+    }
     const QString eventsText = takeCoreString(
         namaz_core_tick_events(m_core.handle()));
     const QJsonArray events = QJsonDocument::fromJson(eventsText.toUtf8()).array();
@@ -624,6 +711,96 @@ void MainWindow::tick() {
         }
     }
     refreshFromCore();
+}
+
+void MainWindow::syncTrackerMask() {
+    if (!m_tracker) {
+        return;
+    }
+    const bool global = config()
+                            .value(QStringLiteral("notifications_enabled"))
+                            .toBool(true);
+    namaz_core_set_tracker_mask(
+        m_core.handle(),
+        PrayerTracker::coreNotificationMask(*m_tracker, global));
+}
+
+void MainWindow::confirmNextPrayer() {
+    if (!m_tracker) {
+        return;
+    }
+    const QDate today =
+        QDateTime::fromSecsSinceEpoch(m_tracker->nowEpoch()).date();
+    QList<TrackerEntry> candidates = m_tracker->yesterdayPending(today);
+    for (const TrackerEntry &entry : m_tracker->entriesFor(today)) {
+        if (!entry.qada) {
+            candidates.append(entry);
+        }
+    }
+    TrackerEntry best;
+    for (const TrackerEntry &entry : candidates) {
+        if (!m_tracker->isConfirmable(entry)) {
+            continue;
+        }
+        if (best.id.isEmpty() || entry.start < best.start) {
+            best = entry;
+        }
+    }
+    if (best.id.isEmpty()) {
+        statusBar()->showMessage(tr("No prayer is ready to confirm right now."),
+                                 5000);
+        return;
+    }
+    m_tracker->confirm(best.id);
+}
+
+void MainWindow::confirmTrackerEntry(const QString &prayer, const QDate &date) {
+    if (!m_tracker) {
+        return;
+    }
+    for (const TrackerEntry &entry : m_tracker->entriesFor(date)) {
+        if (!entry.qada && entry.prayer == prayer && entry.pending()) {
+            m_tracker->confirm(entry.id);
+            return;
+        }
+    }
+}
+
+void MainWindow::skipTrackerEntry(const QString &prayer, const QDate &date) {
+    if (!m_tracker) {
+        return;
+    }
+    for (const TrackerEntry &entry : m_tracker->entriesFor(date)) {
+        if (!entry.qada && entry.prayer == prayer && entry.pending()) {
+            m_tracker->skip(entry.id);
+            return;
+        }
+    }
+}
+
+void MainWindow::showTrackerBanner(const QString &title, const QString &body,
+                                   const QString &prayer, const QDate &date,
+                                   bool witr) {
+    if (!m_trackerBanner || !m_trackerBannerLabel) {
+        return;
+    }
+    m_bannerPrayer = prayer;
+    m_bannerDate = date;
+    m_bannerWitr = witr;
+    m_trackerBannerLabel->setText(
+        QStringLiteral("<b>%1</b><br>%2").arg(title.toHtmlEscaped(),
+                                             body.toHtmlEscaped()));
+    m_trackerBanner->show();
+    flashTray();
+}
+
+void MainWindow::hideTrackerBanner() {
+    if (m_trackerBanner) {
+        m_trackerBanner->hide();
+    }
+    m_bannerPrayer.clear();
+    m_bannerDate = QDate();
+    m_bannerWitr = false;
 }
 
 void MainWindow::playStartupSound() {
@@ -1104,6 +1281,7 @@ void MainWindow::openSettingsDialog(int tab) {
 void MainWindow::openPreferencesDialog(int tab) {
     if (!m_preferencesDialog) {
         m_preferencesDialog = new PreferencesDialog(m_core.handle(), this);
+        m_preferencesDialog->setTracker(m_tracker);
         connect(m_preferencesDialog, &PreferencesDialog::applied, this, [this] {
             Ui::setTimeFormat(
                 config().value(QStringLiteral("time_format")).toInt(0));
@@ -1166,6 +1344,7 @@ void MainWindow::applyPreferencesToWindow() {
             !cfg.value(QStringLiteral("athan_enabled")).toBool(true));
     }
     namaz_core_set_volume(cfg.value(QStringLiteral("volume")).toInt(90));
+    syncTrackerMask();
     syncAutostart();
 }
 

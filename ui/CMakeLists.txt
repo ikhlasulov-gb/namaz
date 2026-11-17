@@ -79,6 +79,8 @@ add_executable(namaz-ui
     src/TrackerView.h
     src/TrackerDialogs.cpp
     src/TrackerDialogs.h
+    src/TrackerNotifications.cpp
+    src/TrackerNotifications.h
     src/Dialogs.cpp
     src/Dialogs.h
     src/UpdateChecker.cpp
@@ -203,6 +205,8 @@ if(BUILD_TESTING)
         src/TrackerView.h
         src/TrackerDialogs.cpp
         src/TrackerDialogs.h
+        src/TrackerNotifications.cpp
+        src/TrackerNotifications.h
         src/UpdateChecker.cpp
         src/UpdateChecker.h
     )
