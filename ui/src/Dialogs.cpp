@@ -26,6 +26,7 @@
 #include <QPushButton>
 #include <QScreen>
 #include <QScrollArea>
+#include <QSignalBlocker>
 #include <QSlider>
 #include <QSpinBox>
 #include <QStackedWidget>
@@ -1104,9 +1105,16 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
     const QString notifyHint = tr("Notify when the prayer time begins");
     const QString autoHint =
         tr("Confirm automatically at the end of the prayer window");
+    for (int column = 1; column < 3; ++column) {
+        auto *header =
+            new QLabel(column == 1 ? notifyHint : autoHint, journalNotifyBox);
+        Ui::styleCaption(header);
+        journalNotifyGrid->addWidget(header, 0, column);
+    }
     for (int index = 0; index < 6; ++index) {
         journalNotifyGrid->addWidget(
-            new QLabel(trackerPrayerNames[index], journalNotifyBox), index, 0);
+            new QLabel(trackerPrayerNames[index], journalNotifyBox),
+            index + 1, 0);
         m_trackerNotify[index] = new QCheckBox(journalNotifyBox);
         m_trackerNotify[index]->setObjectName(
             QStringLiteral("TrackerNotify%1").arg(index));
@@ -1119,13 +1127,9 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
         m_trackerAuto[index]->setAccessibleName(
             tr("Journal auto-confirm for %1").arg(trackerPrayerNames[index]));
         m_trackerAuto[index]->setToolTip(autoHint);
-        journalNotifyGrid->addWidget(m_trackerNotify[index], index, 1);
-        journalNotifyGrid->addWidget(m_trackerAuto[index], index, 2);
+        journalNotifyGrid->addWidget(m_trackerNotify[index], index + 1, 1);
+        journalNotifyGrid->addWidget(m_trackerAuto[index], index + 1, 2);
     }
-    auto *journalHeader = new QLabel(journalNotifyBox);
-    Ui::styleCaption(journalHeader);
-    journalHeader->setText(QStringLiteral("%1    %2").arg(notifyHint, autoHint));
-    journalNotifyGrid->addWidget(journalHeader, 6, 0, 1, 3);
     journalLayout->addWidget(journalNotifyBox);
 
     auto *journalDataBox = compactBox(tr("History and qada"), journalPage.widget);
@@ -1145,6 +1149,22 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
     Ui::setFieldWidth(m_trackerHistoryDays, 140);
     journalDataForm->addRow(tr("Keep history for"), m_trackerHistoryDays);
     journalLayout->addWidget(journalDataBox);
+
+    // Starting qada debt per prayer, so an existing debt can be imported.
+    auto *journalQadaBox = compactBox(tr("Starting qada debt"), journalPage.widget);
+    auto *journalQadaGrid = new QGridLayout(journalQadaBox);
+    Ui::compactGrid(journalQadaGrid);
+    for (int index = 0; index < 6; ++index) {
+        journalQadaGrid->addWidget(
+            new QLabel(trackerPrayerNames[index], journalQadaBox), 0, index);
+        m_trackerQada[index] = new QSpinBox(journalQadaBox);
+        m_trackerQada[index]->setObjectName(
+            QStringLiteral("TrackerQada%1").arg(index));
+        m_trackerQada[index]->setRange(0, 1000000);
+        Ui::setFieldWidth(m_trackerQada[index], 96);
+        journalQadaGrid->addWidget(m_trackerQada[index], 1, index);
+    }
+    journalLayout->addWidget(journalQadaBox);
 
     auto *journalMaintenanceBox = compactBox(tr("Data"), journalPage.widget);
     auto *journalMaintenanceLayout = new QHBoxLayout(journalMaintenanceBox);
@@ -1189,6 +1209,7 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
         for (int index = 0; index < 6; ++index) {
             m_trackerNotify[index]->setEnabled(on);
             m_trackerAuto[index]->setEnabled(on);
+            m_trackerQada[index]->setEnabled(on);
         }
         m_trackerNotifyButtons->setEnabled(on);
         m_trackerQadaReminder->setEnabled(on);
@@ -1828,6 +1849,10 @@ void PreferencesDialog::populateTracker() {
         m_trackerAuto[index]->setChecked(m_tracker->autoConfirm(index));
         m_trackerNotify[index]->setEnabled(on);
         m_trackerAuto[index]->setEnabled(on);
+        const QSignalBlocker blocker(m_trackerQada[index]);
+        m_trackerQada[index]->setValue(
+            static_cast<int>(m_tracker->initialQada(index)));
+        m_trackerQada[index]->setEnabled(on);
     }
     m_trackerNotifyButtons->setChecked(m_tracker->notifyButtons());
     m_trackerQadaReminder->setValue(m_tracker->qadaReminder());
@@ -1849,6 +1874,7 @@ void PreferencesDialog::applyTracker() {
         const QString key = PrayerTracker::prayerKey(index);
         notify.insert(key, m_trackerNotify[index]->isChecked());
         autoConfirm.insert(key, m_trackerAuto[index]->isChecked());
+        m_tracker->setInitialQada(index, m_trackerQada[index]->value());
     }
     QJsonObject settings = m_tracker->settings();
     settings.insert(QStringLiteral("enabled"), m_trackerEnabled->isChecked());

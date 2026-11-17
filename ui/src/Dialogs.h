@@ -116,6 +116,7 @@ private:
     QCheckBox *m_trackerNotify[6] = {};
     QCheckBox *m_trackerAuto[6] = {};
     QCheckBox *m_trackerNotifyButtons = nullptr;
+    QSpinBox *m_trackerQada[6] = {};
     QSpinBox *m_trackerQadaReminder = nullptr;
     QSpinBox *m_trackerHistoryDays = nullptr;
     QPushButton *m_trackerExport = nullptr;

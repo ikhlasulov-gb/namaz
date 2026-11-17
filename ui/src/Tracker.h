@@ -117,9 +117,6 @@ public:
     bool notifyButtons() const;
     int historyDays() const;
     int qadaReminder() const;
-    bool prayerEnabled(int index) const;
-    QString prayerColor(int index) const;
-    QString prayerIcon(int index) const;
     QString prayerNotes(int index) const;
 
     qint64 initialQada(int index) const;

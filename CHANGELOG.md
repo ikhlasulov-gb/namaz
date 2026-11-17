@@ -22,9 +22,16 @@ All notable changes to Namaz are documented here.  The format is based on
   reminder sounds stay unchanged.  Without a notification daemon the window
   shows its own Confirm/Skip banner.
 - Tray actions "Confirm Next Prayer" and "Open Journal", and a "Journal"
-  page in Preferences with per-prayer notifications, auto-confirm, the qada
-  reminder threshold, the history retention period, CSV export and a data
-  reset.
+  page in Preferences with per-prayer notifications, auto-confirm, the
+  starting qada debt, the qada reminder threshold, the history retention
+  period, CSV export and a data reset.
+
+### Changed
+
+- The journal UI is plain Breeze Qt, like the rest of the application: the
+  Today rows are ordinary widgets without custom frames, per-prayer colours
+  or icons, and the in-tab settings sub-page is gone — all journal options
+  live on the Journal page in Preferences.
 
 ## [1.0.14] - 2026-11-17
 
