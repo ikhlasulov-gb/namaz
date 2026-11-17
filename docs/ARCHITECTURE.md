@@ -42,9 +42,40 @@ The C ABI is declared in `ui/src/Core.h` and implemented at the bottom of
 
 `MainWindow` (`ui/src/Widgets.cpp`) builds the menu, toolbar, tray, shortcuts
 and status bar.  `Views.cpp` contains Day/Month/Year views and the Masjid
-window; `Dialogs.cpp` contains Prayer Settings and Preferences.  `DBusService`
-exports the session-bus API.  `UpdateChecker` performs the optional GitHub
-Releases request.
+window; `Dialogs.cpp` contains Prayer Settings and Preferences (with the
+Journal page).  `DBusService` exports the session-bus API.  `UpdateChecker`
+performs the optional GitHub Releases request.
+
+## Prayer journal
+
+The journal is a Qt Widgets tracker for the five obligatory prayers and Witr,
+inspired by Dosage (GPL-3.0-only; re-implemented, no code reused).  It lives
+in four modules:
+
+- `Tracker.{h,cpp}` — `PrayerTracker`, the model.  It persists to
+  `$XDG_DATA_HOME/namaz/tracker.json` through `QSaveFile` (atomic replace,
+  schema `version` field), keeps a snapshot of every prayer window (`epoch`,
+  notification moment, deadline) so later city or method changes never
+  rewrite history, converts pending records to missed/auto at their deadline,
+  counts the qada debt (`missed` +1, a make-up record −1, `skip` neutral) and
+  provides history search, editing, pruning and CSV export.  The clock and
+  the prayer-time source are injected, which keeps `ui/tests/tst_tracker.cpp`
+  deterministic.
+- `TrackerView.{h,cpp}` — the fourth main-window tab (Ctrl+4) with the
+  Today/History/Prayers subpages.
+- `TrackerDialogs.{h,cpp}` — the "make up a missed prayer" (qada) dialog and
+  the history-record editor.
+- `TrackerNotifications.{h,cpp}` — `org.freedesktop.Notifications` via Qt
+  DBus with Confirm/Skip actions; without a capable daemon the window falls
+  back to its own banner and a tray flash.
+
+Witr has no core time index; the core exposes it as a `witr` object in the
+day JSON (`epoch`, `deadline_epoch`, `available`, calendar date), computed as
+the last third of the night Maghrib → Fajr(D+1).  Every core time also gains
+an absolute `epoch`.  While the tracker is enabled,
+`namaz_core_set_tracker_mask` silences the plain core notification for the
+tracked prayers so only the tracker reminds; adhan, iqama and reminder audio
+are untouched.
 
 ## Configuration and migration
 

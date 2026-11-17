@@ -479,10 +479,8 @@ fn effective_offset(cfg: &Config, date: NaiveDate) -> f64 {
 /// correct.
 fn epoch_for(cfg: &Config, date: NaiveDate, seconds: i64) -> i64 {
     let offset = (effective_offset(cfg, date) * 3600.0).round() as i64;
-    let naive = date
-        .and_hms_opt(0, 0, 0)
-        .expect("valid midnight")
-        + ChronoDuration::seconds(seconds);
+    let naive =
+        date.and_hms_opt(0, 0, 0).expect("valid midnight") + ChronoDuration::seconds(seconds);
     naive.and_utc().timestamp() - offset
 }
 
@@ -1291,9 +1289,7 @@ impl Core {
                     if self.cfg.athan_enabled {
                         self.play_athan_audio(i);
                     }
-                    if self.cfg.notifications_enabled
-                        && !self.tracker_notification_masked(i)
-                    {
+                    if self.cfg.notifications_enabled && !self.tracker_notification_masked(i) {
                         let _ = notify_rust::Notification::new()
                             .appname("Namaz")
                             .icon("io.github.ikhlasulov_gb.Namaz")
@@ -1728,7 +1724,8 @@ pub extern "C" fn namaz_core_set_tracker_mask(core: *mut Core, mask: u32) {
 }
 
 #[no_mangle]
-pub extern "C" fn namaz_core_month_json(core: *mut Core) -> *mut c_char {    if core.is_null() {
+pub extern "C" fn namaz_core_month_json(core: *mut Core) -> *mut c_char {
+    if core.is_null() {
         return std::ptr::null_mut();
     }
     let core = unsafe { &*core };
@@ -2431,9 +2428,7 @@ mod tests {
         let next = date + ChronoDuration::days(1);
         let night_start = value["times"][4]["epoch"].as_i64().unwrap();
         let next_core = test_core(berlin_config(), next);
-        let night_end = next_core.day_json()["times"][0]["epoch"]
-            .as_i64()
-            .unwrap();
+        let night_end = next_core.day_json()["times"][0]["epoch"].as_i64().unwrap();
         assert_eq!(witr["deadline_epoch"].as_i64(), Some(night_end));
         assert_eq!(
             witr["epoch"].as_i64(),
@@ -2460,13 +2455,8 @@ mod tests {
         let next_core = test_core(berlin_config(), next);
         let next_value = next_core.day_json();
         let next_fajr_seconds = next_value["times"][0]["seconds"].as_u64().unwrap() as i64;
-        let next_offset =
-            (effective_offset(&next_core.cfg, next) * 3600.0).round() as i64;
-        let expected_deadline = next
-            .and_hms_opt(0, 0, 0)
-            .unwrap()
-            .and_utc()
-            .timestamp()
+        let next_offset = (effective_offset(&next_core.cfg, next) * 3600.0).round() as i64;
+        let expected_deadline = next.and_hms_opt(0, 0, 0).unwrap().and_utc().timestamp()
             + next_fajr_seconds
             - next_offset;
         assert_eq!(

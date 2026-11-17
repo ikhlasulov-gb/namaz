@@ -39,7 +39,7 @@ Qt 6 Widgets.
 
 ## Features
 
-- **Day, Month and Year views** with Gregorian and Hijri calendars.
+- **Day, Month, Year and Journal views** with Gregorian and Hijri calendars.
 - **Accurate prayer engine** ported from the Islamic Times Library (ITL).
 - **Calculation methods**: Custom, Egyptian, ISNA, MWL, Umm al-Qura, Karachi,
   Kemenag/MUIS (Indonesia and Singapore) and more, with Standard/Hanafi Asr
@@ -49,6 +49,13 @@ Qt 6 Widgets.
   files and folders.
 - **Desktop integration**: tray icon, notifications, D-Bus API, autostart,
   screen-locker support and a Masjid full-screen view.
+- **Prayer journal**: track the five obligatory prayers and Witr, confirm or
+  skip each prayer inside its window, keep a qada debt counter, browse and
+  export the history (CSV).  Journal notifications with Confirm/Skip buttons
+  replace the plain prayer notification while the adhan stays unchanged; they
+  work while Namaz is running (window or tray).  The idea comes from
+  [Dosage](https://github.com/diegopvlk/Dosage) (GPL-3.0-only, re-implemented
+  from scratch).
 - **Export**: PDF and CSV (Gregorian, Hijri and Outlook CSV).
 - **Localisation**: English and Russian.
 - **Privacy**: no telemetry, no account, no network access required for

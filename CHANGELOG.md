@@ -4,6 +4,28 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- The prayer journal ("Журнал"), a fourth tab next to Day, Month and Year
+  (Ctrl+4).  It tracks the five obligatory prayers and Witr: today's list
+  with Confirm/Skip, the automatic `missed` mark at the end of every prayer
+  window, a qada debt counter (missed +1, make-up −1, skip neutral),
+  searchable history with editing, deletion, auto-pruning and CSV export.
+- Witr is computed by the Rust core as the last third of the night
+  (Maghrib → Fajr of the next day) and is exposed in the day JSON together
+  with absolute `epoch` values for every prayer time.
+- Journal notifications with Confirm/Skip buttons over
+  `org.freedesktop.Notifications`.  When the tracker is enabled they replace
+  the plain core notification for the tracked prayers; the adhan and the
+  reminder sounds stay unchanged.  Without a notification daemon the window
+  shows its own Confirm/Skip banner.
+- Tray actions "Confirm Next Prayer" and "Open Journal", and a "Journal"
+  page in Preferences with per-prayer notifications, auto-confirm, the qada
+  reminder threshold, the history retention period, CSV export and a data
+  reset.
+
 ## [1.0.14] - 2026-11-17
 
 ### Added

@@ -142,6 +142,44 @@
     </message>
 </context>
 <context>
+    <name>EditEntryDialog</name>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="102"/>
+        <source>Edit Journal Record</source>
+        <translation>Изменить запись журнала</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="112"/>
+        <source>Prayer</source>
+        <translation>Намаз</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="116"/>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="117"/>
+        <source>Scheduled</source>
+        <translation>Время наступления</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="127"/>
+        <source>Status</source>
+        <translation>Статус</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="131"/>
+        <source>Note</source>
+        <translation>Заметка</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="136"/>
+        <source>This record is a make-up prayer and counts against the qada debt.</source>
+        <translation>Эта запись — возмещение (када), она уменьшает счётчик долга.</translation>
+    </message>
+</context>
+<context>
     <name>Hijri</name>
     <message>
         <location filename="../src/UiUtils.cpp" line="165"/>
@@ -207,336 +245,331 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/Widgets.cpp" line="218"/>
+        <location filename="../src/Widgets.cpp" line="289"/>
         <source>&amp;Day</source>
         <translation>&amp;День</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="219"/>
+        <location filename="../src/Widgets.cpp" line="290"/>
         <source>&amp;Month</source>
         <translation>&amp;Месяц</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="220"/>
+        <location filename="../src/Widgets.cpp" line="291"/>
         <source>&amp;Year</source>
         <translation>&amp;Год</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="235"/>
+        <location filename="../src/Widgets.cpp" line="307"/>
         <source>Previous</source>
         <translation>Назад</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="240"/>
+        <location filename="../src/Widgets.cpp" line="312"/>
         <source>Today</source>
         <translation>Сегодня</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="245"/>
+        <location filename="../src/Widgets.cpp" line="317"/>
         <source>Next</source>
         <translation>Далее</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="251"/>
+        <location filename="../src/Widgets.cpp" line="323"/>
         <source>Main Toolbar</source>
         <translation>Панель инструментов</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="269"/>
-        <location filename="../src/Widgets.cpp" line="505"/>
+        <location filename="../src/Widgets.cpp" line="342"/>
+        <location filename="../src/Widgets.cpp" line="589"/>
         <source>Pray Now</source>
         <translation>Молиться сейчас</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="272"/>
+        <location filename="../src/Widgets.cpp" line="345"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="299"/>
+        <location filename="../src/Widgets.cpp" line="372"/>
         <source>&amp;File</source>
         <translation>&amp;Файл</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="301"/>
+        <location filename="../src/Widgets.cpp" line="374"/>
         <source>&amp;Export Prayer Times</source>
         <translation>&amp;Экспорт времени молитв</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="303"/>
+        <location filename="../src/Widgets.cpp" line="376"/>
         <source>January</source>
         <translation>Январь</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="303"/>
+        <location filename="../src/Widgets.cpp" line="376"/>
         <source>February</source>
         <translation>Февраль</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="303"/>
+        <location filename="../src/Widgets.cpp" line="376"/>
         <source>March</source>
         <translation>Март</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="303"/>
+        <location filename="../src/Widgets.cpp" line="376"/>
         <source>April</source>
         <translation>Апрель</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="304"/>
+        <location filename="../src/Widgets.cpp" line="377"/>
         <source>May</source>
         <translation>Май</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="304"/>
+        <location filename="../src/Widgets.cpp" line="377"/>
         <source>June</source>
         <translation>Июнь</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="304"/>
+        <location filename="../src/Widgets.cpp" line="377"/>
         <source>July</source>
         <translation>Июль</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="304"/>
+        <location filename="../src/Widgets.cpp" line="377"/>
         <source>August</source>
         <translation>Август</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="305"/>
+        <location filename="../src/Widgets.cpp" line="378"/>
         <source>September</source>
         <translation>Сентябрь</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="305"/>
+        <location filename="../src/Widgets.cpp" line="378"/>
         <source>October</source>
         <translation>Октябрь</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="305"/>
+        <location filename="../src/Widgets.cpp" line="378"/>
         <source>November</source>
         <translation>Ноябрь</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="305"/>
+        <location filename="../src/Widgets.cpp" line="378"/>
         <source>December</source>
         <translation>Декабрь</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="319"/>
+        <location filename="../src/Widgets.cpp" line="392"/>
         <source>Whole Year</source>
         <translation>Весь год</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="324"/>
+        <location filename="../src/Widgets.cpp" line="397"/>
         <source>Gregorian Calendar</source>
         <translation>Григорианский календарь</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="325"/>
+        <location filename="../src/Widgets.cpp" line="398"/>
         <source>Hijri Calendar</source>
         <translation>Хиджрийский календарь</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="326"/>
+        <location filename="../src/Widgets.cpp" line="399"/>
         <source>Outlook CSV</source>
         <translation>Outlook CSV</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="328"/>
+        <location filename="../src/Widgets.cpp" line="401"/>
         <source>&amp;Print Prayer Times</source>
         <translation>&amp;Печать времени молитв</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="339"/>
-        <location filename="../src/Widgets.cpp" line="342"/>
+        <location filename="../src/Widgets.cpp" line="412"/>
+        <location filename="../src/Widgets.cpp" line="415"/>
         <source>Gregorian month</source>
         <translation>Григорианский месяц</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="340"/>
-        <location filename="../src/Widgets.cpp" line="343"/>
+        <location filename="../src/Widgets.cpp" line="413"/>
+        <location filename="../src/Widgets.cpp" line="416"/>
         <source>Hijri month</source>
         <translation>Хиджрийский месяц</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="341"/>
+        <location filename="../src/Widgets.cpp" line="414"/>
         <source>Print to &amp;PDF</source>
         <translation>Печать в &amp;PDF</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="346"/>
+        <location filename="../src/Widgets.cpp" line="419"/>
         <source>&amp;Quit</source>
         <translation>&amp;Выход</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="351"/>
+        <location filename="../src/Widgets.cpp" line="424"/>
         <source>&amp;View</source>
         <translation>&amp;Вид</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="360"/>
+        <location filename="../src/Widgets.cpp" line="433"/>
         <source>&amp;Full Screen</source>
         <translation>&amp;Полный экран</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="370"/>
+        <location filename="../src/Widgets.cpp" line="443"/>
         <source>&amp;Masjid Screen</source>
         <translation>&amp;Экран мечети</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="374"/>
+        <location filename="../src/Widgets.cpp" line="447"/>
         <source>Show &amp;Qiblah</source>
         <translation>Показать &amp;Киблу</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="380"/>
+        <location filename="../src/Widgets.cpp" line="453"/>
         <source>Show &amp;Hijri Date</source>
         <translation>Показать &amp;хиджрийскую дату</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="387"/>
+        <location filename="../src/Widgets.cpp" line="460"/>
         <source>&amp;Playback</source>
         <translation>&amp;Воспроизведение</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="389"/>
+        <location filename="../src/Widgets.cpp" line="462"/>
         <source>&amp;Athan</source>
         <translation>&amp;Азан</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="392"/>
+        <location filename="../src/Widgets.cpp" line="465"/>
         <source>&amp;Quran</source>
         <translation>&amp;Коран</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="393"/>
-        <location filename="../src/Widgets.cpp" line="525"/>
+        <location filename="../src/Widgets.cpp" line="466"/>
+        <location filename="../src/Widgets.cpp" line="609"/>
         <source>Al-Ikhlas</source>
         <translation>Аль-Ихлас</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="444"/>
+        <location filename="../src/Widgets.cpp" line="517"/>
         <source>Check for &amp;Updates...</source>
         <translation>Проверить &amp;обновления…</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="452"/>
-        <source>&lt;b&gt;Namaz&lt;/b&gt;&lt;br&gt;Muslim prayer times, Qibla and Hijri calendar.&lt;br&gt;&lt;br&gt;Rust prayer engine + Qt 6 Widgets.&lt;br&gt;Author: Ikhlasulov&lt;br&gt;Inspired by Salaat Time 3.0.&lt;br&gt;Version %1</source>
-        <translation>&lt;b&gt;Namaz&lt;/b&gt;&lt;br&gt;Время мусульманских молитв, Кибла и хиджрийский календарь.&lt;br&gt;&lt;br&gt;Rust-ядро + Qt 6 Widgets.&lt;br&gt;Автор: Ikhlasulov&lt;br&gt;Вдохновлено Salaat Time 3.0.&lt;br&gt;Версия %1</translation>
-    </message>
-    <message>
-        <location filename="../src/Widgets.cpp" line="521"/>
+        <location filename="../src/Widgets.cpp" line="605"/>
         <source>Athan</source>
         <translation>Азан</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="529"/>
+        <location filename="../src/Widgets.cpp" line="613"/>
         <source>Bismi Allah</source>
         <translation>Бисмиллах</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1270"/>
+        <location filename="../src/Widgets.cpp" line="1449"/>
         <source>Checking for updates...</source>
         <translation>Проверка обновлений…</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1277"/>
+        <location filename="../src/Widgets.cpp" line="1456"/>
         <source>Update Available</source>
         <translation>Доступно обновление</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1281"/>
+        <location filename="../src/Widgets.cpp" line="1460"/>
         <source>&lt;b&gt;Namaz %1 is available.&lt;/b&gt;&lt;br&gt;You are using %2.</source>
         <translation>&lt;b&gt;Доступна версия Namaz %1.&lt;/b&gt;&lt;br&gt;Вы используете %2.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1290"/>
+        <location filename="../src/Widgets.cpp" line="1469"/>
         <source>No release notes were provided.</source>
         <translation>Список изменений не указан.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1264"/>
-        <location filename="../src/Widgets.cpp" line="1297"/>
+        <location filename="../src/Widgets.cpp" line="1443"/>
+        <location filename="../src/Widgets.cpp" line="1476"/>
         <source>Namaz is installed as a Flatpak. Use your software centre or run:
 flatpak update --user io.github.ikhlasulov_gb.Namaz</source>
         <translation>Namaz установлен как Flatpak. Используйте центр приложений или выполните:
 flatpak update --user io.github.ikhlasulov_gb.Namaz</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1305"/>
+        <location filename="../src/Widgets.cpp" line="1484"/>
         <source>Open release page</source>
         <translation>Открыть страницу релиза</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1311"/>
+        <location filename="../src/Widgets.cpp" line="1490"/>
         <source>Download and install</source>
         <translation>Скачать и установить</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1316"/>
+        <location filename="../src/Widgets.cpp" line="1495"/>
         <source>Copy update command</source>
         <translation>Скопировать команду обновления</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1319"/>
+        <location filename="../src/Widgets.cpp" line="1498"/>
         <source>Skip this version</source>
         <translation>Пропустить эту версию</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1321"/>
+        <location filename="../src/Widgets.cpp" line="1500"/>
         <source>Later</source>
         <translation>Позже</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1336"/>
+        <location filename="../src/Widgets.cpp" line="1515"/>
         <source>Update command copied</source>
         <translation>Команда обновления скопирована</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1337"/>
+        <location filename="../src/Widgets.cpp" line="1516"/>
         <source>The command was copied to the clipboard.</source>
         <translation>Команда скопирована в буфер обмена.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1388"/>
+        <location filename="../src/Widgets.cpp" line="1567"/>
         <source>Downloading Namaz %1...</source>
         <translation>Скачивание Namaz %1…</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1389"/>
+        <location filename="../src/Widgets.cpp" line="1568"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1397"/>
-        <location filename="../src/Widgets.cpp" line="1426"/>
-        <location filename="../src/Widgets.cpp" line="1436"/>
+        <location filename="../src/Widgets.cpp" line="1576"/>
+        <location filename="../src/Widgets.cpp" line="1605"/>
+        <location filename="../src/Widgets.cpp" line="1615"/>
         <source>Update failed</source>
         <translation>Не удалось обновить</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1398"/>
+        <location filename="../src/Widgets.cpp" line="1577"/>
         <source>The update could not be downloaded.</source>
         <translation>Не удалось скачать обновление.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1427"/>
+        <location filename="../src/Widgets.cpp" line="1606"/>
         <source>The downloaded file does not match its SHA-256 checksum.</source>
         <translation>Контрольная сумма SHA-256 скачанного файла не совпадает.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1437"/>
+        <location filename="../src/Widgets.cpp" line="1616"/>
         <source>Could not write the downloaded file.</source>
         <translation>Не удалось записать скачанный файл.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1469"/>
+        <location filename="../src/Widgets.cpp" line="1648"/>
         <source>Update downloaded</source>
         <translation>Обновление скачано</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1470"/>
+        <location filename="../src/Widgets.cpp" line="1649"/>
         <source>The new version was saved to:
 %1
 
@@ -547,277 +580,317 @@ Start it manually to replace the current AppImage.</source>
 Запустите её вручную, чтобы заменить текущий AppImage.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1478"/>
+        <location filename="../src/Widgets.cpp" line="1657"/>
         <source>Update installed</source>
         <translation>Обновление установлено</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="1479"/>
+        <location filename="../src/Widgets.cpp" line="1658"/>
         <source>Namaz %1 has been installed. Restart now?</source>
         <translation>Namaz %1 установлен. Перезапустить сейчас?</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="399"/>
+        <location filename="../src/Widgets.cpp" line="472"/>
         <source>&amp;Duas</source>
         <translation>&amp;Дуа</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="401"/>
+        <location filename="../src/Widgets.cpp" line="474"/>
         <source>Dua after Athan</source>
         <translation>Дуа после азана</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="404"/>
+        <location filename="../src/Widgets.cpp" line="477"/>
         <source>Dua 1</source>
         <translation>Дуа 1</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="407"/>
+        <location filename="../src/Widgets.cpp" line="480"/>
         <source>Dua 2</source>
         <translation>Дуа 2</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="414"/>
+        <location filename="../src/Widgets.cpp" line="487"/>
         <source>Pray &amp;Now</source>
         <translation>Молиться &amp;сейчас</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="411"/>
+        <location filename="../src/Widgets.cpp" line="484"/>
         <source>&amp;Bismi Allah</source>
         <translation>&amp;Бисмиллах</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="185"/>
-        <location filename="../src/Widgets.cpp" line="190"/>
-        <location filename="../src/Widgets.cpp" line="1263"/>
+        <location filename="../src/Widgets.cpp" line="157"/>
+        <source>Confirm</source>
+        <translation>Подтвердить</translation>
+    </message>
+    <message>
+        <location filename="../src/Widgets.cpp" line="159"/>
+        <source>Skip</source>
+        <translation>Пропустить</translation>
+    </message>
+    <message>
+        <location filename="../src/Widgets.cpp" line="256"/>
+        <location filename="../src/Widgets.cpp" line="261"/>
+        <location filename="../src/Widgets.cpp" line="1442"/>
         <source>Check for Updates</source>
         <translation>Проверка обновлений</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="186"/>
+        <location filename="../src/Widgets.cpp" line="257"/>
         <source>Namaz %1 is the latest available version.</source>
         <translation>Namaz %1 — последняя доступная версия.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="191"/>
+        <location filename="../src/Widgets.cpp" line="262"/>
         <source>Could not check for updates:
 %1</source>
         <translation>Не удалось проверить обновления:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="418"/>
+        <location filename="../src/Widgets.cpp" line="292"/>
+        <source>&amp;Journal</source>
+        <translation>Журнал</translation>
+    </message>
+    <message>
+        <location filename="../src/Widgets.cpp" line="491"/>
         <source>&amp;Mute All</source>
         <translation>&amp;Выключить весь звук</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="426"/>
+        <location filename="../src/Widgets.cpp" line="499"/>
         <source>&amp;Stop Audio</source>
         <translation>&amp;Остановить звук</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="431"/>
+        <location filename="../src/Widgets.cpp" line="504"/>
         <source>&amp;Settings</source>
         <translation>&amp;Настройки</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="432"/>
+        <location filename="../src/Widgets.cpp" line="505"/>
         <source>Prayer &amp;Settings...</source>
         <translation>&amp;Настройки молитв...</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="434"/>
+        <location filename="../src/Widgets.cpp" line="507"/>
         <source>&amp;Preferences...</source>
         <translation>&amp;Параметры...</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="443"/>
+        <location filename="../src/Widgets.cpp" line="516"/>
         <source>&amp;Help</source>
         <translation>&amp;Справка</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="447"/>
+        <location filename="../src/Widgets.cpp" line="520"/>
         <source>&amp;About Namaz</source>
         <translation>&amp;О программе Namaz</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="451"/>
+        <location filename="../src/Widgets.cpp" line="524"/>
         <source>About Namaz</source>
         <translation>О программе Namaz</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="460"/>
+        <location filename="../src/Widgets.cpp" line="238"/>
+        <source>Qada reminder: %1 — debt %2</source>
+        <translation>Напоминание о кады: %1 — долг %2</translation>
+    </message>
+    <message>
+        <location filename="../src/Widgets.cpp" line="525"/>
+        <source>&lt;b&gt;Namaz&lt;/b&gt;&lt;br&gt;Muslim prayer times, Qibla and Hijri calendar.&lt;br&gt;&lt;br&gt;Rust prayer engine + Qt 6 Widgets.&lt;br&gt;Author: Ikhlasulov&lt;br&gt;Inspired by Salaat Time 3.0.&lt;br&gt;The prayer journal is inspired by Dosage (GPL-3.0-only, no code reused).&lt;br&gt;Version %1</source>
+        <translation>&lt;b&gt;Namaz&lt;/b&gt;&lt;br&gt;Времена намазов, кибла и календарь Хиджры.&lt;br&gt;&lt;br&gt;Rust-движок расчёта + Qt 6 Widgets.&lt;br&gt;Автор: Ikhlasulov&lt;br&gt;Вдохновлено Salaat Time 3.0.&lt;br&gt;Журнал намазов создан по мотивам Dosage (GPL-3.0-only, код не используется).&lt;br&gt;Версия %1</translation>
+    </message>
+    <message>
+        <location filename="../src/Widgets.cpp" line="535"/>
         <source>About &amp;Qt</source>
         <translation>О &amp;Qt</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="500"/>
+        <location filename="../src/Widgets.cpp" line="575"/>
         <source>Open Namaz</source>
         <translation>Открыть Namaz</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="502"/>
+        <location filename="../src/Widgets.cpp" line="577"/>
         <source>Next: —</source>
         <translation>Далее: —</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="511"/>
+        <location filename="../src/Widgets.cpp" line="579"/>
+        <source>Confirm Next Prayer</source>
+        <translation>Подтвердить следующий намаз</translation>
+    </message>
+    <message>
+        <location filename="../src/Widgets.cpp" line="583"/>
+        <source>Open Journal</source>
+        <translation>Открыть журнал</translation>
+    </message>
+    <message>
+        <location filename="../src/Widgets.cpp" line="595"/>
         <source>Prayer Settings...</source>
         <translation>Настройки молитв...</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="515"/>
+        <location filename="../src/Widgets.cpp" line="599"/>
         <source>Preferences...</source>
         <translation>Параметры...</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="519"/>
+        <location filename="../src/Widgets.cpp" line="603"/>
         <source>Playback</source>
         <translation>Воспроизведение</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="534"/>
+        <location filename="../src/Widgets.cpp" line="618"/>
         <source>Stop Audio</source>
         <translation>Остановить звук</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="538"/>
+        <location filename="../src/Widgets.cpp" line="622"/>
         <source>Mute All</source>
         <translation>Выключить весь звук</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="549"/>
+        <location filename="../src/Widgets.cpp" line="633"/>
         <source>Quit</source>
         <translation>Выход</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="664"/>
+        <location filename="../src/Widgets.cpp" line="750"/>
+        <source>No prayer is ready to confirm right now.</source>
+        <translation>Сейчас нет намаза, доступного для подтверждения.</translation>
+    </message>
+    <message>
+        <location filename="../src/Widgets.cpp" line="841"/>
         <source>Method: %1</source>
         <translation>Метод: %1</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="673"/>
+        <location filename="../src/Widgets.cpp" line="850"/>
         <source>Namaz - Current Prayer is %1</source>
         <translation>Namaz — Текущая молитва: %1</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="676"/>
+        <location filename="../src/Widgets.cpp" line="853"/>
         <source>Namaz</source>
         <translation>Namaz</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="766"/>
+        <location filename="../src/Widgets.cpp" line="943"/>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="767"/>
+        <location filename="../src/Widgets.cpp" line="944"/>
         <source>—</source>
         <translation>—</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="768"/>
+        <location filename="../src/Widgets.cpp" line="945"/>
         <source>Namaz — Next: %1</source>
         <translation>Namaz — Далее: %1</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="770"/>
+        <location filename="../src/Widgets.cpp" line="947"/>
         <source>Next: %1</source>
         <translation>Далее: %1</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="828"/>
+        <location filename="../src/Widgets.cpp" line="1005"/>
         <source>Audio file not found: %1</source>
         <translation>Аудиофайл не найден: %1</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="853"/>
+        <location filename="../src/Widgets.cpp" line="1030"/>
         <source>Print</source>
         <translation>Печать</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="854"/>
-        <location filename="../src/Widgets.cpp" line="952"/>
-        <location filename="../src/Widgets.cpp" line="1006"/>
+        <location filename="../src/Widgets.cpp" line="1031"/>
+        <location filename="../src/Widgets.cpp" line="1129"/>
+        <location filename="../src/Widgets.cpp" line="1183"/>
         <source>Could not calculate prayer times.</source>
         <translation>Не удалось рассчитать время молитв.</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="858"/>
+        <location filename="../src/Widgets.cpp" line="1035"/>
         <source>Hijri</source>
         <translation>Хиджра</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="858"/>
+        <location filename="../src/Widgets.cpp" line="1035"/>
         <source>Gregorian</source>
         <translation>Григорианский</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="860"/>
+        <location filename="../src/Widgets.cpp" line="1037"/>
         <source>Namaz — %1 %2 (%3)</source>
         <translation>Namaz — %1 %2 (%3)</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="864"/>
+        <location filename="../src/Widgets.cpp" line="1041"/>
         <source>Print to PDF</source>
         <translation>Печать в PDF</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="870"/>
+        <location filename="../src/Widgets.cpp" line="1047"/>
         <source>PDF files (*.pdf)</source>
         <translation>PDF-файлы (*.pdf)</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="878"/>
+        <location filename="../src/Widgets.cpp" line="1055"/>
         <source>Print Prayer Times</source>
         <translation>Печать времени молитв</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="887"/>
-        <location filename="../src/Widgets.cpp" line="918"/>
+        <location filename="../src/Widgets.cpp" line="1064"/>
+        <location filename="../src/Widgets.cpp" line="1095"/>
         <source>%1 — %2</source>
         <translation>%1 — %2</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="923"/>
+        <location filename="../src/Widgets.cpp" line="1100"/>
         <source>Namaz — %1 %2</source>
         <translation>Namaz — %1 %2</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="951"/>
-        <location filename="../src/Widgets.cpp" line="971"/>
-        <location filename="../src/Widgets.cpp" line="977"/>
-        <location filename="../src/Widgets.cpp" line="982"/>
-        <location filename="../src/Widgets.cpp" line="1005"/>
-        <location filename="../src/Widgets.cpp" line="1024"/>
-        <location filename="../src/Widgets.cpp" line="1030"/>
-        <location filename="../src/Widgets.cpp" line="1035"/>
+        <location filename="../src/Widgets.cpp" line="1128"/>
+        <location filename="../src/Widgets.cpp" line="1148"/>
+        <location filename="../src/Widgets.cpp" line="1154"/>
+        <location filename="../src/Widgets.cpp" line="1159"/>
+        <location filename="../src/Widgets.cpp" line="1182"/>
+        <location filename="../src/Widgets.cpp" line="1201"/>
+        <location filename="../src/Widgets.cpp" line="1207"/>
+        <location filename="../src/Widgets.cpp" line="1212"/>
         <source>Export</source>
         <translation>Экспорт</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="964"/>
-        <location filename="../src/Widgets.cpp" line="1017"/>
+        <location filename="../src/Widgets.cpp" line="1141"/>
+        <location filename="../src/Widgets.cpp" line="1194"/>
         <source>Export Prayer Times</source>
         <translation>Экспорт времени молитв</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="965"/>
-        <location filename="../src/Widgets.cpp" line="1018"/>
+        <location filename="../src/Widgets.cpp" line="1142"/>
+        <location filename="../src/Widgets.cpp" line="1195"/>
         <source>CSV files (*.csv)</source>
         <translation>CSV-файлы (*.csv)</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="972"/>
-        <location filename="../src/Widgets.cpp" line="978"/>
-        <location filename="../src/Widgets.cpp" line="1025"/>
-        <location filename="../src/Widgets.cpp" line="1031"/>
+        <location filename="../src/Widgets.cpp" line="1149"/>
+        <location filename="../src/Widgets.cpp" line="1155"/>
+        <location filename="../src/Widgets.cpp" line="1202"/>
+        <location filename="../src/Widgets.cpp" line="1208"/>
         <source>Could not write %1</source>
         <translation>Не удалось записать %1</translation>
     </message>
     <message>
-        <location filename="../src/Widgets.cpp" line="983"/>
-        <location filename="../src/Widgets.cpp" line="1036"/>
+        <location filename="../src/Widgets.cpp" line="1160"/>
+        <location filename="../src/Widgets.cpp" line="1213"/>
         <source>Prayer times exported to
 %1</source>
         <translation>Время молитв экспортировано в
@@ -960,377 +1033,377 @@ Start it manually to replace the current AppImage.</source>
 <context>
     <name>PrayerSettingsDialog</name>
     <message>
-        <location filename="../src/Dialogs.cpp" line="253"/>
+        <location filename="../src/Dialogs.cpp" line="255"/>
         <source>Namaz — Prayer Settings</source>
         <translation>Namaz — Настройки молитв</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="267"/>
+        <location filename="../src/Dialogs.cpp" line="269"/>
         <source>Location</source>
         <translation>Местоположение</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="270"/>
+        <location filename="../src/Dialogs.cpp" line="272"/>
         <source>Select Location From List</source>
         <translation>Выберите местоположение из списка</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="280"/>
+        <location filename="../src/Dialogs.cpp" line="282"/>
         <source>Countries</source>
         <translation>Страны</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="294"/>
+        <location filename="../src/Dialogs.cpp" line="296"/>
         <source>Cities</source>
         <translation>Города</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="308"/>
+        <location filename="../src/Dialogs.cpp" line="310"/>
         <source>Current Location / Manual Adjust</source>
         <translation>Текущее местоположение / Ручная настройка</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="332"/>
+        <location filename="../src/Dialogs.cpp" line="334"/>
         <source>No daylight saving</source>
         <translation>Без перехода на летнее время</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="333"/>
+        <location filename="../src/Dialogs.cpp" line="335"/>
         <source>Automatic (use IANA time zone)</source>
         <translation>Автоматически (по часовому поясу IANA)</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="334"/>
+        <location filename="../src/Dialogs.cpp" line="336"/>
         <source>Manual +1 hour</source>
         <translation>Вручную +1 час</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="344"/>
+        <location filename="../src/Dialogs.cpp" line="346"/>
         <source>City</source>
         <translation>Город</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="345"/>
+        <location filename="../src/Dialogs.cpp" line="347"/>
         <source>Province / State</source>
         <translation>Провинция / регион</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="346"/>
+        <location filename="../src/Dialogs.cpp" line="348"/>
         <source>Latitude [-90, +90]</source>
         <translation>Широта [-90, +90]</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="347"/>
+        <location filename="../src/Dialogs.cpp" line="349"/>
         <source>Longitude [-180, +180]</source>
         <translation>Долгота [-180, +180]</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="348"/>
+        <location filename="../src/Dialogs.cpp" line="350"/>
         <source>Time zone</source>
         <translation>Часовой пояс</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="349"/>
+        <location filename="../src/Dialogs.cpp" line="351"/>
         <source>UTC offset</source>
         <translation>Смещение UTC</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="350"/>
+        <location filename="../src/Dialogs.cpp" line="352"/>
         <source>Daylight saving</source>
         <translation>Летнее время</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="354"/>
+        <location filename="../src/Dialogs.cpp" line="356"/>
         <source>Automatic daylight saving uses the selected IANA time zone. With an empty time zone the numeric UTC offset is used as-is.</source>
         <translation>Автоматический переход на летнее время использует выбранный часовой пояс IANA. Если часовой пояс не выбран, используется числовое смещение UTC.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="404"/>
-        <location filename="../src/Dialogs.cpp" line="408"/>
+        <location filename="../src/Dialogs.cpp" line="406"/>
+        <location filename="../src/Dialogs.cpp" line="410"/>
         <source>Calculation Method</source>
         <translation>Метод расчёта</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="413"/>
+        <location filename="../src/Dialogs.cpp" line="415"/>
         <location filename="../src/UiUtils.cpp" line="206"/>
         <source>Custom twilight angles</source>
         <translation>Пользовательские углы сумерек</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="414"/>
+        <location filename="../src/Dialogs.cpp" line="416"/>
         <location filename="../src/UiUtils.cpp" line="189"/>
         <source>Egyptian General Authority of Survey</source>
         <translation>Египетское управление общей геодезии</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="415"/>
+        <location filename="../src/Dialogs.cpp" line="417"/>
         <location filename="../src/UiUtils.cpp" line="195"/>
         <source>Islamic Society of North America (ISNA)</source>
         <translation>Исламское общество Северной Америки (ISNA)</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="416"/>
+        <location filename="../src/Dialogs.cpp" line="418"/>
         <location filename="../src/UiUtils.cpp" line="198"/>
         <source>Muslim World League</source>
         <translation>Всемирная мусульманская лига</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="417"/>
+        <location filename="../src/Dialogs.cpp" line="419"/>
         <location filename="../src/UiUtils.cpp" line="201"/>
         <source>Umm al-Qura</source>
         <translation>Умм аль-Кура</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="418"/>
+        <location filename="../src/Dialogs.cpp" line="420"/>
         <location filename="../src/UiUtils.cpp" line="192"/>
         <source>University of Islamic Sciences, Karachi</source>
         <translation>Университет исламских наук, Карачи</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="419"/>
+        <location filename="../src/Dialogs.cpp" line="421"/>
         <location filename="../src/UiUtils.cpp" line="203"/>
         <source>Kemenag / MUIS (Indonesia, Singapore)</source>
         <translation>Kemenag / MUIS (Индонезия, Сингапур)</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="421"/>
+        <location filename="../src/Dialogs.cpp" line="423"/>
         <source>Method</source>
         <translation>Метод</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="435"/>
-        <location filename="../src/Dialogs.cpp" line="494"/>
+        <location filename="../src/Dialogs.cpp" line="437"/>
+        <location filename="../src/Dialogs.cpp" line="496"/>
         <source>Fajr</source>
         <translation>Фаджр</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="438"/>
-        <location filename="../src/Dialogs.cpp" line="495"/>
+        <location filename="../src/Dialogs.cpp" line="440"/>
+        <location filename="../src/Dialogs.cpp" line="497"/>
         <source>Ishaa</source>
         <translation>Иша</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="441"/>
+        <location filename="../src/Dialogs.cpp" line="443"/>
         <source>Twilight angles</source>
         <translation>Углы сумерек</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="445"/>
+        <location filename="../src/Dialogs.cpp" line="447"/>
         <source>Standard (Shafi&apos;i, Hanbali, Maliki)</source>
         <translation>Стандартный (Шафии, Ханбали, Малики)</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="446"/>
+        <location filename="../src/Dialogs.cpp" line="448"/>
         <source>Hanafi</source>
         <translation>Ханафитский</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="448"/>
+        <location filename="../src/Dialogs.cpp" line="450"/>
         <source>Asr juristic method</source>
         <translation>Правовая школа для Асра</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="452"/>
+        <location filename="../src/Dialogs.cpp" line="454"/>
         <source>Calculated time adjustments</source>
         <translation>Поправки рассчитанного времени</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="464"/>
+        <location filename="../src/Dialogs.cpp" line="466"/>
         <source>No rounding</source>
         <translation>Без округления</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="465"/>
+        <location filename="../src/Dialogs.cpp" line="467"/>
         <source>Normal rounding</source>
         <translation>Обычное округление</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="466"/>
+        <location filename="../src/Dialogs.cpp" line="468"/>
         <source>Special rounding</source>
         <translation>Особое округление</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="467"/>
+        <location filename="../src/Dialogs.cpp" line="469"/>
         <source>Aggressive rounding</source>
         <translation>Агрессивное округление</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="470"/>
+        <location filename="../src/Dialogs.cpp" line="472"/>
         <source>None</source>
         <translation>Нет</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="471"/>
+        <location filename="../src/Dialogs.cpp" line="473"/>
         <source>Middle of the night — always</source>
         <translation>Середина ночи — всегда</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="472"/>
+        <location filename="../src/Dialogs.cpp" line="474"/>
         <source>Middle of the night — invalid only</source>
         <translation>Середина ночи — только при недопустимом угле</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="473"/>
+        <location filename="../src/Dialogs.cpp" line="475"/>
         <source>One-seventh of the night — always</source>
         <translation>Одна седьмая ночи — всегда</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="474"/>
+        <location filename="../src/Dialogs.cpp" line="476"/>
         <source>One-seventh of the night — invalid only</source>
         <translation>Одна седьмая ночи — только при недопустимом угле</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="475"/>
+        <location filename="../src/Dialogs.cpp" line="477"/>
         <source>Nearest good day (Aqrab Al-Ayyam)</source>
         <translation>Ближайший подходящий день (Акраб аль-Айям)</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="483"/>
+        <location filename="../src/Dialogs.cpp" line="485"/>
         <source>Dhuhr minutes after Zawal</source>
         <translation>Минуты Зухра после зенита</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="484"/>
+        <location filename="../src/Dialogs.cpp" line="486"/>
         <source>Maghrib minutes after sunset</source>
         <translation>Минуты Магриба после заката</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="485"/>
+        <location filename="../src/Dialogs.cpp" line="487"/>
         <source>Seconds rounding</source>
         <translation>Округление секунд</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="486"/>
+        <location filename="../src/Dialogs.cpp" line="488"/>
         <source>Extreme latitude method</source>
         <translation>Метод для высоких широт</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="490"/>
+        <location filename="../src/Dialogs.cpp" line="492"/>
         <source>Additional adjustment (minutes)</source>
         <translation>Дополнительная поправка (минуты)</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="494"/>
+        <location filename="../src/Dialogs.cpp" line="496"/>
         <source>Shuruq</source>
         <translation>Шурук</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="494"/>
+        <location filename="../src/Dialogs.cpp" line="496"/>
         <source>Dhuhr</source>
         <translation>Зухр</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="495"/>
+        <location filename="../src/Dialogs.cpp" line="497"/>
         <source>Asr</source>
         <translation>Аср</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="495"/>
+        <location filename="../src/Dialogs.cpp" line="497"/>
         <source>Maghrib</source>
         <translation>Магриб</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="500"/>
+        <location filename="../src/Dialogs.cpp" line="502"/>
         <source> min</source>
         <translation> мин</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="516"/>
+        <location filename="../src/Dialogs.cpp" line="518"/>
         <source>Restore Defaults</source>
         <translation>Сбросить настройки</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="551"/>
+        <location filename="../src/Dialogs.cpp" line="553"/>
         <source>Use numeric UTC offset only</source>
         <translation>Использовать только числовое смещение UTC</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="775"/>
+        <location filename="../src/Dialogs.cpp" line="777"/>
         <source>Custom twilight angles: Fajr and Ishaa use the values below.</source>
         <translation>Пользовательские углы сумерек: для Фаджра и Иши используются значения ниже.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="776"/>
+        <location filename="../src/Dialogs.cpp" line="778"/>
         <source>Egyptian General Authority of Survey: Fajr 19.5°, Ishaa 17.5°.</source>
         <translation>Египетское управление: Фаджр 19.5°, Иша 17.5°.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="777"/>
+        <location filename="../src/Dialogs.cpp" line="779"/>
         <source>Islamic Society of North America: Fajr 15°, Ishaa 15°.</source>
         <translation>ISNA: Фаджр 15°, Иша 15°.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="778"/>
+        <location filename="../src/Dialogs.cpp" line="780"/>
         <source>Muslim World League: Fajr 18°, Ishaa 17°.</source>
         <translation>Всемирная мусульманская лига: Фаджр 18°, Иша 17°.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="779"/>
+        <location filename="../src/Dialogs.cpp" line="781"/>
         <source>Umm al-Qura: Fajr 15°, Ishaa 90 minutes after Maghrib.</source>
         <translation>Умм аль-Кура: Фаджр 15°, Иша через 90 минут после Магриба.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="780"/>
+        <location filename="../src/Dialogs.cpp" line="782"/>
         <source>University of Islamic Sciences, Karachi: Fajr 18°, Ishaa 18°.</source>
         <translation>Карачи: Фаджр 18°, Иша 18°.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="781"/>
+        <location filename="../src/Dialogs.cpp" line="783"/>
         <source>Kemenag (Indonesia) and MUIS (Singapore): Fajr 20°, Ishaa 18°.</source>
         <translation>Kemenag (Индонезия) и MUIS (Сингапур): Фаджр 20°, Иша 18°.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="788"/>
+        <location filename="../src/Dialogs.cpp" line="790"/>
         <source>Only used with Custom twilight angles.</source>
         <translation>Используется только для метода «Свои углы сумерек».</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="797"/>
+        <location filename="../src/Dialogs.cpp" line="799"/>
         <source>No extreme-latitude adjustment.</source>
         <translation>Без поправки для высоких широт.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="798"/>
+        <location filename="../src/Dialogs.cpp" line="800"/>
         <source>Place Fajr and Ishaa in the middle of the night.</source>
         <translation>Фаджр и Иша — в середине ночи.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="799"/>
+        <location filename="../src/Dialogs.cpp" line="801"/>
         <source>Use the middle of the night only when the angle is invalid.</source>
         <translation>Середина ночи используется только при недопустимом угле.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="800"/>
+        <location filename="../src/Dialogs.cpp" line="802"/>
         <source>Place Fajr and Ishaa one-seventh of the night from the horizon.</source>
         <translation>Фаджр и Иша — на одной седьмой ночи от горизонта.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="801"/>
+        <location filename="../src/Dialogs.cpp" line="803"/>
         <source>Use one-seventh of the night only when the angle is invalid.</source>
         <translation>Одна седьмая ночи используется только при недопустимом угле.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="802"/>
+        <location filename="../src/Dialogs.cpp" line="804"/>
         <source>Use the nearest day (Aqrab Al-Ayyam) with valid twilight times.</source>
         <translation>Использовать ближайший день (Акраб аль-Айям) с допустимыми сумерками.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="813"/>
+        <location filename="../src/Dialogs.cpp" line="815"/>
         <source>Daylight Saving</source>
         <translation>Летнее время</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="814"/>
+        <location filename="../src/Dialogs.cpp" line="816"/>
         <source>Automatic daylight saving requires an IANA time zone. Select a time zone or choose another DST mode.</source>
         <translation>Автоматическое летнее время требует часовой пояс IANA. Выберите часовой пояс или другой режим DST.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="826"/>
+        <location filename="../src/Dialogs.cpp" line="828"/>
         <source>Time Zone</source>
         <translation>Часовой пояс</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="827"/>
+        <location filename="../src/Dialogs.cpp" line="829"/>
         <source>The numeric UTC offset (%1) does not match the selected time zone (%2).
 
 Save anyway?</source>
@@ -1339,596 +1412,774 @@ Save anyway?</source>
 Всё равно сохранить?</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="877"/>
+        <location filename="../src/Dialogs.cpp" line="879"/>
         <source>Prayer Settings</source>
         <translation>Настройки молитв</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="878"/>
+        <location filename="../src/Dialogs.cpp" line="880"/>
         <source>Could not save the configuration file. Check the permissions of the configuration directory.</source>
         <translation>Не удалось сохранить файл конфигурации. Проверьте права доступа к каталогу конфигурации.</translation>
     </message>
 </context>
 <context>
-    <name>PreferencesDialog</name>
+    <name>PrayerTracker</name>
     <message>
-        <location filename="../src/Dialogs.cpp" line="885"/>
-        <source>Namaz — Preferences</source>
-        <translation>Namaz — Параметры</translation>
-    </message>
-    <message>
-        <location filename="../src/Dialogs.cpp" line="900"/>
+        <location filename="../src/Tracker.cpp" line="191"/>
         <source>Fajr</source>
         <translation>Фаджр</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="900"/>
-        <source>Shuruq</source>
-        <translation>Шурук</translation>
-    </message>
-    <message>
-        <location filename="../src/Dialogs.cpp" line="900"/>
+        <location filename="../src/Tracker.cpp" line="193"/>
         <source>Dhuhr</source>
         <translation>Зухр</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="901"/>
+        <location filename="../src/Tracker.cpp" line="195"/>
         <source>Asr</source>
         <translation>Аср</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="901"/>
+        <location filename="../src/Tracker.cpp" line="197"/>
         <source>Maghrib</source>
         <translation>Магриб</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="901"/>
+        <location filename="../src/Tracker.cpp" line="199"/>
         <source>Ishaa</source>
         <translation>Иша</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="915"/>
+        <location filename="../src/Tracker.cpp" line="201"/>
+        <source>Witr</source>
+        <translation>Витр</translation>
+    </message>
+    <message>
+        <location filename="../src/Tracker.cpp" line="210"/>
+        <source>2 sunnah + 2 fard</source>
+        <translation>2 сунны + 2 фарда</translation>
+    </message>
+    <message>
+        <location filename="../src/Tracker.cpp" line="212"/>
+        <location filename="../src/Tracker.cpp" line="218"/>
+        <source>4 sunnah + 4 fard + 2 sunnah</source>
+        <translation>4 сунны + 4 фарда + 2 сунны</translation>
+    </message>
+    <message>
+        <location filename="../src/Tracker.cpp" line="214"/>
+        <source>4 sunnah + 4 fard</source>
+        <translation>4 сунны + 4 фарда</translation>
+    </message>
+    <message>
+        <location filename="../src/Tracker.cpp" line="216"/>
+        <source>3 fard + 2 sunnah</source>
+        <translation>3 фарда + 2 сунны</translation>
+    </message>
+    <message>
+        <location filename="../src/Tracker.cpp" line="220"/>
+        <source>3 wajib, no adhan</source>
+        <translation>3 ваджиба, без азана</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesDialog</name>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="887"/>
+        <source>Namaz — Preferences</source>
+        <translation>Namaz — Параметры</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="902"/>
+        <location filename="../src/Dialogs.cpp" line="1102"/>
+        <source>Fajr</source>
+        <translation>Фаджр</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="902"/>
+        <source>Shuruq</source>
+        <translation>Шурук</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="902"/>
+        <location filename="../src/Dialogs.cpp" line="1102"/>
+        <source>Dhuhr</source>
+        <translation>Зухр</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="903"/>
+        <location filename="../src/Dialogs.cpp" line="1102"/>
+        <source>Asr</source>
+        <translation>Аср</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="903"/>
+        <location filename="../src/Dialogs.cpp" line="1102"/>
+        <source>Maghrib</source>
+        <translation>Магриб</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="903"/>
+        <location filename="../src/Dialogs.cpp" line="1102"/>
+        <source>Ishaa</source>
+        <translation>Иша</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="917"/>
         <source>Browse for a folder</source>
         <translation>Выбрать папку</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="915"/>
+        <location filename="../src/Dialogs.cpp" line="917"/>
         <source>Browse for a WAV file</source>
         <translation>Выбрать WAV-файл</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="917"/>
+        <location filename="../src/Dialogs.cpp" line="919"/>
         <source>Play a random file</source>
         <translation>Воспроизвести случайный файл</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="917"/>
-        <location filename="../src/Dialogs.cpp" line="1007"/>
+        <location filename="../src/Dialogs.cpp" line="919"/>
+        <location filename="../src/Dialogs.cpp" line="1009"/>
         <source>Play preview</source>
         <translation>Прослушать</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="919"/>
-        <location filename="../src/Dialogs.cpp" line="1010"/>
+        <location filename="../src/Dialogs.cpp" line="921"/>
+        <location filename="../src/Dialogs.cpp" line="1012"/>
         <source>Stop preview</source>
         <translation>Остановить</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="943"/>
+        <location filename="../src/Dialogs.cpp" line="945"/>
         <source>Audio Settings</source>
         <translation>Аудио</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="947"/>
+        <location filename="../src/Dialogs.cpp" line="949"/>
         <source>General</source>
         <translation>Общие</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="952"/>
+        <location filename="../src/Dialogs.cpp" line="954"/>
         <source>Enable audio (athan, reminders and startup)</source>
         <translation>Включить звук (азан, напоминания и запуск)</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="954"/>
+        <location filename="../src/Dialogs.cpp" line="956"/>
         <source>Show desktop notifications</source>
         <translation>Показывать уведомления на рабочем столе</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="956"/>
+        <location filename="../src/Dialogs.cpp" line="958"/>
         <source>Stop other audio when a prayer starts</source>
         <translation>Останавливать другой звук при начале молитвы</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="968"/>
+        <location filename="../src/Dialogs.cpp" line="970"/>
         <source>Athan per prayer</source>
         <translation>Азан для каждой молитвы</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="977"/>
+        <location filename="../src/Dialogs.cpp" line="979"/>
         <source>No Athan</source>
         <translation>Без азана</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="978"/>
+        <location filename="../src/Dialogs.cpp" line="980"/>
         <source>Selected Athan</source>
         <translation>Выбранный азан</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="979"/>
+        <location filename="../src/Dialogs.cpp" line="981"/>
         <source>Custom Athan</source>
         <translation>Свой азан</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="980"/>
+        <location filename="../src/Dialogs.cpp" line="982"/>
         <source>Custom Folder</source>
         <translation>Своя папка</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="982"/>
+        <location filename="../src/Dialogs.cpp" line="984"/>
         <source>Athan mode for %1</source>
         <translation>Режим азана для %1</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="989"/>
+        <location filename="../src/Dialogs.cpp" line="991"/>
         <source>No athan will be played.</source>
         <translation>Азан не будет воспроизводиться.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1020"/>
-        <location filename="../src/Dialogs.cpp" line="1064"/>
-        <location filename="../src/Dialogs.cpp" line="1227"/>
+        <location filename="../src/Dialogs.cpp" line="1022"/>
+        <location filename="../src/Dialogs.cpp" line="1066"/>
+        <location filename="../src/Dialogs.cpp" line="1354"/>
         <source>Path to a WAV file</source>
         <translation>Путь к WAV-файлу</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1022"/>
-        <location filename="../src/Dialogs.cpp" line="1066"/>
-        <location filename="../src/Dialogs.cpp" line="1229"/>
+        <location filename="../src/Dialogs.cpp" line="1024"/>
+        <location filename="../src/Dialogs.cpp" line="1068"/>
+        <location filename="../src/Dialogs.cpp" line="1356"/>
         <source>Folder with WAV files</source>
         <translation>Папка с WAV-файлами</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1038"/>
+        <location filename="../src/Dialogs.cpp" line="1040"/>
         <source>Shuruq is sunrise; no athan is played.</source>
         <translation>Шурук — это восход; азан не воспроизводится.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1043"/>
+        <location filename="../src/Dialogs.cpp" line="1045"/>
         <source>On startup</source>
         <translation>При запуске</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1047"/>
-        <location filename="../src/Dialogs.cpp" line="1219"/>
+        <location filename="../src/Dialogs.cpp" line="1049"/>
+        <location filename="../src/Dialogs.cpp" line="1346"/>
         <source>No audio</source>
         <translation>Без звука</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1048"/>
-        <location filename="../src/Dialogs.cpp" line="1220"/>
+        <location filename="../src/Dialogs.cpp" line="1050"/>
+        <location filename="../src/Dialogs.cpp" line="1347"/>
         <source>Bismi Allah</source>
         <translation>Бисмиллах</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1049"/>
-        <location filename="../src/Dialogs.cpp" line="1221"/>
+        <location filename="../src/Dialogs.cpp" line="1051"/>
+        <location filename="../src/Dialogs.cpp" line="1348"/>
         <source>Quran</source>
         <translation>Коран</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1050"/>
-        <location filename="../src/Dialogs.cpp" line="1230"/>
+        <location filename="../src/Dialogs.cpp" line="1052"/>
+        <location filename="../src/Dialogs.cpp" line="1357"/>
         <source>Custom file</source>
         <translation>Свой файл</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1051"/>
-        <location filename="../src/Dialogs.cpp" line="1231"/>
+        <location filename="../src/Dialogs.cpp" line="1053"/>
+        <location filename="../src/Dialogs.cpp" line="1358"/>
         <source>Custom folder</source>
         <translation>Своя папка</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1053"/>
-        <location filename="../src/Dialogs.cpp" line="1225"/>
+        <location filename="../src/Dialogs.cpp" line="1055"/>
+        <location filename="../src/Dialogs.cpp" line="1352"/>
         <source>Sound</source>
         <translation>Звук</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1057"/>
+        <location filename="../src/Dialogs.cpp" line="1059"/>
         <source>No startup sound.</source>
         <translation>Без звука при запуске.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1058"/>
+        <location filename="../src/Dialogs.cpp" line="1060"/>
         <source>Uses the built-in sound.</source>
         <translation>Используется встроенный звук.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1067"/>
+        <location filename="../src/Dialogs.cpp" line="1069"/>
         <source>Custom sound</source>
         <translation>Свой звук</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1074"/>
-        <location filename="../src/Dialogs.cpp" line="1090"/>
+        <location filename="../src/Dialogs.cpp" line="1078"/>
+        <location filename="../src/Dialogs.cpp" line="1082"/>
+        <location filename="../src/Dialogs.cpp" line="1181"/>
+        <location filename="../src/Dialogs.cpp" line="1871"/>
+        <source>Journal</source>
+        <translation>Журнал</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1088"/>
+        <source>Track prayers in the journal (today, history and qada)</source>
+        <translation>Отслеживать намазы в журнале (сегодня, история и када)</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1093"/>
+        <source>Show Confirm and Skip buttons in notifications</source>
+        <translation>Показывать кнопки «Подтвердить» и «Пропустить» в уведомлениях</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1098"/>
+        <source>Reminders per prayer</source>
+        <translation>Напоминания по намазам</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1103"/>
+        <source>Witr</source>
+        <translation>Витр</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1104"/>
+        <source>Notify when the prayer time begins</source>
+        <translation>Уведомлять в начале времени намаза</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1106"/>
+        <source>Confirm automatically at the end of the prayer window</source>
+        <translation>Подтверждать автоматически в конце окна намаза</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1114"/>
+        <source>Journal notification for %1</source>
+        <translation>Уведомление журнала для %1</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1120"/>
+        <source>Journal auto-confirm for %1</source>
+        <translation>Автоподтверждение журнала для %1</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1131"/>
+        <source>History and qada</source>
+        <translation>История и када</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1136"/>
+        <source> debt(s)</source>
+        <translation> долг(ов)</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1138"/>
+        <source>Remind about the qada debt when it reaches this value; 0 disables the reminder</source>
+        <translation>Напоминать о долге кады, когда он достигнет этого значения; 0 — отключить напоминание</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1140"/>
+        <source>Qada reminder threshold</source>
+        <translation>Порог напоминания о кады</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1146"/>
+        <source>Keep history for</source>
+        <translation>Хранить историю</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1149"/>
+        <source>Data</source>
+        <translation>Данные</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1154"/>
+        <source>Export CSV…</source>
+        <translation>Экспорт CSV…</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1156"/>
+        <source>Reset journal data…</source>
+        <translation>Сбросить данные журнала…</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1163"/>
+        <source>The journal works while Namaz is running (window or tray).</source>
+        <translation>Журнал работает, пока Namaz запущен (окно или трей).</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1173"/>
+        <source>Export CSV</source>
+        <translation>Экспорт CSV</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1176"/>
+        <source>CSV files (*.csv);;All files (*)</source>
+        <translation>Файлы CSV (*.csv);;Все файлы (*)</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1182"/>
+        <source>Could not write %1</source>
+        <translation>Не удалось записать %1</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1201"/>
+        <location filename="../src/Dialogs.cpp" line="1217"/>
         <source>Reminders</source>
         <translation>Напоминания</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1082"/>
+        <location filename="../src/Dialogs.cpp" line="1209"/>
         <source>Make all the same</source>
         <translation>Сделать все одинаковыми</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1083"/>
+        <location filename="../src/Dialogs.cpp" line="1210"/>
         <source>Make Asr, Maghrib and Ishaa the same</source>
         <translation>Сделать Аср, Магриб и Ишу одинаковыми</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1093"/>
+        <location filename="../src/Dialogs.cpp" line="1220"/>
         <source>Prayer</source>
         <translation>Молитва</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1093"/>
+        <location filename="../src/Dialogs.cpp" line="1220"/>
         <source>Before</source>
         <translation>До</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1093"/>
+        <location filename="../src/Dialogs.cpp" line="1220"/>
         <source>After</source>
         <translation>После</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1094"/>
+        <location filename="../src/Dialogs.cpp" line="1221"/>
         <source>Fixed time</source>
         <translation>Фиксированное время</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1094"/>
+        <location filename="../src/Dialogs.cpp" line="1221"/>
         <source>Iqama</source>
         <translation>Икама</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1151"/>
+        <location filename="../src/Dialogs.cpp" line="1278"/>
         <source>Enable reminder before %1</source>
         <translation>Включить напоминание до %1</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1153"/>
+        <location filename="../src/Dialogs.cpp" line="1280"/>
         <source>Minutes before %1</source>
         <translation>Минут до %1</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1155"/>
+        <location filename="../src/Dialogs.cpp" line="1282"/>
         <source>Enable reminder after %1</source>
         <translation>Включить напоминание после %1</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1157"/>
+        <location filename="../src/Dialogs.cpp" line="1284"/>
         <source>Minutes after %1</source>
         <translation>Минут после %1</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1159"/>
+        <location filename="../src/Dialogs.cpp" line="1286"/>
         <source>Enable fixed reminder for %1</source>
         <translation>Включить фиксированное напоминание для %1</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1161"/>
+        <location filename="../src/Dialogs.cpp" line="1288"/>
         <source>Fixed time for %1</source>
         <translation>Фиксированное время для %1</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1163"/>
+        <location filename="../src/Dialogs.cpp" line="1290"/>
         <source>Enable iqama reminder for %1</source>
         <translation>Включить напоминание икамы для %1</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1165"/>
+        <location filename="../src/Dialogs.cpp" line="1292"/>
         <source>Iqama minutes for %1</source>
         <translation>Минуты икамы для %1</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1201"/>
+        <location filename="../src/Dialogs.cpp" line="1328"/>
         <source>Reminder Visual Alerts</source>
         <translation>Визуальные напоминания</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1206"/>
+        <location filename="../src/Dialogs.cpp" line="1333"/>
         <source>Display desktop notification</source>
         <translation>Показывать уведомление</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1207"/>
-        <location filename="../src/Dialogs.cpp" line="1270"/>
+        <location filename="../src/Dialogs.cpp" line="1334"/>
+        <location filename="../src/Dialogs.cpp" line="1397"/>
         <source>Display the main window</source>
         <translation>Показывать главное окно</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1208"/>
-        <location filename="../src/Dialogs.cpp" line="1271"/>
+        <location filename="../src/Dialogs.cpp" line="1335"/>
+        <location filename="../src/Dialogs.cpp" line="1398"/>
         <source>Flash the tray icon</source>
         <translation>Мигать значком в трее</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1214"/>
+        <location filename="../src/Dialogs.cpp" line="1341"/>
         <source>Reminder Audio Alerts</source>
         <translation>Звуковые напоминания</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1222"/>
+        <location filename="../src/Dialogs.cpp" line="1349"/>
         <source>Custom reminder file</source>
         <translation>Свой файл напоминания</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1223"/>
+        <location filename="../src/Dialogs.cpp" line="1350"/>
         <source>Custom reminder folder</source>
         <translation>Своя папка напоминаний</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1235"/>
+        <location filename="../src/Dialogs.cpp" line="1362"/>
         <source>Reminder audio is played for before/after, fixed-time and iqama reminders.</source>
         <translation>Звук напоминаний воспроизводится для напоминаний до/после, фиксированного времени и икамы.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1244"/>
+        <location filename="../src/Dialogs.cpp" line="1371"/>
         <source>Other Settings</source>
         <translation>Другие настройки</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1250"/>
+        <location filename="../src/Dialogs.cpp" line="1377"/>
         <source>Window</source>
         <translation>Окно</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1255"/>
+        <location filename="../src/Dialogs.cpp" line="1382"/>
         <source>Always on top</source>
         <translation>Поверх всех окон</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1256"/>
+        <location filename="../src/Dialogs.cpp" line="1383"/>
         <source>Keep running in the system tray when closed</source>
         <translation>Оставаться в трее при закрытии</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1257"/>
+        <location filename="../src/Dialogs.cpp" line="1384"/>
         <source>Start minimized</source>
         <translation>Запускать свёрнутым</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1258"/>
+        <location filename="../src/Dialogs.cpp" line="1385"/>
         <source>Start automatically on login</source>
         <translation>Запускать при входе</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1265"/>
+        <location filename="../src/Dialogs.cpp" line="1392"/>
         <source>Prayer Visual Alerts</source>
         <translation>Оповещения</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1277"/>
+        <location filename="../src/Dialogs.cpp" line="1404"/>
         <source>Calendar</source>
         <translation>Календарь</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1282"/>
+        <location filename="../src/Dialogs.cpp" line="1409"/>
         <source>Show the Hijri date on the main screen</source>
         <translation>Хиджрийская дата на главном экране</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1288"/>
+        <location filename="../src/Dialogs.cpp" line="1415"/>
         <source>Hijri date offset</source>
         <translation>Смещение хиджрийской даты</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1291"/>
+        <location filename="../src/Dialogs.cpp" line="1144"/>
+        <location filename="../src/Dialogs.cpp" line="1418"/>
         <source> day(s)</source>
         <translation> день(дней)</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1302"/>
+        <location filename="../src/Dialogs.cpp" line="1429"/>
         <source>Time format</source>
         <translation>Формат времени</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1305"/>
+        <location filename="../src/Dialogs.cpp" line="1432"/>
         <source>12-hour: hh:mm AM/PM</source>
         <translation>12-часовой: hh:mm AM/PM</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1306"/>
+        <location filename="../src/Dialogs.cpp" line="1433"/>
         <source>12-hour: hh:mm:ss AM/PM</source>
         <translation>12-часовой: hh:mm:ss AM/PM</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1307"/>
+        <location filename="../src/Dialogs.cpp" line="1434"/>
         <source>24-hour: HH:mm</source>
         <translation>24-часовой: HH:mm</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1308"/>
+        <location filename="../src/Dialogs.cpp" line="1435"/>
         <source>24-hour: HH:mm:ss</source>
         <translation>24-часовой: HH:mm:ss</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1310"/>
+        <location filename="../src/Dialogs.cpp" line="1437"/>
         <source>12-hour or 24-hour clock; the current time can also show seconds.</source>
         <translation>12- или 24-часовой формат; текущее время может также показывать секунды.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1317"/>
+        <location filename="../src/Dialogs.cpp" line="1444"/>
         <source>Qiblah</source>
         <translation>Кибла</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1322"/>
+        <location filename="../src/Dialogs.cpp" line="1449"/>
         <source>Show the Qiblah panel</source>
         <translation>Показывать Киблу</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1323"/>
+        <location filename="../src/Dialogs.cpp" line="1450"/>
         <source>Show the angle clockwise from North</source>
         <translation>Угол по часовой стрелке</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1329"/>
+        <location filename="../src/Dialogs.cpp" line="1456"/>
         <source>Masjid Screen</source>
         <translation>Экран мечети</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1333"/>
+        <location filename="../src/Dialogs.cpp" line="1460"/>
         <source>Display on</source>
         <translation>Показывать на</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1336"/>
+        <location filename="../src/Dialogs.cpp" line="1463"/>
         <source>Shows the clock, the next prayer and today&apos;s times full-screen.</source>
         <translation>Показывает часы, следующий намаз и времена на сегодня во весь экран.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1340"/>
+        <location filename="../src/Dialogs.cpp" line="1467"/>
         <source>Security</source>
         <translation>Безопасность</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1345"/>
+        <location filename="../src/Dialogs.cpp" line="1472"/>
         <source>Lock screen on Pray Now</source>
         <translation>Блокировать экран при молитве</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1346"/>
+        <location filename="../src/Dialogs.cpp" line="1473"/>
         <source>Screen saver on Pray Now</source>
         <translation>Включать заставку при молитве</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1348"/>
+        <location filename="../src/Dialogs.cpp" line="1475"/>
         <source>Show splash on startup</source>
         <translation>Заставка при запуске</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1354"/>
+        <location filename="../src/Dialogs.cpp" line="1481"/>
         <source>Integration</source>
         <translation>Интеграция</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1356"/>
+        <location filename="../src/Dialogs.cpp" line="1483"/>
         <source>Enable the D-Bus interface</source>
         <translation>Включить интерфейс D-Bus</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1360"/>
+        <location filename="../src/Dialogs.cpp" line="1487"/>
         <source> s</source>
         <translation> с</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1363"/>
+        <location filename="../src/Dialogs.cpp" line="1490"/>
         <source>D-Bus update interval</source>
         <translation>Интервал обновления D-Bus</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1366"/>
+        <location filename="../src/Dialogs.cpp" line="1493"/>
         <source>Language</source>
         <translation>Язык</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1370"/>
+        <location filename="../src/Dialogs.cpp" line="1497"/>
         <source>System language</source>
         <translation>Системный язык</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1371"/>
+        <location filename="../src/Dialogs.cpp" line="1498"/>
         <source>English</source>
         <translation>Английский</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1372"/>
+        <location filename="../src/Dialogs.cpp" line="1499"/>
         <source>Русский</source>
         <translation>Русский</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1373"/>
+        <location filename="../src/Dialogs.cpp" line="1500"/>
         <source>Changing the language restarts Namaz.</source>
         <translation>Смена языка перезапустит Namaz.</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1375"/>
+        <location filename="../src/Dialogs.cpp" line="1502"/>
         <source>Interface language</source>
         <translation>Язык интерфейса</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1392"/>
+        <location filename="../src/Dialogs.cpp" line="1519"/>
         <source>Restore Defaults</source>
         <translation>Сбросить настройки</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1496"/>
+        <location filename="../src/Dialogs.cpp" line="1623"/>
         <source>Primary screen</source>
         <translation>Основной экран</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1497"/>
+        <location filename="../src/Dialogs.cpp" line="1624"/>
         <source>All screens</source>
         <translation>Все экраны</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1501"/>
+        <location filename="../src/Dialogs.cpp" line="1628"/>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1503"/>
+        <location filename="../src/Dialogs.cpp" line="1630"/>
         <source>%1×%2</source>
         <translation>%1×%2</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1515"/>
+        <location filename="../src/Dialogs.cpp" line="1642"/>
         <source>Select Audio File</source>
         <translation>Выберите аудиофайл</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1516"/>
+        <location filename="../src/Dialogs.cpp" line="1643"/>
         <source>WAV files (*.wav);;All files (*)</source>
         <translation>WAV-файлы (*.wav);;Все файлы (*)</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1524"/>
+        <location filename="../src/Dialogs.cpp" line="1651"/>
         <source>Select Audio Folder</source>
         <translation>Выберите папку со звуками</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1538"/>
-        <location filename="../src/Dialogs.cpp" line="1549"/>
-        <location filename="../src/Dialogs.cpp" line="1560"/>
+        <location filename="../src/Dialogs.cpp" line="1665"/>
+        <location filename="../src/Dialogs.cpp" line="1676"/>
+        <location filename="../src/Dialogs.cpp" line="1687"/>
         <source>Audio</source>
         <translation>Аудио</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1539"/>
+        <location filename="../src/Dialogs.cpp" line="1666"/>
         <source>Audio file not found: %1</source>
         <translation>Аудиофайл не найден: %1</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1550"/>
+        <location filename="../src/Dialogs.cpp" line="1677"/>
         <source>Audio file not found:
 %1</source>
         <translation>Аудиофайл не найден:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1561"/>
+        <location filename="../src/Dialogs.cpp" line="1688"/>
         <source>No WAV files found in:
 %1</source>
         <translation>В папке не найдены WAV-файлы:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1783"/>
+        <location filename="../src/Dialogs.cpp" line="1872"/>
+        <source>Delete all journal records and reset the qada counters?</source>
+        <translation>Удалить все записи журнала и обнулить счётчики кады?</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1980"/>
         <source>Preferences</source>
         <translation>Параметры</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1784"/>
+        <location filename="../src/Dialogs.cpp" line="1981"/>
         <source>Could not save the configuration file. Check the permissions of the configuration directory.</source>
         <translation>Не удалось сохранить файл конфигурации. Проверьте права доступа к каталогу конфигурации.</translation>
     </message>
@@ -1936,24 +2187,362 @@ Save anyway?</source>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/Dialogs.cpp" line="77"/>
+        <location filename="../src/Dialogs.cpp" line="79"/>
         <source>Default athan</source>
         <translation>Азан по умолчанию</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="78"/>
+        <location filename="../src/Dialogs.cpp" line="80"/>
         <source>&lt;Random&gt;</source>
         <translation>&lt;Случайно&gt;</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="105"/>
+        <location filename="../src/Dialogs.cpp" line="107"/>
         <source> min</source>
         <translation> мин</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="183"/>
+        <location filename="../src/Dialogs.cpp" line="185"/>
         <source>Volume</source>
         <translation>Громкость</translation>
+    </message>
+</context>
+<context>
+    <name>QadaDialog</name>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="24"/>
+        <source>Make Up a Missed Prayer</source>
+        <translation>Совершить када</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="41"/>
+        <source>Prayer</source>
+        <translation>Намаз</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="47"/>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="51"/>
+        <source>Optional note</source>
+        <translation>Необязательная заметка</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="52"/>
+        <source>Note</source>
+        <translation>Заметка</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="57"/>
+        <source>Current debt</source>
+        <translation>Текущий долг</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerDialogs.cpp" line="62"/>
+        <source>A make-up prayer reduces the qada counter for the selected prayer.</source>
+        <translation>Возмещённый намаз уменьшает счётчик долга для выбранного намаза.</translation>
+    </message>
+</context>
+<context>
+    <name>Tracker</name>
+    <message>
+        <location filename="../src/Tracker.cpp" line="36"/>
+        <source>Pending</source>
+        <translation>Ожидается</translation>
+    </message>
+    <message>
+        <location filename="../src/Tracker.cpp" line="37"/>
+        <source>Confirmed</source>
+        <translation>Подтверждён</translation>
+    </message>
+    <message>
+        <location filename="../src/Tracker.cpp" line="38"/>
+        <source>Auto-confirmed</source>
+        <translation>Автоподтверждён</translation>
+    </message>
+    <message>
+        <location filename="../src/Tracker.cpp" line="39"/>
+        <source>Skipped</source>
+        <translation>Пропущен (намеренно)</translation>
+    </message>
+    <message>
+        <location filename="../src/Tracker.cpp" line="40"/>
+        <source>Missed</source>
+        <translation>Пропущен</translation>
+    </message>
+</context>
+<context>
+    <name>TrackerHistoryPage</name>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="330"/>
+        <source>Search the journal</source>
+        <translation>Поиск по журналу</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="332"/>
+        <source>Export CSV…</source>
+        <translation>Экспорт CSV…</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="340"/>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="340"/>
+        <source>Prayer</source>
+        <translation>Намаз</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="340"/>
+        <source>Status</source>
+        <translation>Статус</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="341"/>
+        <source>Time</source>
+        <translation>Время</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="341"/>
+        <source>Make-up</source>
+        <translation>Када</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="341"/>
+        <source>Note</source>
+        <translation>Заметка</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="358"/>
+        <source>Edit…</source>
+        <translation>Изменить…</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="360"/>
+        <source>Delete…</source>
+        <translation>Удалить…</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="406"/>
+        <source>Yes</source>
+        <translation>Да</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="448"/>
+        <source>Delete the record for %1 on %2? The qada counter will be recalculated.</source>
+        <translation>Удалить запись о намазе %1 за %2? Счётчик кады будет пересчитан.</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="453"/>
+        <source>Delete Journal Record</source>
+        <translation>Удалить запись журнала</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="466"/>
+        <location filename="../src/TrackerView.cpp" line="472"/>
+        <source>Export Journal</source>
+        <translation>Экспорт журнала</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="467"/>
+        <source>CSV files (*.csv);;All files (*)</source>
+        <translation>Файлы CSV (*.csv);;Все файлы (*)</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="473"/>
+        <source>Could not write %1.</source>
+        <translation>Не удалось записать %1.</translation>
+    </message>
+</context>
+<context>
+    <name>TrackerNotifications</name>
+    <message>
+        <location filename="../src/TrackerNotifications.cpp" line="66"/>
+        <source>Namaz</source>
+        <translation>Namaz</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerNotifications.cpp" line="69"/>
+        <source>The last third of the night has begun: it is time for Witr.</source>
+        <translation>Началась последняя треть ночи: время Витра.</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerNotifications.cpp" line="70"/>
+        <source>It is time to pray %1.</source>
+        <translation>Наступило время намаза %1.</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerNotifications.cpp" line="80"/>
+        <source>Confirm</source>
+        <translation>Подтвердить</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerNotifications.cpp" line="81"/>
+        <source>Skip</source>
+        <translation>Пропустить</translation>
+    </message>
+</context>
+<context>
+    <name>TrackerPrayersPage</name>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="508"/>
+        <source>Track this prayer</source>
+        <translation>Отслеживать этот намаз</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="513"/>
+        <source>Show a reminder</source>
+        <translation>Показывать напоминание</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="519"/>
+        <source>Mark as auto-confirmed after the window</source>
+        <translation>Автоподтверждение по окончании окна</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="528"/>
+        <source>Colour</source>
+        <translation>Цвет</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="533"/>
+        <source>Icon</source>
+        <translation>Значок</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="538"/>
+        <source>Notes</source>
+        <translation>Заметки</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="546"/>
+        <source>Initial qada</source>
+        <translation>Начальный долг</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="551"/>
+        <source>Debt</source>
+        <translation>Долг</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="553"/>
+        <source>Make up a missed prayer…</source>
+        <translation>Совершить када…</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="601"/>
+        <source>Prayer Colour</source>
+        <translation>Цвет намаза</translation>
+    </message>
+</context>
+<context>
+    <name>TrackerTodayPage</name>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="118"/>
+        <source>The prayer journal is disabled. Enable it in Preferences → Journal.</source>
+        <translation>Журнал отключён. Включите его в «Настройки → Журнал».</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="125"/>
+        <source>Journal disabled</source>
+        <translation>Журнал отключён</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="142"/>
+        <source>No missed prayers in the qada counter.</source>
+        <translation>В счётчике кады нет пропущенных намазов.</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="143"/>
+        <source>Qada debt — %1</source>
+        <translation>Долг кады — %1</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="192"/>
+        <source>Since Yesterday</source>
+        <translation>Со вчера</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="193"/>
+        <location filename="../src/TrackerView.cpp" line="251"/>
+        <source>Now</source>
+        <translation>Сейчас</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="194"/>
+        <source>Upcoming</source>
+        <translation>Предстоящие</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="195"/>
+        <source>Missed</source>
+        <translation>Пропущенные</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="196"/>
+        <source>Completed</source>
+        <translation>Выполненные</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="224"/>
+        <source>%1 — since yesterday</source>
+        <translation>%1 — со вчера</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="227"/>
+        <source>%1 — make-up</source>
+        <translation>%1 — када</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="251"/>
+        <source>Not started</source>
+        <translation>Ещё не наступило</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="270"/>
+        <source>Confirm</source>
+        <translation>Подтвердить</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="272"/>
+        <source>Skip</source>
+        <translation>Пропустить</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="278"/>
+        <source>The prayer time has not started yet.</source>
+        <translation>Время намаза ещё не наступило.</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="311"/>
+        <source>Unavailable</source>
+        <translation>Недоступен</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="314"/>
+        <source>Prayer times are not available at this latitude.</source>
+        <translation>Времена намазов недоступны на этой широте.</translation>
+    </message>
+</context>
+<context>
+    <name>TrackerView</name>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="662"/>
+        <source>Today</source>
+        <translation>Сегодня</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="663"/>
+        <source>History</source>
+        <translation>История</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerView.cpp" line="664"/>
+        <source>Prayers</source>
+        <translation>Намазы</translation>
     </message>
 </context>
 <context>
