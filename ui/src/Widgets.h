@@ -12,6 +12,7 @@ class QAction;
 class QActionGroup;
 class QCloseEvent;
 class QHBoxLayout;
+class QVBoxLayout;
 class QLabel;
 class QResizeEvent;
 class QStackedWidget;
@@ -26,6 +27,10 @@ class MasjidWindow;
 class DBusService;
 class PrayerSettingsDialog;
 class PreferencesDialog;
+class PrayerTracker;
+class TrackerView;
+class TrackerNotifications;
+class QFrame;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -61,6 +66,13 @@ private:
     void refreshFromCore();
     void refreshCalendar();
     void refreshAll();
+    void syncTrackerMask();
+    void confirmNextPrayer();
+    void confirmTrackerEntry(const QString &prayer, const QDate &date);
+    void skipTrackerEntry(const QString &prayer, const QDate &date);
+    void showTrackerBanner(const QString &title, const QString &body,
+                           const QString &prayer, const QDate &date, bool witr);
+    void hideTrackerBanner();
     void shiftDay(int days);
     void shiftMonth(int months);
     void shiftYear(int years);
@@ -87,11 +99,19 @@ private:
     QString m_locale;
 
     QStackedWidget *m_views = nullptr;
-    QHBoxLayout *m_centralLayout = nullptr;
+    QVBoxLayout *m_centralLayout = nullptr;
     QToolBar *m_toolBar = nullptr;
     DayView *m_dayView = nullptr;
     MonthView *m_monthView = nullptr;
     YearView *m_yearView = nullptr;
+    TrackerView *m_trackerView = nullptr;
+    PrayerTracker *m_tracker = nullptr;
+    TrackerNotifications *m_trackerNotifications = nullptr;
+    QFrame *m_trackerBanner = nullptr;
+    QLabel *m_trackerBannerLabel = nullptr;
+    QString m_bannerPrayer;
+    QDate m_bannerDate;
+    bool m_bannerWitr = false;
     QLabel *m_cityLabel = nullptr;
     QLabel *m_methodLabel = nullptr;
 
@@ -104,7 +124,8 @@ private:
     QAction *m_trayNextAction = nullptr;
     QAction *m_muteAction = nullptr;
     QActionGroup *m_viewGroup = nullptr;
-    QAction *m_viewActions[3] = {};
+    QAction *m_viewActions[4] = {};
+    QAction *m_trayConfirmAction = nullptr;
     QAction *m_previousAction = nullptr;
     QAction *m_todayAction = nullptr;
     QAction *m_nextAction = nullptr;

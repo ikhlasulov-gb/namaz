@@ -73,6 +73,8 @@ private slots:
     void csvExportContainsRows();
     void unavailableWitrIsNotTracked();
     void dueSignalFiresOnce();
+    void notificationMaskUsesCoreIndices();
+    void qadaReminderFiresAtThreshold();
 };
 
 void TrackerTest::midnightKeepsIshaAndWitrInYesterdaySection() {
@@ -352,6 +354,70 @@ void TrackerTest::dueSignalFiresOnce() {
     now = at(day1(), 20, 0) + 2;
     tracker.tick();
     QCOMPARE(spy.count(), 1);
+}
+
+void TrackerTest::qadaReminderFiresAtThreshold() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    FakeSource source;
+    PrayerTracker tracker(&source);
+    tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+    QJsonObject settings = tracker.settings();
+    settings.insert(QStringLiteral("qada_reminder"), 1);
+    tracker.setSettings(settings);
+
+    // Pin the clock inside the Fajr window (before Shuruq) so no prayer has
+    // been missed yet; the system clock must not be consulted.
+    qint64 now = at(day1(), 5, 0);
+    tracker.setNowProvider(
+        [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
+
+    QSignalSpy spy(&tracker, &PrayerTracker::qadaDue);
+    // No debt yet: the reminder must stay silent.
+    tracker.tick();
+    QCOMPARE(spy.count(), 0);
+
+    // One missed prayer raises the debt to the threshold.
+    now = at(day1(), 6, 30) + 1;  // Fajr window has ended (Shuruq).
+    tracker.tick();
+    QVERIFY(tracker.qadaDebt(PrayerIndex::Fajr) >= 1);
+    QCOMPARE(spy.count(), 1);
+
+    // At most one reminder per day.
+    now += 3600;
+    tracker.tick();
+    QCOMPARE(spy.count(), 1);
+}
+
+void TrackerTest::notificationMaskUsesCoreIndices() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    FakeSource source;
+    PrayerTracker tracker(&source);
+    tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+
+    // Defaults: five fards notify, Witr does not.
+    QCOMPARE(PrayerTracker::coreNotificationMask(tracker, true),
+             (1u << 0) | (1u << 2) | (1u << 3) | (1u << 4) | (1u << 5));
+    QCOMPARE(PrayerTracker::coreNotificationMask(tracker, false), 0u);
+
+    QJsonObject settings = tracker.settings();
+    QJsonObject notify = settings.value(QStringLiteral("notify")).toObject();
+    notify.insert(QStringLiteral("asr"), true);
+    notify.insert(QStringLiteral("fajr"), false);
+    settings.insert(QStringLiteral("notify"), notify);
+    QJsonObject enabled =
+        settings.value(QStringLiteral("enabled_prayers")).toObject();
+    enabled.insert(QStringLiteral("isha"), false);
+    settings.insert(QStringLiteral("enabled_prayers"), enabled);
+    settings.insert(QStringLiteral("enabled"), false);
+    tracker.setSettings(settings);
+    QCOMPARE(PrayerTracker::coreNotificationMask(tracker, true), 0u);
+
+    settings.insert(QStringLiteral("enabled"), true);
+    tracker.setSettings(settings);
+    QCOMPARE(PrayerTracker::coreNotificationMask(tracker, true),
+             (1u << 2) | (1u << 3) | (1u << 4));
 }
 
 QTEST_MAIN(TrackerTest)

@@ -30,6 +30,16 @@ QString tr(const char *text) {
     return QCoreApplication::translate("Tracker", text);
 }
 
+// statusText() lives in an anonymous namespace, where lupdate cannot see the
+// literals; mark them for extraction and translate with the Tracker context.
+const char *const kStatusTexts[] = {
+    QT_TRANSLATE_NOOP("Tracker", "Pending"),
+    QT_TRANSLATE_NOOP("Tracker", "Confirmed"),
+    QT_TRANSLATE_NOOP("Tracker", "Auto-confirmed"),
+    QT_TRANSLATE_NOOP("Tracker", "Skipped"),
+    QT_TRANSLATE_NOOP("Tracker", "Missed"),
+};
+
 QJsonObject boolMap(std::initializer_list<bool> values) {
     QJsonObject map;
     int index = 0;
@@ -95,22 +105,19 @@ QString csvQuote(const QString &value) {
 }
 
 QString statusText(const QString &status) {
+    const char *key = nullptr;
     if (status == QLatin1String(TrackerStatus::Pending)) {
-        return tr("Pending");
+        key = kStatusTexts[0];
+    } else if (status == QLatin1String(TrackerStatus::Confirmed)) {
+        key = kStatusTexts[1];
+    } else if (status == QLatin1String(TrackerStatus::Auto)) {
+        key = kStatusTexts[2];
+    } else if (status == QLatin1String(TrackerStatus::Skipped)) {
+        key = kStatusTexts[3];
+    } else if (status == QLatin1String(TrackerStatus::Missed)) {
+        key = kStatusTexts[4];
     }
-    if (status == QLatin1String(TrackerStatus::Confirmed)) {
-        return tr("Confirmed");
-    }
-    if (status == QLatin1String(TrackerStatus::Auto)) {
-        return tr("Auto-confirmed");
-    }
-    if (status == QLatin1String(TrackerStatus::Skipped)) {
-        return tr("Skipped");
-    }
-    if (status == QLatin1String(TrackerStatus::Missed)) {
-        return tr("Missed");
-    }
-    return status;
+    return key ? tr(key) : status;
 }
 
 }  // namespace
@@ -218,6 +225,26 @@ QString PrayerTracker::prayerDescription(int index) {
 
 QString PrayerTracker::statusLabel(const QString &status) {
     return statusText(status);
+}
+
+unsigned int PrayerTracker::coreNotificationMask(const PrayerTracker &tracker,
+                                                 bool globalNotifications) {
+    if (!globalNotifications || !tracker.enabled()) {
+        return 0;
+    }
+    // Tracker index -> core time index.  Witr has no core notification.
+    static const int coreIndices[PrayerIndex::Count] = {0, 2, 3, 4, 5, -1};
+    unsigned int mask = 0;
+    for (int index = 0; index < PrayerIndex::Count; ++index) {
+        const int core = coreIndices[index];
+        if (core < 0) {
+            continue;
+        }
+        if (tracker.prayerEnabled(index) && tracker.notifyEnabled(index)) {
+            mask |= 1u << core;
+        }
+    }
+    return mask;
 }
 
 void PrayerTracker::fillDefaults() {
@@ -560,8 +587,10 @@ bool PrayerTracker::tick() {
                 if (!entry.notified && at > 0 && nowEpoch >= at
                     && nowEpoch <= at + kNotifyGrace) {
                     entry.notified = true;
-                    dueEvents.append({entry.prayer, entry.date,
-                                      index == PrayerIndex::Witr});
+                    if (prayerEnabled(index) && notifyEnabled(index)) {
+                        dueEvents.append({entry.prayer, entry.date,
+                                          index == PrayerIndex::Witr});
+                    }
                     changed = true;
                 } else if (!entry.notified && at > 0
                            && nowEpoch > at + kNotifyGrace) {
@@ -576,6 +605,22 @@ bool PrayerTracker::tick() {
         save();
         emitChanged();
     }
+
+    // Optional qada reminder: at most once per day, when the total debt of a
+    // prayer reaches the configured threshold.
+    const int threshold = qadaReminder();
+    if (threshold > 0) {
+        const QDate today = QDateTime::fromSecsSinceEpoch(nowEpoch).date();
+        for (int index = 0; index < PrayerIndex::Count; ++index) {
+            const qint64 debt = qadaDebt(index);
+            if (debt >= threshold && m_lastQadaReminder != today) {
+                m_lastQadaReminder = today;
+                emit qadaDue(index, debt);
+                break;
+            }
+        }
+    }
+
     for (const Due &event : dueEvents) {
         emit due(event.prayer, event.date, event.witr);
     }

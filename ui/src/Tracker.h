@@ -94,6 +94,10 @@ public:
     static QString prayerName(int index);
     static QString prayerDescription(int index);
     static QString statusLabel(const QString &status);
+    // Runtime mask for `namaz_core_set_tracker_mask`: bits use the core's
+    // time indices (Fajr 0, Dhuhr 2, Asr 3, Maghrib 4, Ishaa 5).
+    static unsigned int coreNotificationMask(const PrayerTracker &tracker,
+                                             bool globalNotifications);
 
     void setStoragePath(const QString &path);
     QString storagePath() const { return m_path; }
@@ -150,6 +154,9 @@ signals:
     void changed();
     // Emitted once per record when its reminder time is reached.
     void due(const QString &prayer, const QDate &date, bool witr);
+    // Emitted at most once per day when the qada debt reaches the threshold
+    // set by `qada_reminder` (0 disables the reminder).
+    void qadaDue(int index, qint64 debt);
 
 private:
     PrayerDay timesFor(const QDate &date) const;
@@ -166,5 +173,6 @@ private:
     qint64 m_qada[PrayerIndex::Count] = {};
     QMap<QDate, QList<TrackerEntry>> m_days;
     QDate m_lastDay;
+    QDate m_lastQadaReminder;
     bool m_loading = false;
 };

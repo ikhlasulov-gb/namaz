@@ -1,6 +1,7 @@
 #include "Dialogs.h"
 
 #include "Core.h"
+#include "Tracker.h"
 #include "UiUtils.h"
 
 #include <QCheckBox>
@@ -28,6 +29,7 @@
 #include <QSlider>
 #include <QSpinBox>
 #include <QStackedWidget>
+#include <QStandardPaths>
 #include <QTime>
 #include <QTimeEdit>
 #include <QTimeZone>
@@ -1070,6 +1072,131 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
     audioLayout->addWidget(startupBox);
     audioLayout->addStretch(1);
 
+    // ── Journal (tracker) ───────────────────────────────────────────────
+    // The tracker keeps its own settings in tracker.json, not in config.toml;
+    // populateTracker()/applyTracker() move the values in and out directly.
+    Page journalPage = addScrollPage(nav, tr("Journal"),
+                                     QStringLiteral("view-calendar-journal"));
+    auto *journalLayout = journalPage.layout;
+
+    auto *journalEnableBox = compactBox(tr("Journal"), journalPage.widget);
+    auto *journalEnableLayout = new QVBoxLayout(journalEnableBox);
+    journalEnableLayout->setContentsMargins(Ui::pageMargin(), Ui::pageMargin(),
+                                            Ui::pageMargin(), Ui::pageMargin());
+    journalEnableLayout->setSpacing(Ui::controlSpacing());
+    m_trackerEnabled = new QCheckBox(
+        tr("Track prayers in the journal (today, history and qada)"),
+        journalEnableBox);
+    m_trackerEnabled->setObjectName(QStringLiteral("TrackerEnabledCheck"));
+    journalEnableLayout->addWidget(m_trackerEnabled);
+    m_trackerNotifyButtons = new QCheckBox(
+        tr("Show Confirm and Skip buttons in notifications"), journalEnableBox);
+    m_trackerNotifyButtons->setObjectName(QStringLiteral("TrackerNotifyButtonsCheck"));
+    journalEnableLayout->addWidget(m_trackerNotifyButtons);
+    journalLayout->addWidget(journalEnableBox);
+
+    auto *journalNotifyBox = compactBox(tr("Reminders per prayer"), journalPage.widget);
+    auto *journalNotifyGrid = new QGridLayout(journalNotifyBox);
+    Ui::compactGrid(journalNotifyGrid);
+    const QString trackerPrayerNames[] = {
+        tr("Fajr"), tr("Dhuhr"), tr("Asr"), tr("Maghrib"), tr("Ishaa"),
+        tr("Witr")};
+    const QString notifyHint = tr("Notify when the prayer time begins");
+    const QString autoHint =
+        tr("Confirm automatically at the end of the prayer window");
+    for (int index = 0; index < 6; ++index) {
+        journalNotifyGrid->addWidget(
+            new QLabel(trackerPrayerNames[index], journalNotifyBox), index, 0);
+        m_trackerNotify[index] = new QCheckBox(journalNotifyBox);
+        m_trackerNotify[index]->setObjectName(
+            QStringLiteral("TrackerNotify%1").arg(index));
+        m_trackerNotify[index]->setAccessibleName(
+            tr("Journal notification for %1").arg(trackerPrayerNames[index]));
+        m_trackerNotify[index]->setToolTip(notifyHint);
+        m_trackerAuto[index] = new QCheckBox(journalNotifyBox);
+        m_trackerAuto[index]->setObjectName(
+            QStringLiteral("TrackerAuto%1").arg(index));
+        m_trackerAuto[index]->setAccessibleName(
+            tr("Journal auto-confirm for %1").arg(trackerPrayerNames[index]));
+        m_trackerAuto[index]->setToolTip(autoHint);
+        journalNotifyGrid->addWidget(m_trackerNotify[index], index, 1);
+        journalNotifyGrid->addWidget(m_trackerAuto[index], index, 2);
+    }
+    auto *journalHeader = new QLabel(journalNotifyBox);
+    Ui::styleCaption(journalHeader);
+    journalHeader->setText(QStringLiteral("%1    %2").arg(notifyHint, autoHint));
+    journalNotifyGrid->addWidget(journalHeader, 6, 0, 1, 3);
+    journalLayout->addWidget(journalNotifyBox);
+
+    auto *journalDataBox = compactBox(tr("History and qada"), journalPage.widget);
+    auto *journalDataForm = compactForm(journalDataBox);
+    m_trackerQadaReminder = new QSpinBox(journalDataBox);
+    m_trackerQadaReminder->setObjectName(QStringLiteral("TrackerQadaReminderSpin"));
+    m_trackerQadaReminder->setRange(0, 1000);
+    m_trackerQadaReminder->setSuffix(tr(" debt(s)"));
+    m_trackerQadaReminder->setToolTip(
+        tr("Remind about the qada debt when it reaches this value; 0 disables the reminder"));
+    Ui::setFieldWidth(m_trackerQadaReminder, 140);
+    journalDataForm->addRow(tr("Qada reminder threshold"), m_trackerQadaReminder);
+    m_trackerHistoryDays = new QSpinBox(journalDataBox);
+    m_trackerHistoryDays->setObjectName(QStringLiteral("TrackerHistoryDaysSpin"));
+    m_trackerHistoryDays->setRange(7, 3650);
+    m_trackerHistoryDays->setSuffix(tr(" day(s)"));
+    Ui::setFieldWidth(m_trackerHistoryDays, 140);
+    journalDataForm->addRow(tr("Keep history for"), m_trackerHistoryDays);
+    journalLayout->addWidget(journalDataBox);
+
+    auto *journalMaintenanceBox = compactBox(tr("Data"), journalPage.widget);
+    auto *journalMaintenanceLayout = new QHBoxLayout(journalMaintenanceBox);
+    journalMaintenanceLayout->setContentsMargins(
+        Ui::pageMargin(), Ui::pageMargin(), Ui::pageMargin(), Ui::pageMargin());
+    journalMaintenanceLayout->setSpacing(Ui::controlSpacing());
+    m_trackerExport = new QPushButton(tr("Export CSV…"), journalMaintenanceBox);
+    m_trackerExport->setObjectName(QStringLiteral("TrackerExportButton"));
+    m_trackerReset = new QPushButton(tr("Reset journal data…"), journalMaintenanceBox);
+    m_trackerReset->setObjectName(QStringLiteral("TrackerResetButton"));
+    journalMaintenanceLayout->addWidget(m_trackerExport);
+    journalMaintenanceLayout->addWidget(m_trackerReset);
+    journalMaintenanceLayout->addStretch(1);
+    auto *journalNote = descriptionLabel(journalMaintenanceBox);
+    journalNote->setText(
+        tr("The journal works while Namaz is running (window or tray)."));
+    journalMaintenanceLayout->addWidget(journalNote);
+    journalLayout->addWidget(journalMaintenanceBox);
+    journalLayout->addStretch(1);
+
+    connect(m_trackerExport, &QPushButton::clicked, this, [this] {
+        if (!m_tracker) {
+            return;
+        }
+        const QString path = QFileDialog::getSaveFileName(
+            this, tr("Export CSV"),
+            QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+                + QStringLiteral("/namaz-journal.csv"),
+            tr("CSV files (*.csv);;All files (*)"));
+        if (path.isEmpty()) {
+            return;
+        }
+        if (!m_tracker->exportCsv(path)) {
+            QMessageBox::warning(this, tr("Journal"),
+                                 tr("Could not write %1").arg(path));
+        }
+    });
+    connect(m_trackerReset, &QPushButton::clicked, this,
+            [this] { resetTrackerData(); });
+    connect(m_trackerEnabled, &QCheckBox::toggled, this, [this](bool on) {
+        // The whole page should reflect that the journal is off.
+        for (int index = 0; index < 6; ++index) {
+            m_trackerNotify[index]->setEnabled(on);
+            m_trackerAuto[index]->setEnabled(on);
+        }
+        m_trackerNotifyButtons->setEnabled(on);
+        m_trackerQadaReminder->setEnabled(on);
+        m_trackerHistoryDays->setEnabled(on);
+        m_trackerExport->setEnabled(on);
+        m_trackerReset->setEnabled(on);
+    });
+
     // ── Reminders ───────────────────────────────────────────────────────
     Page remindersPage = addScrollPage(nav, tr("Reminders"),
                                        QStringLiteral("appointment-reminder"));
@@ -1675,6 +1802,7 @@ void PreferencesDialog::populate(const QJsonObject &config) {
     m_language->setCurrentIndex(qMax(0, m_language->findData(
         locale.isEmpty() ? QStringLiteral("system") : locale)));
     updateMasjidScreens();
+    populateTracker();
     if (m_applyButton) {
         m_applyButton->setEnabled(false);
     }
@@ -1683,6 +1811,71 @@ void PreferencesDialog::populate(const QJsonObject &config) {
 void PreferencesDialog::restoreDefaults() {
     populate(defaultConfigObject());
     // Restoring defaults is a change that still has to be applied.
+    if (m_applyButton) {
+        m_applyButton->setEnabled(true);
+    }
+}
+
+// Tracker settings live in tracker.json (PrayerTracker), not in config.toml.
+void PreferencesDialog::populateTracker() {
+    if (!m_tracker || !m_trackerEnabled) {
+        return;
+    }
+    const bool on = m_tracker->enabled();
+    m_trackerEnabled->setChecked(on);
+    for (int index = 0; index < 6; ++index) {
+        m_trackerNotify[index]->setChecked(m_tracker->notifyEnabled(index));
+        m_trackerAuto[index]->setChecked(m_tracker->autoConfirm(index));
+        m_trackerNotify[index]->setEnabled(on);
+        m_trackerAuto[index]->setEnabled(on);
+    }
+    m_trackerNotifyButtons->setChecked(m_tracker->notifyButtons());
+    m_trackerQadaReminder->setValue(m_tracker->qadaReminder());
+    m_trackerHistoryDays->setValue(m_tracker->historyDays());
+    m_trackerNotifyButtons->setEnabled(on);
+    m_trackerQadaReminder->setEnabled(on);
+    m_trackerHistoryDays->setEnabled(on);
+    m_trackerExport->setEnabled(on);
+    m_trackerReset->setEnabled(on);
+}
+
+void PreferencesDialog::applyTracker() {
+    if (!m_tracker || !m_trackerEnabled) {
+        return;
+    }
+    QJsonObject notify;
+    QJsonObject autoConfirm;
+    for (int index = 0; index < 6; ++index) {
+        const QString key = PrayerTracker::prayerKey(index);
+        notify.insert(key, m_trackerNotify[index]->isChecked());
+        autoConfirm.insert(key, m_trackerAuto[index]->isChecked());
+    }
+    QJsonObject settings = m_tracker->settings();
+    settings.insert(QStringLiteral("enabled"), m_trackerEnabled->isChecked());
+    settings.insert(QStringLiteral("notify"), notify);
+    settings.insert(QStringLiteral("auto_confirm"), autoConfirm);
+    settings.insert(QStringLiteral("notify_buttons"),
+                    m_trackerNotifyButtons->isChecked());
+    settings.insert(QStringLiteral("qada_reminder"),
+                    m_trackerQadaReminder->value());
+    settings.insert(QStringLiteral("history_days"),
+                    m_trackerHistoryDays->value());
+    m_tracker->setSettings(settings);
+}
+
+void PreferencesDialog::resetTrackerData() {
+    if (!m_tracker) {
+        return;
+    }
+    const QMessageBox::StandardButton answer = QMessageBox::question(
+        this, tr("Journal"),
+        tr("Delete all journal records and reset the qada counters?"),
+        QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+    if (answer != QMessageBox::Yes) {
+        return;
+    }
+    m_tracker->reset();
+    populateTracker();
     if (m_applyButton) {
         m_applyButton->setEnabled(true);
     }
@@ -1770,6 +1963,10 @@ bool PreferencesDialog::apply() {
     config.insert(QStringLiteral("dbus_interval"), m_dbusInterval->value());
     config.insert(QStringLiteral("masjid_screen"), m_masjidScreen->currentData().toInt());
     config.insert(QStringLiteral("locale"), m_language->currentData().toString());
+
+    // Tracker settings live in tracker.json; keep saving config.toml even when
+    // the tracker fails, so a broken tracker file cannot block preferences.
+    applyTracker();
 
     const QByteArray json = QJsonDocument(config).toJson(QJsonDocument::Compact);
     if (namaz_core_apply_preferences_json(m_core, json.constData())) {
