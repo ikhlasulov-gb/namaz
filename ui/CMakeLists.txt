@@ -73,6 +73,8 @@ add_executable(namaz-ui
     src/DBusService.h
     src/Core.cpp
     src/Core.h
+    src/Tracker.cpp
+    src/Tracker.h
     src/Dialogs.cpp
     src/Dialogs.h
     src/UpdateChecker.cpp
@@ -191,6 +193,8 @@ if(BUILD_TESTING)
         src/UiUtils.h
         src/Core.cpp
         src/Core.h
+        src/Tracker.cpp
+        src/Tracker.h
         src/UpdateChecker.cpp
         src/UpdateChecker.h
     )
@@ -208,5 +212,22 @@ if(BUILD_TESTING)
         BUILD_RPATH "${CORE_TARGET_DIR}/${CARGO_PROFILE};$ORIGIN/../lib")
     add_test(NAME namaz-tests COMMAND namaz-tests)
     set_tests_properties(namaz-tests PROPERTIES
+        ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+    add_executable(namaz-tracker-tests
+        tests/tst_tracker.cpp
+        src/Tracker.cpp
+        src/Tracker.h
+        src/Core.cpp
+        src/Core.h
+    )
+    add_dependencies(namaz-tracker-tests namaz_core)
+    target_include_directories(namaz-tracker-tests PRIVATE src)
+    target_link_libraries(namaz-tracker-tests PRIVATE
+        Qt6::Widgets Qt6::Test "${CORE_LIB}")
+    set_target_properties(namaz-tracker-tests PROPERTIES
+        BUILD_RPATH "${CORE_TARGET_DIR}/${CARGO_PROFILE};$ORIGIN/../lib")
+    add_test(NAME namaz-tracker-tests COMMAND namaz-tracker-tests)
+    set_tests_properties(namaz-tracker-tests PROPERTIES
         ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif()
