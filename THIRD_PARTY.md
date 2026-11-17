@@ -73,3 +73,17 @@ The Rust dependencies are listed in `Cargo.lock`.  Their licences are
 available from their respective authors; the majority are MIT or
 Apache-2.0.  `packaging/cargo-sources.json` pins the exact crate versions and
 checksums used by the Flatpak build.
+
+## Dosage
+
+The prayer journal ("Журнал") is a reimplementation of the ideas from
+**Dosage**, a GTK4/Adwaita medication tracker.
+
+- Copyright: Diego Pedroso Sánchez and Dosage contributors
+- Licence: GPL-3.0-only
+- Upstream: https://github.com/diegopvlk/Dosage
+
+No source code, assets or texts from Dosage are copied into this repository.
+The journal is an independent Qt Widgets implementation: prayers replace
+medications, the prayer list is fixed, and the times come from the Namaz core
+instead of a user-defined schedule.
