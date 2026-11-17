@@ -472,6 +472,63 @@ fn effective_offset(cfg: &Config, date: NaiveDate) -> f64 {
         }
 }
 
+/// Absolute UTC timestamp of a local time-of-day on `date`.
+///
+/// The prayer engine returns seconds since local midnight; the tracker needs
+/// an absolute instant so deadlines across midnight and DST changes stay
+/// correct.
+fn epoch_for(cfg: &Config, date: NaiveDate, seconds: i64) -> i64 {
+    let offset = (effective_offset(cfg, date) * 3600.0).round() as i64;
+    let naive = date
+        .and_hms_opt(0, 0, 0)
+        .expect("valid midnight")
+        + ChronoDuration::seconds(seconds);
+    naive.and_utc().timestamp() - offset
+}
+
+/// Witr window for the night that starts with this day's Maghrib.
+///
+/// The prayer itself may be performed from Ishaa until the next Fajr, and the
+/// reminder fires at the beginning of the last third of that night.
+fn witr_json(cfg: &Config, date: NaiveDate, secs: &[Option<u32>; 6]) -> Value {
+    let unavailable = json!({
+        "available": false,
+        "epoch": Value::Null,
+        "start_epoch": Value::Null,
+        "deadline_epoch": Value::Null,
+        "date": Value::Null,
+    });
+    let (Some(maghrib), Some(isha)) = (secs[4], secs[5]) else {
+        return unavailable;
+    };
+    let next = date + ChronoDuration::days(1);
+    let next_times = get_prayer_times(
+        &location(cfg, next),
+        &method(cfg),
+        &Date::new(next.year(), next.month() as i32, next.day() as i32),
+    );
+    let Some(fajr) = next_times[0].seconds_of_day() else {
+        return unavailable;
+    };
+    let night_start = epoch_for(cfg, date, maghrib as i64);
+    let night_end = epoch_for(cfg, next, fajr as i64);
+    if night_end <= night_start {
+        return unavailable;
+    }
+    let last_third = night_end - (night_end - night_start) / 3;
+    let offset = (effective_offset(cfg, next) * 3600.0).round() as i64;
+    let date_text = chrono::DateTime::from_timestamp(last_third + offset, 0)
+        .map(|value| value.date_naive().format("%Y-%m-%d").to_string())
+        .unwrap_or_else(|| next.format("%Y-%m-%d").to_string());
+    json!({
+        "available": true,
+        "epoch": last_third,
+        "start_epoch": epoch_for(cfg, date, isha as i64),
+        "deadline_epoch": night_end,
+        "date": date_text,
+    })
+}
+
 fn local_now(cfg: &Config) -> chrono::DateTime<FixedOffset> {
     let utc = Utc::now();
     if cfg.dst_mode == 1 {
@@ -735,6 +792,10 @@ pub struct Core {
     pub view: i32,
     seen_events: std::collections::HashSet<String>,
     last_date: NaiveDate,
+    /// Bit `i` suppresses the core's plain prayer notification for time index
+    /// `i` while the tracker shows its own notification with Confirm/Skip.
+    /// Runtime only: never written to `config.toml`.
+    tracker_mask: u32,
 }
 
 impl Core {
@@ -747,6 +808,7 @@ impl Core {
             view: 0,
             seen_events: std::collections::HashSet::new(),
             last_date: today,
+            tracker_mask: 0,
         }
     }
 
@@ -764,6 +826,18 @@ impl Core {
     pub fn today_json(&self) -> Value {
         let now = self.now();
         self.day_json_for(now.date_naive(), now)
+    }
+
+    /// Times for an arbitrary date without changing the date selected in the
+    /// UI.  The tracker uses this for `Fajr(D+1)` deadlines and for backfilling
+    /// days when the application was closed.
+    pub fn day_json_for_date(&self, date: NaiveDate) -> Value {
+        self.day_json_for(date, self.now())
+    }
+
+    /// True when the tracker owns the notification for this time index.
+    pub fn tracker_notification_masked(&self, index: usize) -> bool {
+        (self.tracker_mask & (1u32 << index)) != 0
     }
 
     fn day_json_for(&self, selected: NaiveDate, now: chrono::DateTime<FixedOffset>) -> Value {
@@ -793,6 +867,9 @@ impl Core {
                 "short": seconds.map(|s| format!("{:02}:{:02}", s / 3600, (s % 3600) / 60))
                     .unwrap_or_else(|| "N/A".into()),
                 "seconds": seconds,
+                // Absolute UTC instant, so the tracker does not have to repeat
+                // the DST/offset logic of the prayer engine.
+                "epoch": seconds.map(|s| epoch_for(cfg, selected, s as i64)),
             }));
         }
 
@@ -909,6 +986,7 @@ impl Core {
                 "seconds": now_sec,
             },
             "times": time_values,
+            "witr": witr_json(cfg, selected, &secs),
             "next": {
                 "index": next_idx,
                 "name": next_name,
@@ -1213,7 +1291,9 @@ impl Core {
                     if self.cfg.athan_enabled {
                         self.play_athan_audio(i);
                     }
-                    if self.cfg.notifications_enabled {
+                    if self.cfg.notifications_enabled
+                        && !self.tracker_notification_masked(i)
+                    {
                         let _ = notify_rust::Notification::new()
                             .appname("Namaz")
                             .icon("io.github.ikhlasulov_gb.Namaz")
@@ -1617,9 +1697,38 @@ pub extern "C" fn namaz_core_today_json(core: *mut Core) -> *mut c_char {
     into_c_string(core.today_json())
 }
 
+/// Prayer times for one calendar date (`YYYY-MM-DD`) without touching the
+/// date selected in the UI.  Returns NULL for an invalid date.
 #[no_mangle]
-pub extern "C" fn namaz_core_month_json(core: *mut Core) -> *mut c_char {
+pub extern "C" fn namaz_core_day_json_for_date(
+    core: *mut Core,
+    iso_date: *const c_char,
+) -> *mut c_char {
     if core.is_null() {
+        return std::ptr::null_mut();
+    }
+    let Some(text) = (unsafe { c_str(iso_date) }) else {
+        return std::ptr::null_mut();
+    };
+    match NaiveDate::parse_from_str(&text, "%Y-%m-%d") {
+        Ok(date) => {
+            let core = unsafe { &*core };
+            into_c_string(core.day_json_for_date(date))
+        }
+        Err(_) => std::ptr::null_mut(),
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn namaz_core_set_tracker_mask(core: *mut Core, mask: u32) {
+    if core.is_null() {
+        return;
+    }
+    unsafe { (&mut *core).tracker_mask = mask };
+}
+
+#[no_mangle]
+pub extern "C" fn namaz_core_month_json(core: *mut Core) -> *mut c_char {    if core.is_null() {
         return std::ptr::null_mut();
     }
     let core = unsafe { &*core };
@@ -2256,6 +2365,7 @@ mod tests {
             view: 0,
             seen_events: std::collections::HashSet::new(),
             last_date: selected,
+            tracker_mask: 0,
         }
     }
 
@@ -2285,6 +2395,120 @@ mod tests {
         let value = core.day_json();
         assert_eq!(value["times"].as_array().unwrap().len(), 6);
         assert!(value["qibla"]["bearing"].as_f64().is_some());
+    }
+
+    #[test]
+    fn times_carry_absolute_epoch() {
+        let core = test_core(
+            berlin_config(),
+            NaiveDate::from_ymd_opt(2026, 7, 1).unwrap(),
+        );
+        let value = core.day_json();
+        let times = value["times"].as_array().unwrap();
+        for (index, item) in times.iter().enumerate() {
+            let seconds = item["seconds"].as_u64().unwrap() as i64;
+            let epoch = item["epoch"].as_i64().unwrap();
+            let offset = (effective_offset(&core.cfg, core.selected) * 3600.0).round() as i64;
+            let expected = core
+                .selected
+                .and_hms_opt(0, 0, 0)
+                .unwrap()
+                .and_utc()
+                .timestamp()
+                + seconds
+                - offset;
+            assert_eq!(epoch, expected, "time index {index}");
+        }
+    }
+
+    #[test]
+    fn witr_is_last_third_of_the_night() {
+        let date = NaiveDate::from_ymd_opt(2026, 11, 18).unwrap();
+        let core = test_core(berlin_config(), date);
+        let value = core.day_json();
+        let witr = &value["witr"];
+        assert_eq!(witr["available"].as_bool(), Some(true));
+        let next = date + ChronoDuration::days(1);
+        let night_start = value["times"][4]["epoch"].as_i64().unwrap();
+        let next_core = test_core(berlin_config(), next);
+        let night_end = next_core.day_json()["times"][0]["epoch"]
+            .as_i64()
+            .unwrap();
+        assert_eq!(witr["deadline_epoch"].as_i64(), Some(night_end));
+        assert_eq!(
+            witr["epoch"].as_i64(),
+            Some(night_end - (night_end - night_start) / 3)
+        );
+        let isha = value["times"][5]["epoch"].as_i64().unwrap();
+        assert_eq!(witr["start_epoch"].as_i64(), Some(isha));
+        assert!(witr["epoch"].as_i64().unwrap() > isha);
+        // The night date is either the current day or the next one.
+        let night_date = witr["date"].as_str().unwrap();
+        assert!(night_date == "2026-11-18" || night_date == "2026-11-19");
+    }
+
+    #[test]
+    fn witr_deadline_uses_next_day_offset_on_dst_change() {
+        // Berlin switches to summer time on 2026-03-29 at 02:00.
+        let date = NaiveDate::from_ymd_opt(2026, 3, 29).unwrap();
+        let core = test_core(berlin_config(), date);
+        let value = core.day_json();
+        let witr = &value["witr"];
+        assert_eq!(witr["available"].as_bool(), Some(true));
+
+        let next = date + ChronoDuration::days(1);
+        let next_core = test_core(berlin_config(), next);
+        let next_value = next_core.day_json();
+        let next_fajr_seconds = next_value["times"][0]["seconds"].as_u64().unwrap() as i64;
+        let next_offset =
+            (effective_offset(&next_core.cfg, next) * 3600.0).round() as i64;
+        let expected_deadline = next
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+            .and_utc()
+            .timestamp()
+            + next_fajr_seconds
+            - next_offset;
+        assert_eq!(
+            witr["deadline_epoch"].as_i64(),
+            Some(expected_deadline),
+            "the deadline must be the next day's Fajr in the next day's offset"
+        );
+    }
+
+    #[test]
+    fn day_json_for_date_keeps_selection() {
+        let selected = NaiveDate::from_ymd_opt(2026, 5, 1).unwrap();
+        let core = test_core(berlin_config(), selected);
+        let value = core.day_json_for_date(NaiveDate::from_ymd_opt(2026, 12, 25).unwrap());
+        assert_eq!(value["date"]["iso"], "2026-12-25");
+        assert_eq!(core.selected, selected);
+    }
+
+    #[test]
+    fn tracker_mask_suppresses_only_plain_notification() {
+        let mut cfg = berlin_manual_config();
+        cfg.notifications_enabled = true;
+        let date = NaiveDate::from_ymd_opt(2026, 5, 1).unwrap();
+        let mut core = test_core(cfg, date);
+        let times = core.day_json()["times"].as_array().unwrap().clone();
+        let fajr = times[0]["seconds"].as_u64().unwrap() as i64;
+        let seconds = (effective_offset(&core.cfg, date) * 3600.0).round() as i32;
+        let offset = FixedOffset::east_opt(seconds).unwrap();
+        let now = offset
+            .from_local_datetime(&date.and_hms_opt(0, 0, 0).unwrap())
+            .unwrap();
+        let at = now + ChronoDuration::seconds(fajr) + ChronoDuration::seconds(1);
+        core.tracker_mask = 1 << 0;
+        assert!(core.tracker_notification_masked(0));
+        let events = core.tick_at(at);
+        // The athan still fires; only the duplicate desktop notification is
+        // suppressed.
+        assert!(events
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|event| event["type"] == "athan" && event["prayer"] == 0));
     }
 
     #[test]
