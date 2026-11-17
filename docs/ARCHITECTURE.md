@@ -62,7 +62,7 @@ in four modules:
   the prayer-time source are injected, which keeps `ui/tests/tst_tracker.cpp`
   deterministic.
 - `TrackerView.{h,cpp}` — the fourth main-window tab (Ctrl+4) with the
-  Today/History/Prayers subpages.
+  Today and History subpages in plain Breeze Qt widgets.
 - `TrackerDialogs.{h,cpp}` — the "make up a missed prayer" (qada) dialog and
   the history-record editor.
 - `TrackerNotifications.{h,cpp}` — `org.freedesktop.Notifications` via Qt

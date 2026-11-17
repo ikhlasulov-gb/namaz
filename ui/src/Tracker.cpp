@@ -49,30 +49,6 @@ QJsonObject boolMap(std::initializer_list<bool> values) {
     return map;
 }
 
-QJsonObject stringMap(std::initializer_list<QString> values) {
-    QJsonObject map;
-    int index = 0;
-    for (const QString &value : values) {
-        map.insert(QString::fromLatin1(kPrayerKeys[index++]), value);
-    }
-    return map;
-}
-
-QJsonObject defaultColors() {
-    return stringMap({QStringLiteral("#5aa9e6"), QStringLiteral("#f2c14e"),
-                      QStringLiteral("#6abf69"), QStringLiteral("#e07a5f"),
-                      QStringLiteral("#9b8ec4"), QStringLiteral("#4f8a8b")});
-}
-
-QJsonObject defaultIcons() {
-    return stringMap({QStringLiteral("weather-clear-night"),
-                      QStringLiteral("weather-clear"),
-                      QStringLiteral("weather-few-clouds"),
-                      QStringLiteral("weather-sunset-down"),
-                      QStringLiteral("weather-night"),
-                      QStringLiteral("night-light")});
-}
-
 QJsonObject mergeObjects(const QJsonObject &base, const QJsonObject &overrides) {
     QJsonObject result = base;
     for (auto it = overrides.begin(); it != overrides.end(); ++it) {
@@ -240,7 +216,9 @@ unsigned int PrayerTracker::coreNotificationMask(const PrayerTracker &tracker,
         if (core < 0) {
             continue;
         }
-        if (tracker.prayerEnabled(index) && tracker.notifyEnabled(index)) {
+        // All six prayers are always tracked; the mask only follows the
+        // per-prayer reminder switches.
+        if (tracker.notifyEnabled(index)) {
             mask |= 1u << core;
         }
     }
@@ -254,20 +232,10 @@ void PrayerTracker::fillDefaults() {
          boolMap({true, true, true, true, true, false})},
         {QStringLiteral("auto_confirm"),
          boolMap({false, false, false, false, false, false})},
-        {QStringLiteral("enabled_prayers"),
-         boolMap({true, true, true, true, true, true})},
-        {QStringLiteral("colors"), defaultColors()},
-        {QStringLiteral("icons"), defaultIcons()},
-        {QStringLiteral("notes"),
-         boolMap({false, false, false, false, false, false})},
         {QStringLiteral("notify_buttons"), true},
         {QStringLiteral("qada_reminder"), 0},
         {QStringLiteral("history_days"), 365},
     };
-    // Notes are strings, not booleans; overwrite the placeholder above.
-    m_settings.insert(QStringLiteral("notes"),
-                      stringMap({QString(), QString(), QString(), QString(),
-                                 QString(), QString()}));
 }
 
 void PrayerTracker::setSettings(const QJsonObject &settings) {
@@ -308,27 +276,6 @@ int PrayerTracker::historyDays() const {
 
 int PrayerTracker::qadaReminder() const {
     return m_settings.value(QStringLiteral("qada_reminder")).toInt(0);
-}
-
-bool PrayerTracker::prayerEnabled(int index) const {
-    return m_settings.value(QStringLiteral("enabled_prayers"))
-        .toObject()
-        .value(QString::fromLatin1(kPrayerKeys[index]))
-        .toBool(true);
-}
-
-QString PrayerTracker::prayerColor(int index) const {
-    return m_settings.value(QStringLiteral("colors"))
-        .toObject()
-        .value(QString::fromLatin1(kPrayerKeys[index]))
-        .toString(QStringLiteral("#5aa9e6"));
-}
-
-QString PrayerTracker::prayerIcon(int index) const {
-    return m_settings.value(QStringLiteral("icons"))
-        .toObject()
-        .value(QString::fromLatin1(kPrayerKeys[index]))
-        .toString();
 }
 
 QString PrayerTracker::prayerNotes(int index) const {
@@ -587,7 +534,7 @@ bool PrayerTracker::tick() {
                 if (!entry.notified && at > 0 && nowEpoch >= at
                     && nowEpoch <= at + kNotifyGrace) {
                     entry.notified = true;
-                    if (prayerEnabled(index) && notifyEnabled(index)) {
+                    if (notifyEnabled(index)) {
                         dueEvents.append({entry.prayer, entry.date,
                                           index == PrayerIndex::Witr});
                     }
@@ -889,6 +836,11 @@ bool PrayerTracker::load() {
 
     m_settings = mergeObjects(m_settings,
                               root.value(QStringLiteral("settings")).toObject());
+    // Versions before the vanilla-UI rework stored per-prayer colours,
+    // icons, notes switches and enabled flags; the UI no longer uses them.
+    for (const char *key : {"colors", "icons", "enabled_prayers"}) {
+        m_settings.remove(QLatin1String(key));
+    }
 
     const QJsonObject qada = root.value(QStringLiteral("qada")).toObject();
     for (int index = 0; index < PrayerIndex::Count; ++index) {

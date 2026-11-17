@@ -406,18 +406,15 @@ void TrackerTest::notificationMaskUsesCoreIndices() {
     notify.insert(QStringLiteral("asr"), true);
     notify.insert(QStringLiteral("fajr"), false);
     settings.insert(QStringLiteral("notify"), notify);
-    QJsonObject enabled =
-        settings.value(QStringLiteral("enabled_prayers")).toObject();
-    enabled.insert(QStringLiteral("isha"), false);
-    settings.insert(QStringLiteral("enabled_prayers"), enabled);
     settings.insert(QStringLiteral("enabled"), false);
     tracker.setSettings(settings);
     QCOMPARE(PrayerTracker::coreNotificationMask(tracker, true), 0u);
 
     settings.insert(QStringLiteral("enabled"), true);
     tracker.setSettings(settings);
+    // Ishaa is always tracked now; only the per-prayer switches matter.
     QCOMPARE(PrayerTracker::coreNotificationMask(tracker, true),
-             (1u << 2) | (1u << 3) | (1u << 4));
+             (1u << 2) | (1u << 3) | (1u << 4) | (1u << 5));
 }
 
 QTEST_MAIN(TrackerTest)

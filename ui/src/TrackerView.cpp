@@ -3,26 +3,18 @@
 #include "TrackerDialogs.h"
 #include "UiUtils.h"
 
-#include <QCheckBox>
-#include <QColorDialog>
 #include <QDateTime>
 #include <QFileDialog>
-#include <QFormLayout>
 #include <QFrame>
-#include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QHeaderView>
-#include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
-#include <QPixmap>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSet>
-#include <QSignalBlocker>
-#include <QSpinBox>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QTabWidget>
@@ -38,22 +30,6 @@ QString timeText(qint64 epoch) {
     return Ui::formatTime(local.time().msecsSinceStartOfDay() / 1000);
 }
 
-QIcon colorIcon(const QColor &color) {
-    QPixmap pixmap(14, 14);
-    pixmap.fill(color);
-    return QIcon(pixmap);
-}
-
-QFrame *colorBar(const QColor &color, QWidget *parent) {
-    auto *bar = new QFrame(parent);
-    bar->setFixedWidth(4);
-    bar->setAutoFillBackground(true);
-    QPalette palette = bar->palette();
-    palette.setColor(QPalette::Window, color);
-    bar->setPalette(palette);
-    return bar;
-}
-
 void clearLayout(QVBoxLayout *layout) {
     while (QLayoutItem *item = layout->takeAt(0)) {
         if (QWidget *widget = item->widget()) {
@@ -63,6 +39,7 @@ void clearLayout(QVBoxLayout *layout) {
     }
 }
 
+// A plain QGroupBox section, exactly like the cards on the Day view.
 QWidget *section(const QString &title, const QList<QWidget *> &rows,
                  QWidget *parent) {
     if (rows.isEmpty()) {
@@ -70,13 +47,27 @@ QWidget *section(const QString &title, const QList<QWidget *> &rows,
     }
     auto *box = new QGroupBox(title, parent);
     auto *layout = new QVBoxLayout(box);
-    layout->setContentsMargins(Ui::pageMargin(), Ui::pageMargin(),
-                               Ui::pageMargin(), Ui::pageMargin());
+    layout->setContentsMargins(Ui::pageMargin(), Ui::groupSpacing(),
+                               Ui::pageMargin(), Ui::groupSpacing());
     layout->setSpacing(Ui::controlSpacing());
     for (QWidget *row : rows) {
         layout->addWidget(row);
     }
     return box;
+}
+
+// A borderless row: name and description on the left, then time, status and
+// the Confirm/Skip buttons.  Only palette roles are used, so the rows follow
+// the system Breeze theme like every other list in Namaz.
+QWidget *plainRow(const QList<QWidget *> &widgets, int stretchIndex) {
+    auto *row = new QWidget;
+    auto *layout = new QHBoxLayout(row);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(Ui::controlSpacing());
+    for (int index = 0; index < widgets.size(); ++index) {
+        layout->addWidget(widgets.at(index), index == stretchIndex ? 1 : 0);
+    }
+    return row;
 }
 
 }  // namespace
@@ -94,6 +85,14 @@ TrackerTodayPage::TrackerTodayPage(PrayerTracker *tracker, QWidget *parent)
     m_summary->setWordWrap(true);
     outer->addWidget(m_summary);
 
+    // The only entry point for a manual make-up record.  It stays above the
+    // scrolling list so it is reachable even when Today is long.
+    m_makeUp = new QPushButton(tr("Make up a missed prayer…"), this);
+    m_makeUp->setObjectName(QStringLiteral("TrackerQadaButton"));
+    connect(m_makeUp, &QPushButton::clicked, this,
+            &TrackerTodayPage::makeUpQada);
+    outer->addWidget(m_makeUp);
+
     auto *scroll = new QScrollArea(this);
     scroll->setWidgetResizable(true);
     scroll->setFrameShape(QFrame::NoFrame);
@@ -101,7 +100,7 @@ TrackerTodayPage::TrackerTodayPage(PrayerTracker *tracker, QWidget *parent)
     auto *content = new QWidget;
     m_layout = new QVBoxLayout(content);
     m_layout->setContentsMargins(0, 0, 0, 0);
-    m_layout->setSpacing(Ui::groupSpacing());
+    m_layout->setSpacing(Ui::groupSpacing() * 2);
     scroll->setWidget(content);
     outer->addWidget(scroll, 1);
 }
@@ -123,10 +122,17 @@ void TrackerTodayPage::refresh() {
         m_layout->addWidget(disabled);
         m_layout->addStretch(1);
         m_summary->setText(tr("Journal disabled"));
+        if (m_makeUp) {
+            m_makeUp->setEnabled(false);
+        }
         return;
     }
+    if (m_makeUp) {
+        m_makeUp->setEnabled(true);
+    }
 
-    const QDate today = QDateTime::fromSecsSinceEpoch(m_tracker->nowEpoch()).date();
+    const QDate today =
+        QDateTime::fromSecsSinceEpoch(m_tracker->nowEpoch()).date();
     const qint64 now = m_tracker->nowEpoch();
 
     QStringList debts;
@@ -140,8 +146,8 @@ void TrackerTodayPage::refresh() {
     }
     m_summary->setText(debts.isEmpty()
                            ? tr("No missed prayers in the qada counter.")
-                           : tr("Qada debt — %1").arg(debts.join(
-                                 QStringLiteral("  ·  "))));
+                           : tr("Qada debt — %1").arg(
+                                 debts.join(QStringLiteral("  ·  "))));
 
     const QList<TrackerEntry> yesterday = m_tracker->yesterdayPending(today);
     const QList<TrackerEntry> todayEntries = m_tracker->entriesFor(today);
@@ -197,28 +203,17 @@ void TrackerTodayPage::refresh() {
     m_layout->addStretch(1);
 }
 
+void TrackerTodayPage::makeUpQada() {
+    QadaDialog dialog(m_tracker, this);
+    if (dialog.exec() != QDialog::Accepted) {
+        return;
+    }
+    m_tracker->addQada(dialog.prayer(), dialog.date(), dialog.note());
+}
+
 QWidget *TrackerTodayPage::entryRow(const TrackerEntry &entry, bool yesterday) {
     const int index = PrayerTracker::prayerIndex(entry.prayer);
-    auto *row = new QFrame;
-    row->setObjectName(QStringLiteral("TrackerRow_%1_%2")
-                           .arg(entry.prayer, entry.date.toString(Qt::ISODate)));
-    row->setFrameShape(QFrame::StyledPanel);
-    auto *layout = new QHBoxLayout(row);
-    layout->setContentsMargins(0, 0, Ui::controlSpacing(), 0);
-    layout->setSpacing(Ui::controlSpacing());
 
-    layout->addWidget(colorBar(QColor(m_tracker->prayerColor(index)), row));
-
-    auto *icon = new QLabel(row);
-    icon->setPixmap(Ui::themeIcon(m_tracker->prayerIcon(index),
-                                  QStringLiteral("view-calendar"))
-                        .pixmap(QSize(18, 18)));
-    layout->addWidget(icon);
-
-    auto *labels = new QWidget(row);
-    auto *labelLayout = new QVBoxLayout(labels);
-    labelLayout->setContentsMargins(0, 2, 0, 2);
-    labelLayout->setSpacing(0);
     QString name = PrayerTracker::prayerName(index);
     if (yesterday) {
         name = tr("%1 — since yesterday").arg(name);
@@ -226,50 +221,40 @@ QWidget *TrackerTodayPage::entryRow(const TrackerEntry &entry, bool yesterday) {
     if (entry.qada) {
         name = tr("%1 — make-up").arg(name);
     }
-    auto *nameLabel = new QLabel(name, labels);
+    auto *nameLabel = new QLabel(name);
     QFont bold = nameLabel->font();
     bold.setBold(true);
     nameLabel->setFont(bold);
-    labelLayout->addWidget(nameLabel);
-    QString description = PrayerTracker::prayerDescription(index);
-    const QString notes = m_tracker->prayerNotes(index);
-    if (!notes.isEmpty()) {
-        description += QStringLiteral("  ·  ") + notes;
-    }
-    auto *descriptionLabel = new QLabel(description, labels);
-    Ui::styleCaption(descriptionLabel);
-    labelLayout->addWidget(descriptionLabel);
-    layout->addWidget(labels, 1);
 
-    auto *timeLabel = new QLabel(timeText(entry.start), row);
+    QString description = PrayerTracker::prayerDescription(index);
+    auto *descriptionLabel = new QLabel(description);
+    Ui::styleCaption(descriptionLabel);
+
+    auto *labels = new QWidget;
+    auto *labelLayout = new QVBoxLayout(labels);
+    labelLayout->setContentsMargins(0, 0, 0, 0);
+    labelLayout->setSpacing(0);
+    labelLayout->addWidget(nameLabel);
+    labelLayout->addWidget(descriptionLabel);
+
+    auto *timeLabel = new QLabel(timeText(entry.start));
     timeLabel->setFont(Ui::tabularFont(timeLabel->font(), 1.0));
-    layout->addWidget(timeLabel);
 
     QString status = PrayerTracker::statusLabel(entry.status);
     if (entry.pending()) {
         const qint64 now = m_tracker->nowEpoch();
         status = now < entry.start ? tr("Not started") : tr("Now");
     }
-    auto *statusLabel = new QLabel(status, row);
+    auto *statusLabel = new QLabel(status);
     statusLabel->setMinimumWidth(90);
-    if (entry.status == QLatin1String(TrackerStatus::Missed)) {
-        QPalette palette = statusLabel->palette();
-        palette.setColor(QPalette::WindowText, palette.color(QPalette::BrightText));
-        statusLabel->setPalette(palette);
-    } else if (entry.done()) {
-        QPalette palette = statusLabel->palette();
-        palette.setColor(QPalette::WindowText, palette.color(QPalette::Link));
-        statusLabel->setPalette(palette);
-    } else {
-        statusLabel->setForegroundRole(QPalette::PlaceholderText);
-    }
-    layout->addWidget(statusLabel);
+    statusLabel->setForegroundRole(QPalette::PlaceholderText);
 
+    QList<QWidget *> widgets{labels, timeLabel, statusLabel};
     if (entry.pending()) {
         const QString id = entry.id;
-        auto *confirm = new QPushButton(tr("Confirm"), row);
+        auto *confirm = new QPushButton(tr("Confirm"));
         confirm->setObjectName(QStringLiteral("TrackerConfirmButton"));
-        auto *skip = new QPushButton(tr("Skip"), row);
+        auto *skip = new QPushButton(tr("Skip"));
         skip->setObjectName(QStringLiteral("TrackerSkipButton"));
         const bool open = m_tracker->isConfirmable(entry);
         confirm->setEnabled(open);
@@ -283,34 +268,22 @@ QWidget *TrackerTodayPage::entryRow(const TrackerEntry &entry, bool yesterday) {
                 [this, id] { m_tracker->confirm(id); });
         connect(skip, &QPushButton::clicked, this,
                 [this, id] { m_tracker->skip(id); });
-        layout->addWidget(confirm);
-        layout->addWidget(skip);
-    } else {
-        layout->addSpacing(Ui::controlSpacing());
+        widgets << confirm << skip;
     }
-    return row;
+    return plainRow(widgets, 0);
 }
 
 QWidget *TrackerTodayPage::unavailableRow(int index) {
-    auto *row = new QFrame;
-    row->setObjectName(QStringLiteral("TrackerUnavailable_%1")
-                           .arg(PrayerTracker::prayerKey(index)));
-    row->setFrameShape(QFrame::StyledPanel);
-    auto *layout = new QHBoxLayout(row);
-    layout->setContentsMargins(Ui::controlSpacing(), 2, Ui::controlSpacing(), 2);
     auto *name = new QLabel(
         QStringLiteral("%1 — %2")
             .arg(PrayerTracker::prayerName(index),
-                 PrayerTracker::prayerDescription(index)),
-        row);
+                 PrayerTracker::prayerDescription(index)));
     name->setForegroundRole(QPalette::PlaceholderText);
-    layout->addWidget(name, 1);
-    auto *time = new QLabel(QStringLiteral("N/A"), row);
+    auto *time = new QLabel(QStringLiteral("N/A"));
     time->setForegroundRole(QPalette::PlaceholderText);
-    layout->addWidget(time);
-    auto *status = new QLabel(tr("Unavailable"), row);
+    auto *status = new QLabel(tr("Unavailable"));
     status->setForegroundRole(QPalette::PlaceholderText);
-    layout->addWidget(status);
+    auto *row = plainRow({name, time, status}, 0);
     row->setToolTip(tr("Prayer times are not available at this latitude."));
     return row;
 }
@@ -344,12 +317,18 @@ TrackerHistoryPage::TrackerHistoryPage(PrayerTracker *tracker, QWidget *parent)
     m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_table->verticalHeader()->setVisible(false);
     Ui::compactTable(m_table);
-    m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-    m_table->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
-    m_table->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents);
-    m_table->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
+    m_table->horizontalHeader()->setSectionResizeMode(
+        0, QHeaderView::ResizeToContents);
+    m_table->horizontalHeader()->setSectionResizeMode(
+        1, QHeaderView::ResizeToContents);
+    m_table->horizontalHeader()->setSectionResizeMode(
+        2, QHeaderView::ResizeToContents);
+    m_table->horizontalHeader()->setSectionResizeMode(
+        3, QHeaderView::ResizeToContents);
+    m_table->horizontalHeader()->setSectionResizeMode(
+        4, QHeaderView::ResizeToContents);
+    m_table->horizontalHeader()->setSectionResizeMode(
+        5, QHeaderView::Stretch);
     layout->addWidget(m_table, 1);
 
     auto *buttons = new QHBoxLayout();
@@ -397,7 +376,8 @@ void TrackerHistoryPage::refresh() {
         m_table->setItem(row, 2, new QTableWidgetItem(
             PrayerTracker::statusLabel(entry.status)));
         QString time = entry.scheduled;
-        const QDateTime scheduled = QDateTime::fromString(entry.scheduled, Qt::ISODate);
+        const QDateTime scheduled =
+            QDateTime::fromString(entry.scheduled, Qt::ISODate);
         if (scheduled.isValid()) {
             time = timeText(scheduled.toSecsSinceEpoch());
         }
@@ -474,194 +454,21 @@ void TrackerHistoryPage::exportCsv() {
     }
 }
 
-TrackerPrayersPage::TrackerPrayersPage(PrayerTracker *tracker, QWidget *parent)
-    : QWidget(parent), m_tracker(tracker) {
-    setObjectName(QStringLiteral("TrackerPrayersPage"));
-    auto *outer = new QVBoxLayout(this);
-    outer->setContentsMargins(0, 0, 0, 0);
-    outer->setSpacing(0);
-
-    auto *scroll = new QScrollArea(this);
-    scroll->setWidgetResizable(true);
-    scroll->setFrameShape(QFrame::NoFrame);
-    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    auto *content = new QWidget;
-    auto *layout = new QVBoxLayout(content);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(Ui::groupSpacing());
-    scroll->setWidget(content);
-    outer->addWidget(scroll);
-
-    for (int index = 0; index < PrayerIndex::Count; ++index) {
-        const QString key = PrayerTracker::prayerKey(index);
-        auto *card = new QGroupBox(PrayerTracker::prayerName(index), content);
-        card->setObjectName(QStringLiteral("PrayerCard_%1").arg(key));
-        auto *form = new QFormLayout(card);
-        Ui::compactForm(form);
-
-        auto *description = new QLabel(
-            PrayerTracker::prayerDescription(index), card);
-        description->setForegroundRole(QPalette::PlaceholderText);
-        description->setWordWrap(true);
-        form->addRow(description);
-
-        m_enabled[index] = new QCheckBox(tr("Track this prayer"), card);
-        m_enabled[index]->setObjectName(QStringLiteral("TrackerEnabled_%1").arg(key));
-        m_enabled[index]->setChecked(m_tracker->prayerEnabled(index));
-        form->addRow(m_enabled[index]);
-
-        m_notify[index] = new QCheckBox(tr("Show a reminder"), card);
-        m_notify[index]->setObjectName(QStringLiteral("TrackerNotify_%1").arg(key));
-        m_notify[index]->setChecked(m_tracker->notifyEnabled(index));
-        form->addRow(m_notify[index]);
-
-        m_auto[index] = new QCheckBox(
-            tr("Mark as auto-confirmed after the window"), card);
-        m_auto[index]->setObjectName(QStringLiteral("TrackerAuto_%1").arg(key));
-        m_auto[index]->setChecked(m_tracker->autoConfirm(index));
-        form->addRow(m_auto[index]);
-
-        m_color[index] = new QPushButton(card);
-        m_color[index]->setObjectName(QStringLiteral("TrackerColor_%1").arg(key));
-        m_color[index]->setIcon(colorIcon(QColor(m_tracker->prayerColor(index))));
-        m_color[index]->setText(m_tracker->prayerColor(index));
-        form->addRow(tr("Colour"), m_color[index]);
-
-        m_icon[index] = new QLineEdit(m_tracker->prayerIcon(index), card);
-        m_icon[index]->setObjectName(QStringLiteral("TrackerIcon_%1").arg(key));
-        m_icon[index]->setClearButtonEnabled(true);
-        form->addRow(tr("Icon"), m_icon[index]);
-
-        m_notes[index] = new QLineEdit(m_tracker->prayerNotes(index), card);
-        m_notes[index]->setObjectName(QStringLiteral("TrackerNotes_%1").arg(key));
-        m_notes[index]->setClearButtonEnabled(true);
-        form->addRow(tr("Notes"), m_notes[index]);
-
-        m_initialQada[index] = new QSpinBox(card);
-        m_initialQada[index]->setObjectName(
-            QStringLiteral("TrackerInitialQada_%1").arg(key));
-        m_initialQada[index]->setRange(0, 1000000);
-        m_initialQada[index]->setValue(
-            static_cast<int>(m_tracker->initialQada(index)));
-        form->addRow(tr("Initial qada"), m_initialQada[index]);
-
-        m_debt[index] = new QLabel(card);
-        m_debt[index]->setObjectName(
-            QStringLiteral("TrackerQadaDebt_%1").arg(key));
-        form->addRow(tr("Debt"), m_debt[index]);
-
-        auto *makeUpButton = new QPushButton(tr("Make up a missed prayer…"), card);
-        makeUpButton->setObjectName(QStringLiteral("TrackerQadaButton_%1").arg(key));
-        form->addRow(makeUpButton);
-
-        connect(m_enabled[index], &QCheckBox::toggled, this,
-                [this, index](bool on) {
-                    updateSetting(QStringLiteral("enabled_prayers"), index, on);
-                });
-        connect(m_notify[index], &QCheckBox::toggled, this,
-                [this, index](bool on) {
-                    updateSetting(QStringLiteral("notify"), index, on);
-                });
-        connect(m_auto[index], &QCheckBox::toggled, this,
-                [this, index](bool on) {
-                    updateSetting(QStringLiteral("auto_confirm"), index, on);
-                });
-        connect(m_color[index], &QPushButton::clicked, this,
-                [this, index] { chooseColor(index); });
-        connect(m_icon[index], &QLineEdit::editingFinished, this, [this, index] {
-            updateSetting(QStringLiteral("icons"), index, m_icon[index]->text());
-        });
-        connect(m_notes[index], &QLineEdit::editingFinished, this, [this, index] {
-            updateSetting(QStringLiteral("notes"), index, m_notes[index]->text());
-        });
-        connect(m_initialQada[index], &QSpinBox::valueChanged, this,
-                [this, index](int value) {
-                    m_tracker->setInitialQada(index, value);
-                });
-        connect(makeUpButton, &QPushButton::clicked, this,
-                [this, index] { makeUp(index); });
-
-        layout->addWidget(card);
-    }
-    layout->addStretch(1);
-    refresh();
-}
-
-void TrackerPrayersPage::updateSetting(const QString &group, int index,
-                                       const QJsonValue &value) {
-    QJsonObject settings = m_tracker->settings();
-    QJsonObject map = settings.value(group).toObject();
-    map.insert(PrayerTracker::prayerKey(index), value);
-    settings.insert(group, map);
-    m_tracker->setSettings(settings);
-}
-
-void TrackerPrayersPage::chooseColor(int index) {
-    const QColor color = QColorDialog::getColor(
-        QColor(m_tracker->prayerColor(index)), this, tr("Prayer Colour"));
-    if (!color.isValid()) {
-        return;
-    }
-    updateSetting(QStringLiteral("colors"), index, color.name());
-    m_color[index]->setIcon(colorIcon(color));
-    m_color[index]->setText(color.name());
-}
-
-void TrackerPrayersPage::makeUp(int index) {
-    QadaDialog dialog(m_tracker, this);
-    if (dialog.exec() != QDialog::Accepted) {
-        return;
-    }
-    m_tracker->addQada(dialog.prayer(), dialog.date(), dialog.note());
-}
-
-void TrackerPrayersPage::refresh() {
-    for (int index = 0; index < PrayerIndex::Count; ++index) {
-        if (m_debt[index]) {
-            m_debt[index]->setText(
-                QString::number(m_tracker->qadaDebt(index)));
-        }
-        if (m_initialQada[index]) {
-            const QSignalBlocker blocker(m_initialQada[index]);
-            m_initialQada[index]->setValue(
-                static_cast<int>(m_tracker->initialQada(index)));
-        }
-        if (m_enabled[index]) {
-            const QSignalBlocker blocker(m_enabled[index]);
-            m_enabled[index]->setChecked(m_tracker->prayerEnabled(index));
-        }
-        if (m_notify[index]) {
-            const QSignalBlocker blocker(m_notify[index]);
-            m_notify[index]->setChecked(m_tracker->notifyEnabled(index));
-        }
-        if (m_auto[index]) {
-            const QSignalBlocker blocker(m_auto[index]);
-            m_auto[index]->setChecked(m_tracker->autoConfirm(index));
-        }
-        if (m_color[index]) {
-            m_color[index]->setIcon(
-                colorIcon(QColor(m_tracker->prayerColor(index))));
-            m_color[index]->setText(m_tracker->prayerColor(index));
-        }
-    }
-}
-
 TrackerView::TrackerView(PrayerTracker *tracker, QWidget *parent)
     : QWidget(parent), m_tracker(tracker) {
     setObjectName(QStringLiteral("TrackerView"));
     auto *layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
+    layout->setContentsMargins(Ui::pageMargin(), Ui::pageMargin(),
+                               Ui::pageMargin(), Ui::pageMargin());
+    layout->setSpacing(Ui::controlSpacing());
 
     m_tabs = new QTabWidget(this);
     m_tabs->setObjectName(QStringLiteral("TrackerTabs"));
     m_tabs->setDocumentMode(true);
     m_today = new TrackerTodayPage(tracker, m_tabs);
     m_history = new TrackerHistoryPage(tracker, m_tabs);
-    m_prayers = new TrackerPrayersPage(tracker, m_tabs);
     m_tabs->addTab(m_today, tr("Today"));
     m_tabs->addTab(m_history, tr("History"));
-    m_tabs->addTab(m_prayers, tr("Prayers"));
     layout->addWidget(m_tabs);
 
     connect(m_tabs, &QTabWidget::currentChanged, this,
@@ -679,11 +486,8 @@ void TrackerView::refreshCurrent() {
     case 0:
         m_today->refresh();
         break;
-    case 1:
-        m_history->refresh();
-        break;
     default:
-        m_prayers->refresh();
+        m_history->refresh();
         break;
     }
 }
