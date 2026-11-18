@@ -56,6 +56,12 @@ TrackerEntry findEntry(PrayerTracker &tracker, const QDate &date,
     return {};
 }
 
+void enableWitr(PrayerTracker &tracker) {
+    QJsonObject settings = tracker.settings();
+    settings.insert(QStringLiteral("witr"), true);
+    tracker.setSettings(settings);
+}
+
 }  // namespace
 
 class TrackerTest : public QObject {
@@ -72,7 +78,10 @@ private slots:
     void autoCleanupPreservesDebt();
     void csvExportContainsRows();
     void unavailableWitrIsNotTracked();
+    void witrIsOptInAndUsesLastThird();
     void dueSignalFiresOnce();
+    void dueCarriesTheMissedPreviousPrayer();
+    void staleMissedIsNotReplayed();
     void notificationMaskUsesCoreIndices();
     void qadaReminderFiresAtThreshold();
 };
@@ -83,6 +92,7 @@ void TrackerTest::midnightKeepsIshaAndWitrInYesterdaySection() {
     FakeSource source;
     PrayerTracker tracker(&source);
     tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+    enableWitr(tracker);
     qint64 now = at(day1(), 21, 0);
     tracker.setNowProvider(
         [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
@@ -114,6 +124,7 @@ void TrackerTest::confirmIsOnlyAllowedInsideTheWindow() {
     FakeSource source;
     PrayerTracker tracker(&source);
     tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+    enableWitr(tracker);
     qint64 now = at(day1(), 19, 0);
     tracker.setNowProvider(
         [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
@@ -231,6 +242,7 @@ void TrackerTest::trackerFileRoundTrips() {
     {
         PrayerTracker tracker(&source);
         tracker.setStoragePath(path);
+        enableWitr(tracker);
         qint64 now = at(day1(), 19, 0);
         tracker.setNowProvider(
             [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
@@ -324,6 +336,7 @@ void TrackerTest::unavailableWitrIsNotTracked() {
     source.witrAvailable = false;
     PrayerTracker tracker(&source);
     tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+    enableWitr(tracker);
     qint64 now = at(day1(), 19, 0);
     tracker.setNowProvider(
         [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
@@ -332,6 +345,43 @@ void TrackerTest::unavailableWitrIsNotTracked() {
     QVERIFY(findEntry(tracker, day1(), QStringLiteral("witr")).id.isEmpty());
     QCOMPARE(tracker.entriesFor(day1()).size(), 5);
     QVERIFY(tracker.entriesFor(day1()).back().deadline > 0);
+}
+
+void TrackerTest::witrIsOptInAndUsesLastThird() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    FakeSource source;
+    PrayerTracker tracker(&source);
+    tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+    qint64 now = at(day1(), 19, 0);
+    tracker.setNowProvider(
+        [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
+    tracker.tick();
+
+    // Witr is off by default: neither the table nor the qada counter sees it.
+    QVERIFY(findEntry(tracker, day1(), QStringLiteral("witr")).id.isEmpty());
+    QCOMPARE(tracker.entriesFor(day1()).size(), 5);
+    QCOMPARE(tracker.qadaDebt(PrayerIndex::Witr), qint64(0));
+
+    enableWitr(tracker);
+    tracker.tick();
+    const TrackerEntry witr = findEntry(tracker, day1(), QStringLiteral("witr"));
+    QVERIFY(!witr.id.isEmpty());
+    QCOMPARE(tracker.entriesFor(day1()).size(), 6);
+    // The journal shows the last third of the night, not Ishaa's start.
+    QCOMPARE(PrayerTracker::displayEpoch(witr),
+             at(day1().addDays(1), 1, 0));
+    QVERIFY(PrayerTracker::displayEpoch(witr) > witr.start);
+
+    // Turning the option off hides an existing record again.
+    QJsonObject settings = tracker.settings();
+    settings.insert(QStringLiteral("witr"), false);
+    QJsonObject notify = settings.value(QStringLiteral("notify")).toObject();
+    notify.insert(QStringLiteral("witr"), false);
+    settings.insert(QStringLiteral("notify"), notify);
+    tracker.setSettings(settings);
+    QVERIFY(findEntry(tracker, day1(), QStringLiteral("witr")).id.isEmpty());
+    QCOMPARE(tracker.entriesFor(day1()).size(), 5);
 }
 
 void TrackerTest::dueSignalFiresOnce() {
@@ -354,6 +404,51 @@ void TrackerTest::dueSignalFiresOnce() {
     now = at(day1(), 20, 0) + 2;
     tracker.tick();
     QCOMPARE(spy.count(), 1);
+}
+
+void TrackerTest::dueCarriesTheMissedPreviousPrayer() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    FakeSource source;
+    PrayerTracker tracker(&source);
+    tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+    qint64 now = at(day1(), 19, 0);
+    tracker.setNowProvider(
+        [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
+    tracker.tick();
+
+    QSignalSpy spy(&tracker, &PrayerTracker::due);
+    // Ishaa begins exactly when Maghrib's window closes.
+    now = at(day1(), 20, 0);
+    tracker.tick();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("isha"));
+    const QStringList missed =
+        spy.at(0).at(3).toStringList();
+    QCOMPARE(missed, QStringList{QStringLiteral("maghrib")});
+    QCOMPARE(findEntry(tracker, day1(), QStringLiteral("maghrib")).status,
+             QStringLiteral("missed"));
+}
+
+void TrackerTest::staleMissedIsNotReplayed() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    FakeSource source;
+    PrayerTracker tracker(&source);
+    tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+    qint64 now = at(day1(), 5, 0);
+    tracker.setNowProvider(
+        [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
+    tracker.tick();
+
+    QSignalSpy missedSpy(&tracker, &PrayerTracker::missed);
+    // Wake up long after Shuruq: the record is missed, but no stale
+    // notification is replayed.
+    now = at(day1(), 7, 0);
+    tracker.tick();
+    QCOMPARE(findEntry(tracker, day1(), QStringLiteral("fajr")).status,
+             QStringLiteral("missed"));
+    QCOMPARE(missedSpy.count(), 0);
 }
 
 void TrackerTest::qadaReminderFiresAtThreshold() {

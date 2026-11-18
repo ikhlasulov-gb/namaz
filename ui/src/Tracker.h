@@ -7,6 +7,7 @@
 #include <QMap>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 
 #include <functional>
 
@@ -94,6 +95,9 @@ public:
     static QString prayerName(int index);
     static QString prayerDescription(int index);
     static QString statusLabel(const QString &status);
+    // Moment shown for a record: the last third of the night for Witr (the
+    // time of its reminder), the prayer start for the obligatory prayers.
+    static qint64 displayEpoch(const TrackerEntry &entry);
     // Runtime mask for `namaz_core_set_tracker_mask`: bits use the core's
     // time indices (Fajr 0, Dhuhr 2, Asr 3, Maghrib 4, Ishaa 5).
     static unsigned int coreNotificationMask(const PrayerTracker &tracker,
@@ -114,6 +118,10 @@ public:
     bool enabled() const;
     bool notifyEnabled(int index) const;
     bool autoConfirm(int index) const;
+    // Witr is optional: it is tracked only when its own switch (or one of
+    // its reminder switches, for compatibility) is enabled.
+    bool witrEnabled() const;
+    bool tracked(int index) const;
     bool notifyButtons() const;
     int historyDays() const;
     int qadaReminder() const;
@@ -149,8 +157,14 @@ public:
 signals:
     // Emitted when records or counters changed in a way the UI must redraw.
     void changed();
-    // Emitted once per record when its reminder time is reached.
-    void due(const QString &prayer, const QDate &date, bool witr);
+    // Emitted once per record when its reminder time is reached.  `missed`
+    // names the prayers whose window ended at the same moment, so the new
+    // prayer's notification can replace the old one and report it as missed.
+    void due(const QString &prayer, const QDate &date, bool witr,
+             const QStringList &missed);
+    // Emitted when a pending prayer becomes missed at its deadline and there
+    // is no new prayer notification to carry the message.
+    void missed(const QString &prayer, const QDate &date, bool witr);
     // Emitted at most once per day when the qada debt reaches the threshold
     // set by `qada_reminder` (0 disables the reminder).
     void qadaDue(int index, qint64 debt);

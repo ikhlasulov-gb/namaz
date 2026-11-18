@@ -4,6 +4,7 @@
 
 #include <QComboBox>
 #include <QDateEdit>
+#include <QDateTime>
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QLabel>
@@ -35,6 +36,9 @@ QadaDialog::QadaDialog(PrayerTracker *tracker, QWidget *parent)
     m_prayer = new QComboBox(this);
     m_prayer->setObjectName(QStringLiteral("QadaPrayerCombo"));
     for (int index = 0; index < PrayerIndex::Count; ++index) {
+        if (m_tracker && !m_tracker->tracked(index)) {
+            continue;
+        }
         m_prayer->addItem(PrayerTracker::prayerName(index),
                           PrayerTracker::prayerKey(index));
     }
@@ -114,7 +118,12 @@ EditEntryDialog::EditEntryDialog(const TrackerEntry &entry, QWidget *parent)
                                 PrayerTracker::prayerIndex(entry.prayer)),
                             this));
     form->addRow(tr("Date"), new QLabel(entry.date.toString(Qt::ISODate), this));
-    form->addRow(tr("Scheduled"), new QLabel(entry.scheduled, this));
+    const qint64 moment = PrayerTracker::displayEpoch(entry);
+    const QString scheduled =
+        moment > 0
+            ? QDateTime::fromSecsSinceEpoch(moment).toString(Qt::ISODate)
+            : entry.scheduled;
+    form->addRow(tr("Scheduled"), new QLabel(scheduled, this));
 
     m_status = new QComboBox(this);
     m_status->setObjectName(QStringLiteral("EditStatusCombo"));

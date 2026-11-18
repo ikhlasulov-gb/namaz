@@ -72,10 +72,16 @@ in four modules:
 Witr has no core time index; the core exposes it as a `witr` object in the
 day JSON (`epoch`, `deadline_epoch`, `available`, calendar date), computed as
 the last third of the night Maghrib → Fajr(D+1).  Every core time also gains
-an absolute `epoch`.  While the tracker is enabled,
-`namaz_core_set_tracker_mask` silences the plain core notification for the
-tracked prayers so only the tracker reminds; adhan, iqama and reminder audio
-are untouched.
+an absolute `epoch`.  Witr is opt-in: the journal stores records for it only
+when `witr` (or one of its reminder switches) is enabled in the Journal
+preferences, and shows the last third of the night rather than Ishaa's start.
+Journal reminders replace each other, and when a window closes at the next
+prayer's start, the new reminder reports the previous prayer as missed.  On
+quit the tracker closes the notifications it still owns: the daemon would
+otherwise keep a message whose Confirm and Skip buttons no longer work.  While
+the tracker is enabled, `namaz_core_set_tracker_mask` silences the plain core
+notification for the tracked prayers so only the tracker reminds; adhan, iqama
+and reminder audio are untouched.
 
 ## Configuration and migration
 

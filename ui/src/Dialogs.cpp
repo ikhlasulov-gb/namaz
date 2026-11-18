@@ -1090,6 +1090,13 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
         journalEnableBox);
     m_trackerEnabled->setObjectName(QStringLiteral("TrackerEnabledCheck"));
     journalEnableLayout->addWidget(m_trackerEnabled);
+    m_trackerWitr = new QCheckBox(
+        tr("Track Witr in the journal (last third of the night)"),
+        journalEnableBox);
+    m_trackerWitr->setObjectName(QStringLiteral("TrackerWitrCheck"));
+    m_trackerWitr->setToolTip(
+        tr("Without Witr the journal lists only the five obligatory prayers"));
+    journalEnableLayout->addWidget(m_trackerWitr);
     m_trackerNotifyButtons = new QCheckBox(
         tr("Show Confirm and Skip buttons in notifications"), journalEnableBox);
     m_trackerNotifyButtons->setObjectName(QStringLiteral("TrackerNotifyButtonsCheck"));
@@ -1130,6 +1137,11 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
         journalNotifyGrid->addWidget(m_trackerNotify[index], index + 1, 1);
         journalNotifyGrid->addWidget(m_trackerAuto[index], index + 1, 2);
     }
+    connect(m_trackerWitr, &QCheckBox::toggled, this, [this](bool on) {
+        const bool active = on && m_trackerEnabled->isChecked();
+        m_trackerNotify[PrayerIndex::Witr]->setEnabled(active);
+        m_trackerAuto[PrayerIndex::Witr]->setEnabled(active);
+    });
     journalLayout->addWidget(journalNotifyBox);
 
     auto *journalDataBox = compactBox(tr("History and qada"), journalPage.widget);
@@ -1844,15 +1856,22 @@ void PreferencesDialog::populateTracker() {
     }
     const bool on = m_tracker->enabled();
     m_trackerEnabled->setChecked(on);
+    {
+        const QSignalBlocker blocker(m_trackerWitr);
+        m_trackerWitr->setChecked(m_tracker->witrEnabled());
+    }
+    m_trackerWitr->setEnabled(on);
     for (int index = 0; index < 6; ++index) {
         m_trackerNotify[index]->setChecked(m_tracker->notifyEnabled(index));
         m_trackerAuto[index]->setChecked(m_tracker->autoConfirm(index));
-        m_trackerNotify[index]->setEnabled(on);
-        m_trackerAuto[index]->setEnabled(on);
+        const bool witrOn =
+            on && (index != PrayerIndex::Witr || m_trackerWitr->isChecked());
+        m_trackerNotify[index]->setEnabled(witrOn);
+        m_trackerAuto[index]->setEnabled(witrOn);
         const QSignalBlocker blocker(m_trackerQada[index]);
         m_trackerQada[index]->setValue(
             static_cast<int>(m_tracker->initialQada(index)));
-        m_trackerQada[index]->setEnabled(on);
+        m_trackerQada[index]->setEnabled(witrOn);
     }
     m_trackerNotifyButtons->setChecked(m_tracker->notifyButtons());
     m_trackerQadaReminder->setValue(m_tracker->qadaReminder());
@@ -1870,14 +1889,23 @@ void PreferencesDialog::applyTracker() {
     }
     QJsonObject notify;
     QJsonObject autoConfirm;
+    const bool witr = m_trackerWitr->isChecked();
+    if (!witr) {
+        m_trackerNotify[PrayerIndex::Witr]->setChecked(false);
+        m_trackerAuto[PrayerIndex::Witr]->setChecked(false);
+    }
     for (int index = 0; index < 6; ++index) {
         const QString key = PrayerTracker::prayerKey(index);
-        notify.insert(key, m_trackerNotify[index]->isChecked());
-        autoConfirm.insert(key, m_trackerAuto[index]->isChecked());
+        const bool enabled =
+            index != PrayerIndex::Witr || witr;
+        notify.insert(key, enabled && m_trackerNotify[index]->isChecked());
+        autoConfirm.insert(key,
+                           enabled && m_trackerAuto[index]->isChecked());
         m_tracker->setInitialQada(index, m_trackerQada[index]->value());
     }
     QJsonObject settings = m_tracker->settings();
     settings.insert(QStringLiteral("enabled"), m_trackerEnabled->isChecked());
+    settings.insert(QStringLiteral("witr"), witr);
     settings.insert(QStringLiteral("notify"), notify);
     settings.insert(QStringLiteral("auto_confirm"), autoConfirm);
     settings.insert(QStringLiteral("notify_buttons"),
