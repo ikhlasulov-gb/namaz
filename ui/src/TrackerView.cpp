@@ -181,6 +181,9 @@ void TrackerTodayPage::refresh() {
 
     const PrayerDay windows = m_tracker->windowsFor(today);
     for (int index = 0; index < PrayerIndex::Count; ++index) {
+        if (!m_tracker->tracked(index)) {
+            continue;
+        }
         if (present.contains(PrayerTracker::prayerKey(index))) {
             continue;
         }
@@ -237,7 +240,7 @@ QWidget *TrackerTodayPage::entryRow(const TrackerEntry &entry, bool yesterday) {
     labelLayout->addWidget(nameLabel);
     labelLayout->addWidget(descriptionLabel);
 
-    auto *timeLabel = new QLabel(timeText(entry.start));
+    auto *timeLabel = new QLabel(timeText(PrayerTracker::displayEpoch(entry)));
     timeLabel->setFont(Ui::tabularFont(timeLabel->font(), 1.0));
 
     QString status = PrayerTracker::statusLabel(entry.status);
@@ -376,10 +379,15 @@ void TrackerHistoryPage::refresh() {
         m_table->setItem(row, 2, new QTableWidgetItem(
             PrayerTracker::statusLabel(entry.status)));
         QString time = entry.scheduled;
-        const QDateTime scheduled =
-            QDateTime::fromString(entry.scheduled, Qt::ISODate);
-        if (scheduled.isValid()) {
-            time = timeText(scheduled.toSecsSinceEpoch());
+        const qint64 moment = PrayerTracker::displayEpoch(entry);
+        if (moment > 0) {
+            time = timeText(moment);
+        } else {
+            const QDateTime scheduled =
+                QDateTime::fromString(entry.scheduled, Qt::ISODate);
+            if (scheduled.isValid()) {
+                time = timeText(scheduled.toSecsSinceEpoch());
+            }
         }
         m_table->setItem(row, 3, new QTableWidgetItem(time));
         m_table->setItem(row, 4, new QTableWidgetItem(

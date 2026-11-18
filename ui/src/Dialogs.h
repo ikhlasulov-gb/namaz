@@ -113,6 +113,7 @@ private:
     QLabel *m_volumeValue = nullptr;
 
     QCheckBox *m_trackerEnabled = nullptr;
+    QCheckBox *m_trackerWitr = nullptr;
     QCheckBox *m_trackerNotify[6] = {};
     QCheckBox *m_trackerAuto[6] = {};
     QCheckBox *m_trackerNotifyButtons = nullptr;

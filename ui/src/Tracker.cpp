@@ -203,6 +203,13 @@ QString PrayerTracker::statusLabel(const QString &status) {
     return statusText(status);
 }
 
+qint64 PrayerTracker::displayEpoch(const TrackerEntry &entry) {
+    if (entry.prayer == QLatin1String("witr") && entry.notify > 0) {
+        return entry.notify;
+    }
+    return entry.start;
+}
+
 unsigned int PrayerTracker::coreNotificationMask(const PrayerTracker &tracker,
                                                  bool globalNotifications) {
     if (!globalNotifications || !tracker.enabled()) {
@@ -228,6 +235,7 @@ unsigned int PrayerTracker::coreNotificationMask(const PrayerTracker &tracker,
 void PrayerTracker::fillDefaults() {
     m_settings = QJsonObject{
         {QStringLiteral("enabled"), true},
+        {QStringLiteral("witr"), false},
         {QStringLiteral("notify"),
          boolMap({true, true, true, true, true, false})},
         {QStringLiteral("auto_confirm"),
@@ -266,6 +274,21 @@ bool PrayerTracker::autoConfirm(int index) const {
         .toBool(false);
 }
 
+bool PrayerTracker::witrEnabled() const {
+    if (m_settings.value(QStringLiteral("witr")).toBool(false)) {
+        return true;
+    }
+    // Builds before the dedicated switch exposed only the per-prayer
+    // reminder and auto-confirm options.  Treat either of them as an
+    // instruction to track Witr as well.
+    return notifyEnabled(PrayerIndex::Witr)
+        || autoConfirm(PrayerIndex::Witr);
+}
+
+bool PrayerTracker::tracked(int index) const {
+    return index != PrayerIndex::Witr || witrEnabled();
+}
+
 bool PrayerTracker::notifyButtons() const {
     return m_settings.value(QStringLiteral("notify_buttons")).toBool(true);
 }
@@ -302,7 +325,7 @@ void PrayerTracker::setInitialQada(int index, qint64 value) {
 }
 
 qint64 PrayerTracker::qadaDebt(int index) const {
-    if (index < 0 || index >= PrayerIndex::Count) {
+    if (index < 0 || index >= PrayerIndex::Count || !tracked(index)) {
         return 0;
     }
     qint64 debt = m_qada[index];
@@ -377,7 +400,7 @@ PrayerDay PrayerTracker::timesFor(const QDate &date) const {
         && epochOf(witr.value(QStringLiteral("epoch")), witrEpoch)
         && epochOf(witr.value(QStringLiteral("start_epoch")), witrStart)
         && epochOf(witr.value(QStringLiteral("deadline_epoch")), witrDeadline);
-    if (witrAvailable) {
+    if (witrAvailable && tracked(PrayerIndex::Witr)) {
         result.prayers[PrayerIndex::Witr] = {true, witrStart, witrEpoch,
                                              witrDeadline};
     }
@@ -420,6 +443,9 @@ bool PrayerTracker::ensureDay(const QDate &date, const QDateTime &now,
 
     bool added = false;
     for (int index = 0; index < PrayerIndex::Count; ++index) {
+        if (!tracked(index)) {
+            continue;
+        }
         const PrayerWindow &window = windows.prayers[index];
         if (!window.available) {
             continue;
@@ -435,7 +461,7 @@ bool PrayerTracker::ensureDay(const QDate &date, const QDateTime &now,
         entry.start = window.start;
         entry.notify = window.notify;
         entry.deadline = window.deadline;
-        entry.scheduled = isoFromEpoch(window.start);
+        entry.scheduled = isoFromEpoch(displayEpoch(entry));
         if (nowEpoch >= window.deadline) {
             if (autoConfirm(index)) {
                 entry.status = QLatin1String(TrackerStatus::Auto);
@@ -506,37 +532,51 @@ bool PrayerTracker::tick() {
         QString prayer;
         QDate date;
         bool witr;
+        QStringList missed;
+    };
+    struct Missed {
+        QString prayer;
+        QDate date;
+        bool witr;
     };
     QList<Due> dueEvents;
+    QList<Missed> missedEvents;
 
     for (auto day = m_days.begin(); day != m_days.end(); ++day) {
         for (TrackerEntry &entry : day.value()) {
             if (entry.qada) {
                 continue;
             }
+            const int index = prayerIndex(entry.prayer);
+            if (index < 0 || !tracked(index)) {
+                continue;
+            }
             if (entry.pending() && nowEpoch >= entry.deadline) {
-                const int index = prayerIndex(entry.prayer);
-                if (index >= 0 && autoConfirm(index)) {
+                if (autoConfirm(index)) {
                     entry.status = QLatin1String(TrackerStatus::Auto);
                     entry.confirmedAt = isoFromEpoch(nowEpoch);
                 } else {
                     entry.status = QLatin1String(TrackerStatus::Missed);
+                    // Announce a missed prayer only while its deadline is
+                    // fresh.  A machine waking hours later must not replay
+                    // an old "missed" notification.
+                    if (notifyEnabled(index)
+                        && nowEpoch - entry.deadline <= kNotifyGrace) {
+                        missedEvents.append({entry.prayer, entry.date,
+                                             index == PrayerIndex::Witr});
+                    }
                 }
                 changed = true;
                 continue;
             }
             if (entry.pending()) {
-                const int index = prayerIndex(entry.prayer);
-                if (index < 0) {
-                    continue;
-                }
                 const qint64 at = entry.notify;
                 if (!entry.notified && at > 0 && nowEpoch >= at
                     && nowEpoch <= at + kNotifyGrace) {
                     entry.notified = true;
                     if (notifyEnabled(index)) {
                         dueEvents.append({entry.prayer, entry.date,
-                                          index == PrayerIndex::Witr});
+                                          index == PrayerIndex::Witr, {}});
                     }
                     changed = true;
                 } else if (!entry.notified && at > 0
@@ -546,6 +586,16 @@ bool PrayerTracker::tick() {
                 }
             }
         }
+    }
+
+    // When the end of one prayer window is also the start of the next one,
+    // replace the old notification with the new prayer's notification and
+    // mention the prayer that was just missed in the same message.
+    if (!dueEvents.isEmpty() && !missedEvents.isEmpty()) {
+        for (const Missed &event : missedEvents) {
+            dueEvents.first().missed.append(event.prayer);
+        }
+        missedEvents.clear();
     }
 
     if (changed) {
@@ -569,20 +619,30 @@ bool PrayerTracker::tick() {
     }
 
     for (const Due &event : dueEvents) {
-        emit due(event.prayer, event.date, event.witr);
+        emit due(event.prayer, event.date, event.witr, event.missed);
+    }
+    for (const Missed &event : missedEvents) {
+        emit missed(event.prayer, event.date, event.witr);
     }
     return changed;
 }
 
 QList<TrackerEntry> PrayerTracker::entriesFor(const QDate &date) const {
-    return m_days.value(date);
+    QList<TrackerEntry> result;
+    for (const TrackerEntry &entry : m_days.value(date)) {
+        if (tracked(prayerIndex(entry.prayer))) {
+            result.append(entry);
+        }
+    }
+    return result;
 }
 
 QList<TrackerEntry> PrayerTracker::yesterdayPending(const QDate &today) const {
     QList<TrackerEntry> result;
     const QList<TrackerEntry> list = m_days.value(today.addDays(-1));
     for (const TrackerEntry &entry : list) {
-        if (entry.qada || !entry.pending()) {
+        if (entry.qada || !entry.pending()
+            || !tracked(prayerIndex(entry.prayer))) {
             continue;
         }
         if (entry.prayer == QLatin1String("isha")
@@ -596,7 +656,11 @@ QList<TrackerEntry> PrayerTracker::yesterdayPending(const QDate &today) const {
 QList<TrackerEntry> PrayerTracker::allEntries() const {
     QList<TrackerEntry> result;
     for (auto day = m_days.constBegin(); day != m_days.constEnd(); ++day) {
-        result.append(day.value());
+        for (const TrackerEntry &entry : day.value()) {
+            if (tracked(prayerIndex(entry.prayer))) {
+                result.append(entry);
+            }
+        }
     }
     std::sort(result.begin(), result.end(),
               [](const TrackerEntry &a, const TrackerEntry &b) {
@@ -769,7 +833,7 @@ bool PrayerTracker::pruneHistory() {
         // baseline before dropping it.
         for (const TrackerEntry &entry : day.value()) {
             const int index = prayerIndex(entry.prayer);
-            if (index < 0) {
+            if (index < 0 || !tracked(index)) {
                 continue;
             }
             if (entry.qada
@@ -797,10 +861,15 @@ bool PrayerTracker::exportCsv(const QString &path) const {
     QTextStream stream(&file);
     stream << "Date,Prayer,Status,Scheduled,Confirmed at,Qada,Note\n";
     for (const TrackerEntry &entry : allEntries()) {
+        QString scheduled = entry.scheduled;
+        const qint64 moment = displayEpoch(entry);
+        if (moment > 0) {
+            scheduled = isoFromEpoch(moment);
+        }
         stream << csvQuote(entry.date.toString(Qt::ISODate)) << ','
                << csvQuote(prayerName(prayerIndex(entry.prayer))) << ','
                << csvQuote(statusLabel(entry.status)) << ','
-               << csvQuote(entry.scheduled) << ','
+               << csvQuote(scheduled) << ','
                << csvQuote(entry.confirmedAt) << ','
                << (entry.qada ? 1 : 0) << ',' << csvQuote(entry.note) << '\n';
     }

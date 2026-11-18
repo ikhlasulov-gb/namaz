@@ -4,6 +4,7 @@
 #include <QHash>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 
 class QDBusInterface;
 class PrayerTracker;
@@ -20,7 +21,13 @@ public:
     void setTracker(PrayerTracker *tracker);
     bool actionsSupported() const { return m_actionsSupported; }
     void notify(const QString &prayer, const QDate &date, bool witr,
-                bool withButtons);
+                bool withButtons, const QStringList &missed = {});
+    // Replacement for a window that ended without confirmation.
+    void notifyMissed(const QString &prayer, const QDate &date, bool witr);
+    // Dismiss every notification this process still owns.  Called on quit:
+    // otherwise the daemon keeps the notification after the application's
+    // D-Bus name is gone, leaving a message with dead action buttons.
+    void closeAll();
 
 signals:
     void confirmRequested(const QString &prayer, const QDate &date);
@@ -28,6 +35,8 @@ signals:
     // The desktop notification could not be used: show the in-window banner.
     void fallback(const QString &title, const QString &body,
                   const QString &prayer, const QDate &date, bool witr);
+    // The daemon is unavailable: report a missed prayer in the window.
+    void missedFallback(const QString &prayer);
 
 private slots:
     void onActionInvoked(uint id, const QString &key);

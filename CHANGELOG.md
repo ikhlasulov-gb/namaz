@@ -4,6 +4,21 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] - 2026-11-18
+
+### Fixed
+
+- The journal shows Witr at the beginning of the last third of the night
+  instead of repeating Ishaa's time.
+- Witr is opt-in in the journal: it is tracked and listed only when "Track
+  Witr in the journal" (or one of its reminders) is enabled.
+- A new prayer reminder replaces the previous one instead of stacking, and
+  the prayer whose window just ended is reported as missed in the same
+  notification.  A missed prayer without a following prayer gets its own
+  notification at the deadline.
+- Journal notifications are dismissed when the application quits, so no
+  message with dead Confirm and Skip buttons is left behind.
+
 ## [1.1.0] - 2026-11-18
 
 ### Added

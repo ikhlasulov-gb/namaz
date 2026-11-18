@@ -699,6 +699,11 @@ Start it manually to replace the current AppImage.</source>
         <translation>Напоминание о кады: %1 — долг %2</translation>
     </message>
     <message>
+        <location filename="../src/Widgets.cpp" line="238"/>
+        <source>Missed: %1.</source>
+        <translation>Пропущено: %1.</translation>
+    </message>
+    <message>
         <location filename="../src/Widgets.cpp" line="525"/>
         <source>&lt;b&gt;Namaz&lt;/b&gt;&lt;br&gt;Muslim prayer times, Qibla and Hijri calendar.&lt;br&gt;&lt;br&gt;Rust prayer engine + Qt 6 Widgets.&lt;br&gt;Author: Ikhlasulov&lt;br&gt;Inspired by Salaat Time 3.0.&lt;br&gt;The prayer journal is inspired by Dosage (GPL-3.0-only, no code reused).&lt;br&gt;Version %1</source>
         <translation>&lt;b&gt;Namaz&lt;/b&gt;&lt;br&gt;Времена намазов, кибла и календарь Хиджры.&lt;br&gt;&lt;br&gt;Rust-движок расчёта + Qt 6 Widgets.&lt;br&gt;Автор: Ikhlasulov&lt;br&gt;Вдохновлено Salaat Time 3.0.&lt;br&gt;Журнал намазов создан по мотивам Dosage (GPL-3.0-only, код не используется).&lt;br&gt;Версия %1</translation>
@@ -1699,7 +1704,17 @@ Save anyway?</source>
         <translation>Отслеживать намазы в журнале (сегодня, история и када)</translation>
     </message>
     <message>
-        <location filename="../src/Dialogs.cpp" line="1094"/>
+        <location filename="../src/Dialogs.cpp" line="1093"/>
+        <source>Track Witr in the journal (last third of the night)</source>
+        <translation>Отслеживать Витр в журнале (последняя треть ночи)</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1097"/>
+        <source>Without Witr the journal lists only the five obligatory prayers</source>
+        <translation>Без Витра журнал показывает только пять обязательных намазов</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1105"/>
         <source>Show Confirm and Skip buttons in notifications</source>
         <translation>Показывать кнопки «Подтвердить» и «Пропустить» в уведомлениях</translation>
     </message>
@@ -2378,6 +2393,11 @@ Save anyway?</source>
         <location filename="../src/TrackerNotifications.cpp" line="70"/>
         <source>It is time to pray %1.</source>
         <translation>Наступило время намаза %1.</translation>
+    </message>
+    <message>
+        <location filename="../src/TrackerNotifications.cpp" line="76"/>
+        <source>Missed: %1.</source>
+        <translation>Пропущено: %1.</translation>
     </message>
     <message>
         <location filename="../src/TrackerNotifications.cpp" line="80"/>

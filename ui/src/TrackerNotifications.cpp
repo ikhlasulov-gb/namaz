@@ -55,22 +55,55 @@ void TrackerNotifications::setTracker(PrayerTracker *tracker) {
     }
     connect(tracker, &PrayerTracker::due, this,
             [this, tracker](const QString &prayer, const QDate &date,
-                            bool witr) {
-                notify(prayer, date, witr, tracker->notifyButtons());
+                            bool witr, const QStringList &missed) {
+                notify(prayer, date, witr, tracker->notifyButtons(), missed);
             });
 }
 
+void TrackerNotifications::closeAll() {
+    if (!m_interface) {
+        m_items.clear();
+        return;
+    }
+    const QList<uint> ids = m_items.keys();
+    m_items.clear();
+    for (uint id : ids) {
+        m_interface->call(QStringLiteral("CloseNotification"), id);
+    }
+}
+
+namespace {
+
+QString missedNames(const QStringList &missed) {
+    QStringList names;
+    names.reserve(missed.size());
+    for (const QString &key : missed) {
+        const int index = PrayerTracker::prayerIndex(key);
+        names.append(index >= 0 ? PrayerTracker::prayerName(index) : key);
+    }
+    return names.join(QStringLiteral(", "));
+}
+
+}  // namespace
+
 void TrackerNotifications::notify(const QString &prayer, const QDate &date,
-                                  bool witr, bool withButtons) {
+                                  bool witr, bool withButtons,
+                                  const QStringList &missed) {
     const int index = PrayerTracker::prayerIndex(prayer);
     const QString title = tr("Namaz");
-    const QString body =
+    QString body =
         witr
             ? tr("The last third of the night has begun: it is time for Witr.")
             : tr("It is time to pray %1.")
                   .arg(PrayerTracker::prayerName(index));
+    if (!missed.isEmpty()) {
+        body += QLatin1Char(' ')
+            + tr("Missed: %1.").arg(missedNames(missed));
+    }
 
     if (!m_interface || !m_actionsSupported) {
+        // The fallback banner replaces its previous contents, so only one
+        // prayer reminder is visible there as well.
         emit fallback(title, body, prayer, date, witr);
         return;
     }
@@ -85,6 +118,9 @@ void TrackerNotifications::notify(const QString &prayer, const QDate &date,
     hints.insert(QStringLiteral("desktop-entry"),
                  QStringLiteral("io.github.ikhlasulov_gb.Namaz"));
 
+    // A prayer reminder replaces the previous one; notifications must not
+    // accumulate while the day moves from one prayer to the next.
+    closeAll();
     const QDBusMessage message = m_interface->call(
         QStringLiteral("Notify"), QStringLiteral("Namaz"), 0u,
         QStringLiteral("io.github.ikhlasulov_gb.Namaz"), title, body, actions,
@@ -97,11 +133,45 @@ void TrackerNotifications::notify(const QString &prayer, const QDate &date,
     m_items.insert(reply.value(), {prayer, date, witr});
 }
 
+void TrackerNotifications::notifyMissed(const QString &prayer,
+                                        const QDate &date, bool witr) {
+    const int index = PrayerTracker::prayerIndex(prayer);
+    const QString name = PrayerTracker::prayerName(index);
+    const QString title = tr("Namaz");
+    const QString body = tr("Missed: %1.").arg(name);
+
+    if (!m_interface) {
+        emit missedFallback(prayer);
+        return;
+    }
+
+    QVariantMap hints;
+    hints.insert(QStringLiteral("urgency"), 1);
+    hints.insert(QStringLiteral("desktop-entry"),
+                 QStringLiteral("io.github.ikhlasulov_gb.Namaz"));
+
+    closeAll();
+    const QDBusMessage message = m_interface->call(
+        QStringLiteral("Notify"), QStringLiteral("Namaz"), 0u,
+        QStringLiteral("io.github.ikhlasulov_gb.Namaz"), title, body,
+        QStringList(), hints, 0);
+    const QDBusReply<uint> reply(message);
+    if (!reply.isValid() || reply.value() == 0) {
+        emit missedFallback(prayer);
+        return;
+    }
+    m_items.insert(reply.value(), {prayer, date, witr});
+}
+
 void TrackerNotifications::onActionInvoked(uint id, const QString &key) {
     if (!m_items.contains(id)) {
         return;
     }
     const Item item = m_items.take(id);
+    // Dismiss immediately instead of waiting for the daemon's own timeout.
+    if (m_interface) {
+        m_interface->call(QStringLiteral("CloseNotification"), id);
+    }
     if (key == QLatin1String("confirm")) {
         emit confirmRequested(item.prayer, item.date);
     } else if (key == QLatin1String("skip")) {
