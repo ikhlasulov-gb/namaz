@@ -1401,7 +1401,7 @@ impl Core {
         let seed = (now.time().num_seconds_from_midnight() as u64)
             ^ (now.date_naive().num_days_from_ce() as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15);
         let paths = self.athan_paths(index, seed);
-        audio::play_paths_sequence(&paths, 0.0);
+        audio::play_athan_paths_sequence(&paths, 0.0);
     }
 
     fn play_reminder_audio(&self, seed: u64) {
@@ -2353,6 +2353,13 @@ pub extern "C" fn namaz_core_is_playing() -> i32 {
     } else {
         0
     }
+}
+
+/// True while the adhan started by `tick` is still playing.  The frontend
+/// holds the journal reminder until this becomes false.
+#[no_mangle]
+pub extern "C" fn namaz_core_is_athan_playing() -> i32 {
+    i32::from(audio::is_athan_active())
 }
 
 #[no_mangle]

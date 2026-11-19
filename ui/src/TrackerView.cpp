@@ -15,9 +15,11 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSet>
+#include <QShowEvent>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QTabWidget>
+#include <QTimer>
 #include <QVBoxLayout>
 
 namespace {
@@ -125,6 +127,7 @@ void TrackerTodayPage::refresh() {
         if (m_makeUp) {
             m_makeUp->setEnabled(false);
         }
+        m_signature = QStringLiteral("disabled");
         return;
     }
     if (m_makeUp) {
@@ -154,7 +157,7 @@ void TrackerTodayPage::refresh() {
 
     QList<QWidget *> yesterdayRows;
     for (const TrackerEntry &entry : yesterday) {
-        yesterdayRows.append(entryRow(entry, true));
+        yesterdayRows.append(entryRow(entry, true, now));
     }
 
     QList<QWidget *> currentRows;
@@ -168,14 +171,14 @@ void TrackerTodayPage::refresh() {
         }
         if (entry.pending()) {
             if (now >= entry.start) {
-                currentRows.append(entryRow(entry, false));
+                currentRows.append(entryRow(entry, false, now));
             } else {
-                upcomingRows.append(entryRow(entry, false));
+                upcomingRows.append(entryRow(entry, false, now));
             }
         } else if (entry.status == QLatin1String(TrackerStatus::Missed)) {
-            missedRows.append(entryRow(entry, false));
+            missedRows.append(entryRow(entry, false, now));
         } else {
-            doneRows.append(entryRow(entry, false));
+            doneRows.append(entryRow(entry, false, now));
         }
     }
 
@@ -204,6 +207,37 @@ void TrackerTodayPage::refresh() {
     add(tr("Missed"), missedRows);
     add(tr("Completed"), doneRows);
     m_layout->addStretch(1);
+    m_signature = stateSignature(now);
+}
+
+QString TrackerTodayPage::stateSignature(qint64 now) const {
+    if (!m_tracker->enabled()) {
+        return QStringLiteral("disabled");
+    }
+    const QDate today = QDateTime::fromSecsSinceEpoch(now).date();
+    auto confirmable = [now](const TrackerEntry &entry) {
+        return entry.pending() && now >= entry.start && now < entry.deadline;
+    };
+    QStringList parts{today.toString(Qt::ISODate)};
+    for (const TrackerEntry &entry : m_tracker->yesterdayPending(today)) {
+        parts << entry.id << entry.status
+              << QString::number(confirmable(entry));
+    }
+    for (const TrackerEntry &entry : m_tracker->entriesFor(today)) {
+        QString phase = entry.status;
+        if (entry.pending()) {
+            phase += now >= entry.start ? QStringLiteral(":now")
+                                        : QStringLiteral(":upcoming");
+        }
+        parts << entry.id << phase << QString::number(confirmable(entry));
+    }
+    return parts.join(QLatin1Char('|'));
+}
+
+void TrackerTodayPage::refreshIfNeeded() {
+    if (stateSignature(m_tracker->nowEpoch()) != m_signature) {
+        refresh();
+    }
 }
 
 void TrackerTodayPage::makeUpQada() {
@@ -214,7 +248,8 @@ void TrackerTodayPage::makeUpQada() {
     m_tracker->addQada(dialog.prayer(), dialog.date(), dialog.note());
 }
 
-QWidget *TrackerTodayPage::entryRow(const TrackerEntry &entry, bool yesterday) {
+QWidget *TrackerTodayPage::entryRow(const TrackerEntry &entry, bool yesterday,
+                                    qint64 now) {
     const int index = PrayerTracker::prayerIndex(entry.prayer);
 
     QString name = PrayerTracker::prayerName(index);
@@ -245,7 +280,6 @@ QWidget *TrackerTodayPage::entryRow(const TrackerEntry &entry, bool yesterday) {
 
     QString status = PrayerTracker::statusLabel(entry.status);
     if (entry.pending()) {
-        const qint64 now = m_tracker->nowEpoch();
         status = now < entry.start ? tr("Not started") : tr("Now");
     }
     auto *statusLabel = new QLabel(status);
@@ -259,7 +293,8 @@ QWidget *TrackerTodayPage::entryRow(const TrackerEntry &entry, bool yesterday) {
         confirm->setObjectName(QStringLiteral("TrackerConfirmButton"));
         auto *skip = new QPushButton(tr("Skip"));
         skip->setObjectName(QStringLiteral("TrackerSkipButton"));
-        const bool open = m_tracker->isConfirmable(entry);
+        const bool open =
+            entry.pending() && now >= entry.start && now < entry.deadline;
         confirm->setEnabled(open);
         skip->setEnabled(open);
         if (!open) {
@@ -483,7 +518,31 @@ TrackerView::TrackerView(PrayerTracker *tracker, QWidget *parent)
             [this](int) { refreshCurrent(); });
     connect(m_tracker, &PrayerTracker::changed, this,
             &TrackerView::refresh);
+
+    // The Next prayer becomes confirmable while the journal is open.  Without
+    // this timer the Today page kept the startup snapshot until the user
+    // switched to History and back.
+    m_refreshTimer = new QTimer(this);
+    m_refreshTimer->setInterval(1000);
+    connect(m_refreshTimer, &QTimer::timeout, this,
+            &TrackerView::refreshIfNeeded);
+    m_refreshTimer->start();
     refresh();
+}
+
+void TrackerView::showEvent(QShowEvent *event) {
+    QWidget::showEvent(event);
+    // The page may have been hidden while a prayer started.
+    refreshCurrent();
+}
+
+void TrackerView::refreshIfNeeded() {
+    if (!isVisible() || !m_tabs) {
+        return;
+    }
+    if (m_tabs->currentIndex() == 0) {
+        m_today->refreshIfNeeded();
+    }
 }
 
 void TrackerView::refreshCurrent() {

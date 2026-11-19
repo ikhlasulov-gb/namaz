@@ -1,5 +1,7 @@
 #include "Core.h"
 #include "Dialogs.h"
+#include "Tracker.h"
+#include "TrackerView.h"
 #include "UiUtils.h"
 #include "Views.h"
 #include "Widgets.h"
@@ -8,6 +10,7 @@
 #include <QAction>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDateTime>
 #include <QDialogButtonBox>
 #include <QDoubleSpinBox>
 #include <QFile>
@@ -50,6 +53,30 @@ QPushButton *dialogButton(QDialog *dialog, QDialogButtonBox::StandardButton whic
     return buttons ? buttons->button(which) : nullptr;
 }
 
+qint64 localSeconds(const QDate &date, int hour, int minute) {
+    return QDateTime(date, QTime(hour, minute)).toSecsSinceEpoch();
+}
+
+class JournalFakeSource : public PrayerTimeSource {
+public:
+    QJsonObject dayJson(const QDate &date) const override {
+        QJsonArray times;
+        const int hours[] = {4, 6, 12, 15, 18, 20};
+        for (int hour : hours) {
+            times.append(QJsonObject{
+                {QStringLiteral("seconds"), hour * 3600},
+                {QStringLiteral("epoch"), localSeconds(date, hour, 0)},
+            });
+        }
+        return QJsonObject{
+            {QStringLiteral("times"), times},
+            {QStringLiteral("witr"), QJsonObject{
+                                          {QStringLiteral("available"), false},
+                                      }},
+        };
+    }
+};
+
 }  // namespace
 
 class DialogTest : public QObject {
@@ -78,6 +105,7 @@ private slots:
     void applyButtonTracksChanges();
     void timeFormatFollowsPreference();
     void viewActionsStayExclusive();
+    void journalTodayEnablesConfirmWhenPrayerStarts();
     void windowRestoresSavedTab();
     void showFromTrayKeepsWindowState();
     void cityCountryMatchHandlesCompoundNames();
@@ -570,6 +598,43 @@ void DialogTest::viewActionsStayExclusive() {
     window.setTab(1);
     QCOMPARE(checkedViewActions(window), 1);
     settings.clear();
+}
+
+void DialogTest::journalTodayEnablesConfirmWhenPrayerStarts() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    JournalFakeSource source;
+    PrayerTracker tracker(&source);
+    tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+
+    const QDate date(2026, 11, 18);
+    qint64 now = localSeconds(date, 11, 59);
+    tracker.setNowProvider(
+        [&now] { return QDateTime::fromSecsSinceEpoch(now); });
+    tracker.tick();
+
+    TrackerTodayPage page(&tracker);
+    page.refresh();
+    auto confirmButtons = [&page] {
+        QList<QPushButton *> result;
+        for (QPushButton *button :
+             page.findChildren<QPushButton *>(
+                 QStringLiteral("TrackerConfirmButton"))) {
+            if (button->isEnabled()) {
+                result.append(button);
+            }
+        }
+        return result;
+    };
+    QCOMPARE(confirmButtons().size(), 0);
+    QVERIFY(!page.findChildren<QPushButton *>(
+                 QStringLiteral("TrackerConfirmButton")).isEmpty());
+
+    // The page is open while Dhuhr begins.  No tracker signal is emitted for
+    // the start of a window, so the timer must rebuild the row itself.
+    now = localSeconds(date, 12, 0);
+    page.refreshIfNeeded();
+    QCOMPARE(confirmButtons().size(), 1);
 }
 
 void DialogTest::windowRestoresSavedTab() {

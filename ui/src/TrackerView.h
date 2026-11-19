@@ -7,8 +7,10 @@
 class QLabel;
 class QLineEdit;
 class QPushButton;
+class QShowEvent;
 class QTableWidget;
 class QTabWidget;
+class QTimer;
 class QVBoxLayout;
 
 class TrackerTodayPage : public QWidget {
@@ -16,17 +18,22 @@ class TrackerTodayPage : public QWidget {
 public:
     explicit TrackerTodayPage(PrayerTracker *tracker, QWidget *parent = nullptr);
     void refresh();
+    // Rebuilds the page only when a prayer window has started or ended since
+    // the last refresh.  Called once per second while the page is visible.
+    void refreshIfNeeded();
 
 private:
-    QWidget *entryRow(const TrackerEntry &entry, bool yesterday);
+    QWidget *entryRow(const TrackerEntry &entry, bool yesterday, qint64 now);
     QWidget *unavailableRow(int index);
     void clearContent();
     void makeUpQada();
+    QString stateSignature(qint64 now) const;
 
     PrayerTracker *m_tracker;
     QVBoxLayout *m_layout = nullptr;
     QLabel *m_summary = nullptr;
     QPushButton *m_makeUp = nullptr;
+    QString m_signature;
 };
 
 class TrackerHistoryPage : public QWidget {
@@ -56,11 +63,16 @@ public:
 
     void refresh();
 
+protected:
+    void showEvent(QShowEvent *event) override;
+
 private:
     void refreshCurrent();
+    void refreshIfNeeded();
 
     PrayerTracker *m_tracker;
     QTabWidget *m_tabs = nullptr;
     TrackerTodayPage *m_today = nullptr;
     TrackerHistoryPage *m_history = nullptr;
+    QTimer *m_refreshTimer = nullptr;
 };
