@@ -13,7 +13,7 @@ mod cities;
 
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
-use std::sync::OnceLock;
+use std::sync::{Mutex, OnceLock};
 
 use chrono::{
     Datelike, Duration as ChronoDuration, FixedOffset, NaiveDate, NaiveDateTime, Offset, TimeZone,
@@ -641,6 +641,37 @@ fn reminder_title(cfg: &Config, key: &str) -> String {
     }
 }
 
+/// Handles of the desktop notifications posted by the core.  The frontend
+/// asks the core to close them on quit; otherwise a notification with an
+/// outdated prayer time would stay on screen after Namaz has exited.
+fn shown_notifications() -> &'static Mutex<Vec<notify_rust::NotificationHandle>> {
+    static SHOWN: OnceLock<Mutex<Vec<notify_rust::NotificationHandle>>> = OnceLock::new();
+    SHOWN.get_or_init(|| Mutex::new(Vec::new()))
+}
+
+fn show_notification(title: &str, body: &str) {
+    let handle = notify_rust::Notification::new()
+        .appname("Namaz")
+        .icon("io.github.ikhlasulov_gb.Namaz")
+        .summary(title)
+        .body(body)
+        .show();
+    if let Ok(handle) = handle {
+        if let Ok(mut shown) = shown_notifications().lock() {
+            shown.push(handle);
+        }
+    }
+}
+
+/// Close every notification this process posted through `show_notification`.
+pub fn close_notifications() {
+    if let Ok(mut shown) = shown_notifications().lock() {
+        for handle in shown.drain(..) {
+            handle.close();
+        }
+    }
+}
+
 fn push_reminder_event(
     events: &mut Vec<Value>,
     title: &str,
@@ -649,12 +680,7 @@ fn push_reminder_event(
     notifications_enabled: bool,
 ) {
     if visual && notifications_enabled {
-        let _ = notify_rust::Notification::new()
-            .appname("Namaz")
-            .icon("io.github.ikhlasulov_gb.Namaz")
-            .summary(title)
-            .body(&body)
-            .show();
+        show_notification(title, &body);
     }
     events.push(json!({
         "type": "reminder",
@@ -1290,16 +1316,17 @@ impl Core {
                         self.play_athan_audio(i);
                     }
                     if self.cfg.notifications_enabled && !self.tracker_notification_masked(i) {
-                        let _ = notify_rust::Notification::new()
-                            .appname("Namaz")
-                            .icon("io.github.ikhlasulov_gb.Namaz")
-                            .summary("Namaz")
-                            .body(&if is_russian(&self.cfg) {
-                                format!("Время молитвы {}.", localized_prayer(&self.cfg, i))
-                            } else {
-                                format!("It is time to pray {}.", PRAYER_LABELS[i])
-                            })
-                            .show();
+                        if is_russian(&self.cfg) {
+                            show_notification(
+                                "Namaz",
+                                &format!("Время молитвы {}.", localized_prayer(&self.cfg, i)),
+                            );
+                        } else {
+                            show_notification(
+                                "Namaz",
+                                &format!("It is time to pray {}.", PRAYER_LABELS[i]),
+                            );
+                        }
                     }
                     events.push(json!({
                         "type": "athan",
@@ -2331,6 +2358,11 @@ pub extern "C" fn namaz_core_is_playing() -> i32 {
 #[no_mangle]
 pub extern "C" fn namaz_core_stop_audio() {
     audio::stop();
+}
+
+#[no_mangle]
+pub extern "C" fn namaz_core_close_notifications() {
+    close_notifications();
 }
 
 #[no_mangle]

@@ -213,6 +213,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(m_dbus, &DBusService::quitRequested, qApp, &QApplication::quit);
     connect(qApp, &QCoreApplication::aboutToQuit, m_dbus, &DBusService::disable);
     connect(qApp, &QCoreApplication::aboutToQuit, this, &MainWindow::saveWindowState);
+    // Both the core's reminders and the journal's notifications must be
+    // withdrawn before the process exits; otherwise they stay on screen with
+    // nothing left to handle their buttons.
+    connect(qApp, &QCoreApplication::aboutToQuit,
+            [] { namaz_core_close_notifications(); });
 
     m_trackerNotifications = new TrackerNotifications(this);
     connect(qApp, &QCoreApplication::aboutToQuit, m_trackerNotifications,
@@ -223,35 +228,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
             &MainWindow::skipTrackerEntry);
     connect(m_trackerNotifications, &TrackerNotifications::fallback, this,
             &MainWindow::showTrackerBanner);
-    connect(m_trackerNotifications, &TrackerNotifications::missedFallback, this,
-            [this](const QString &prayer) {
-                hideTrackerBanner();
-                const int index = PrayerTracker::prayerIndex(prayer);
-                statusBar()->showMessage(
-                    tr("Missed: %1.")
-                        .arg(PrayerTracker::prayerName(index)),
-                    10000);
-            });
     connect(m_tracker, &PrayerTracker::due, this,
-            [this](const QString &prayer, const QDate &date, bool witr,
-                   const QStringList &missed) {
-                if (!config()
-                         .value(QStringLiteral("notifications_enabled"))
-                         .toBool(true)) {
-                    return;
-                }
-                m_trackerNotifications->notify(
-                    prayer, date, witr,
-                    m_tracker->notifyButtons(), missed);
-            });
-    connect(m_tracker, &PrayerTracker::missed, this,
             [this](const QString &prayer, const QDate &date, bool witr) {
                 if (!config()
                          .value(QStringLiteral("notifications_enabled"))
                          .toBool(true)) {
                     return;
                 }
-                m_trackerNotifications->notifyMissed(prayer, date, witr);
+                m_trackerNotifications->notify(
+                    prayer, date, witr, m_tracker->notifyButtons());
             });
     connect(m_tracker, &PrayerTracker::qadaDue, this,
             [this](int index, qint64 debt) {

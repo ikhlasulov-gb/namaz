@@ -4,6 +4,17 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.2] - 2026-11-19
+
+### Fixed
+
+- A missed prayer no longer raises its own "Missed: …" notification.  The
+  journal still records the miss, but the notification area keeps only the
+  reminder for the upcoming prayer.
+- Quitting Namaz now closes the desktop notifications posted by the core as
+  well (prayer times, reminders and iqama), so no stale notification is left
+  on screen after the application has exited.
+
 ## [1.1.1] - 2026-11-18
 
 ### Fixed
