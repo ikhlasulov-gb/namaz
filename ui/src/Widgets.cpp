@@ -235,6 +235,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
                          .toBool(true)) {
                     return;
                 }
+                // Do not cover the start of the adhan: hold the journal
+                // reminder with the Confirm/Skip buttons until the recitation
+                // has finished.  Witr has no adhan, so it is shown directly.
+                if (!witr) {
+                    m_deferredPrayer = prayer;
+                    m_deferredDate = date;
+                    m_deferredNotify = m_tracker->nowEpoch();
+                    m_hasDeferredReminder = true;
+                    return;
+                }
                 m_trackerNotifications->notify(
                     prayer, date, witr, m_tracker->notifyButtons());
             });
@@ -689,9 +699,11 @@ void MainWindow::setTab(int index) {
 }
 
 void MainWindow::tick() {
-    if (m_tracker) {
-        m_tracker->tick();
-    }
+    // The previous adhan may have finished since the last tick.
+    releaseDeferredTrackerReminder();
+
+    // The core goes first so the adhan starts before the tracker emits its
+    // reminder for the same prayer.
     const QString eventsText = takeCoreString(
         namaz_core_tick_events(m_core.handle()));
     const QJsonArray events = QJsonDocument::fromJson(eventsText.toUtf8()).array();
@@ -715,6 +727,9 @@ void MainWindow::tick() {
                 }
             }
         }
+    }
+    if (m_tracker) {
+        m_tracker->tick();
     }
     refreshFromCore();
 }
@@ -807,6 +822,53 @@ void MainWindow::hideTrackerBanner() {
     m_bannerPrayer.clear();
     m_bannerDate = QDate();
     m_bannerWitr = false;
+}
+
+void MainWindow::releaseDeferredTrackerReminder() {
+    if (!m_hasDeferredReminder) {
+        return;
+    }
+    if (!m_tracker) {
+        m_hasDeferredReminder = false;
+        return;
+    }
+    const qint64 now = m_tracker->nowEpoch();
+    if (namaz_core_is_athan_playing()) {
+        return;
+    }
+    // Give the core one tick to start the adhan.  This covers the second
+    // boundary falling between the core's and the tracker's clock reads.
+    if (m_deferredNotify > 0 && now - m_deferredNotify < 2) {
+        return;
+    }
+    m_hasDeferredReminder = false;
+    if (!m_trackerNotifications) {
+        return;
+    }
+    if (!config()
+             .value(QStringLiteral("notifications_enabled"))
+             .toBool(true)) {
+        return;
+    }
+    // A very long or stuck playback must not replay an old reminder after the
+    // machine wakes from sleep.
+    if (m_deferredNotify > 0 && now - m_deferredNotify > 30 * 60) {
+        return;
+    }
+    // The prayer may have been confirmed or skipped from the journal while
+    // the adhan was playing.
+    bool pending = false;
+    for (const TrackerEntry &entry : m_tracker->entriesFor(m_deferredDate)) {
+        if (!entry.qada && entry.prayer == m_deferredPrayer && entry.pending()) {
+            pending = true;
+            break;
+        }
+    }
+    if (!pending) {
+        return;
+    }
+    m_trackerNotifications->notify(m_deferredPrayer, m_deferredDate, false,
+                                   m_tracker->notifyButtons());
 }
 
 void MainWindow::playStartupSound() {

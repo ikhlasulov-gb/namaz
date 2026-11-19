@@ -36,7 +36,7 @@ use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 const STALL_TIMEOUT: Duration = Duration::from_secs(3);
 
 enum Command {
-    Play(Vec<PathBuf>, f32),
+    Play(Vec<PathBuf>, f32, bool),
     Stop,
     SetVolume(f32),
 }
@@ -44,6 +44,10 @@ enum Command {
 static TX: OnceLock<Mutex<Sender<Command>>> = OnceLock::new();
 static WAVE_DIR: OnceLock<PathBuf> = OnceLock::new();
 static PLAYING: AtomicBool = AtomicBool::new(false);
+/// True from the moment an adhan is queued until playback ends or fails.
+/// The frontend uses it to show the journal reminder after the adhan instead
+/// of covering the beginning of the recitation.
+static ATHAN: AtomicBool = AtomicBool::new(false);
 static VOLUME: AtomicU32 = AtomicU32::new(90);
 
 /// Audio shipped with Namaz.  The public build includes one adhan, one
@@ -180,7 +184,7 @@ fn sender() -> &'static Mutex<Sender<Command>> {
             let mut last_progress = Instant::now();
             loop {
                 match rx.recv_timeout(Duration::from_millis(250)) {
-                    Ok(Command::Play(paths, volume)) => {
+                    Ok(Command::Play(paths, volume, is_athan)) => {
                         last_position = Duration::ZERO;
                         last_progress = Instant::now();
                         if let Some(current) = sink.take() {
@@ -202,15 +206,18 @@ fn sender() -> &'static Mutex<Sender<Command>> {
                             Err(err) => {
                                 eprintln!("audio: no output device: {err}");
                                 PLAYING.store(false, Ordering::Relaxed);
+                                ATHAN.store(false, Ordering::Relaxed);
                                 continue;
                             }
                         };
                         let Some(handle) = handle.as_ref() else {
                             PLAYING.store(false, Ordering::Relaxed);
+                            ATHAN.store(false, Ordering::Relaxed);
                             continue;
                         };
                         let Ok(new_sink) = Sink::try_new(handle) else {
                             PLAYING.store(false, Ordering::Relaxed);
+                            ATHAN.store(false, Ordering::Relaxed);
                             continue;
                         };
                         new_sink.set_volume(volume.clamp(0.0, 2.0));
@@ -232,9 +239,11 @@ fn sender() -> &'static Mutex<Sender<Command>> {
                         if appended {
                             sink = Some(new_sink);
                             PLAYING.store(true, Ordering::Relaxed);
+                            ATHAN.store(is_athan, Ordering::Relaxed);
                         } else {
                             new_sink.stop();
                             PLAYING.store(false, Ordering::Relaxed);
+                            ATHAN.store(false, Ordering::Relaxed);
                         }
                     }
                     Ok(Command::Stop) => {
@@ -242,6 +251,7 @@ fn sender() -> &'static Mutex<Sender<Command>> {
                             current.stop();
                         }
                         PLAYING.store(false, Ordering::Relaxed);
+                        ATHAN.store(false, Ordering::Relaxed);
                         // cpal keeps an idle ALSA stream polling its file
                         // descriptor.  Release the device together with the
                         // sink so a device that disappears while nothing is
@@ -284,8 +294,10 @@ fn sender() -> &'static Mutex<Sender<Command>> {
                             handle = None;
                             _stream = None;
                             PLAYING.store(false, Ordering::Relaxed);
+                            ATHAN.store(false, Ordering::Relaxed);
                         } else if finished {
                             PLAYING.store(false, Ordering::Relaxed);
+                            ATHAN.store(false, Ordering::Relaxed);
                             sink = None;
                             // Close the device when playback ends.  cpal's
                             // ALSA worker keeps polling even with an empty
@@ -314,12 +326,23 @@ fn volume_factor(volume: f32) -> f32 {
     }
 }
 
-fn play_paths(paths: Vec<PathBuf>, volume: f32) -> bool {
+fn play_paths(paths: Vec<PathBuf>, volume: f32, is_athan: bool) -> bool {
     if paths.is_empty() {
         return false;
     }
     match sender().lock() {
-        Ok(tx) => tx.send(Command::Play(paths, volume_factor(volume))).is_ok(),
+        Ok(tx) => {
+            let sent = tx
+                .send(Command::Play(paths, volume_factor(volume), is_athan))
+                .is_ok();
+            // Mark the request immediately: the worker may not have opened
+            // the device yet when the frontend asks whether the adhan is
+            // still running.
+            if sent {
+                ATHAN.store(is_athan, Ordering::Relaxed);
+            }
+            sent
+        }
         Err(_) => false,
     }
 }
@@ -329,7 +352,7 @@ pub fn play_path(path: &Path, volume: f32) -> bool {
     if !path.is_file() {
         return false;
     }
-    play_paths(vec![path.to_path_buf()], volume)
+    play_paths(vec![path.to_path_buf()], volume, false)
 }
 
 pub fn play(name: &str, volume: f32) -> bool {
@@ -339,8 +362,9 @@ pub fn play(name: &str, volume: f32) -> bool {
     play_path(&path, volume)
 }
 
-pub fn play_paths_sequence(paths: &[PathBuf], volume: f32) -> bool {
-    play_paths(paths.to_vec(), volume)
+/// Play an adhan playlist and keep `is_athan_active()` true until it ends.
+pub fn play_athan_paths_sequence(paths: &[PathBuf], volume: f32) -> bool {
+    play_paths(paths.to_vec(), volume, true)
 }
 
 pub fn play_quran_random(volume: f32, seed: u64) -> bool {
@@ -387,6 +411,11 @@ pub fn volume() -> i32 {
 
 pub fn is_playing() -> bool {
     PLAYING.load(Ordering::Relaxed)
+}
+
+/// True while the adhan queued by the core is playing (or about to start).
+pub fn is_athan_active() -> bool {
+    ATHAN.load(Ordering::Relaxed)
 }
 
 pub fn available_sounds() -> Vec<String> {

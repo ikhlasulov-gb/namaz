@@ -4,6 +4,17 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.3] - 2026-11-19
+
+### Fixed
+
+- The Journal's Today page now follows the clock while it is open.  When a
+  prayer time starts, its Confirm and Skip buttons become available without
+  switching to History and back.
+- When an adhan is playing, the journal reminder with Confirm and Skip waits
+  until the recitation has finished instead of appearing (and often
+  disappearing) at the start of the adhan.
+
 ## [1.1.2] - 2026-11-19
 
 ### Fixed

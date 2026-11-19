@@ -62,7 +62,9 @@ in four modules:
   the prayer-time source are injected, which keeps `ui/tests/tst_tracker.cpp`
   deterministic.
 - `TrackerView.{h,cpp}` — the fourth main-window tab (Ctrl+4) with the
-  Today and History subpages in plain Breeze Qt widgets.
+  Today and History subpages in plain Breeze Qt widgets.  A one-second timer
+  rebuilds the Today page when a prayer window starts or ends; the page is
+  also refreshed whenever the tab becomes visible.
 - `TrackerDialogs.{h,cpp}` — the "make up a missed prayer" (qada) dialog and
   the history-record editor.
 - `TrackerNotifications.{h,cpp}` — `org.freedesktop.Notifications` via Qt
@@ -83,7 +85,9 @@ closes the ones it posted through `notify-rust`; otherwise they would stay on
 screen after the application has exited.  While
 the tracker is enabled, `namaz_core_set_tracker_mask` silences the plain core
 notification for the tracked prayers so only the tracker reminds; adhan, iqama
-and reminder audio are untouched.
+and reminder audio are untouched.  `namaz_core_is_athan_playing` lets the
+frontend hold the journal reminder until the adhan has finished, so the
+Confirm/Skip notification is not lost at the start of the recitation.
 
 ## Configuration and migration
 

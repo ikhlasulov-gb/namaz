@@ -73,6 +73,7 @@ private:
     void showTrackerBanner(const QString &title, const QString &body,
                            const QString &prayer, const QDate &date, bool witr);
     void hideTrackerBanner();
+    void releaseDeferredTrackerReminder();
     void shiftDay(int days);
     void shiftMonth(int months);
     void shiftYear(int years);
@@ -112,6 +113,11 @@ private:
     QString m_bannerPrayer;
     QDate m_bannerDate;
     bool m_bannerWitr = false;
+    // Journal reminders held until the adhan started at the same time ends.
+    QString m_deferredPrayer;
+    QDate m_deferredDate;
+    qint64 m_deferredNotify = 0;
+    bool m_hasDeferredReminder = false;
     QLabel *m_cityLabel = nullptr;
     QLabel *m_methodLabel = nullptr;
 
