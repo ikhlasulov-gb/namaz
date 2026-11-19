@@ -75,10 +75,12 @@ the last third of the night Maghrib → Fajr(D+1).  Every core time also gains
 an absolute `epoch`.  Witr is opt-in: the journal stores records for it only
 when `witr` (or one of its reminder switches) is enabled in the Journal
 preferences, and shows the last third of the night rather than Ishaa's start.
-Journal reminders replace each other, and when a window closes at the next
-prayer's start, the new reminder reports the previous prayer as missed.  On
-quit the tracker closes the notifications it still owns: the daemon would
-otherwise keep a message whose Confirm and Skip buttons no longer work.  While
+Journal reminders replace each other.  A prayer window that closes without
+confirmation is recorded as missed in the journal, but no notification is
+shown for it: the notification area shows only the regular prayer reminders.
+On quit the tracker closes the notifications it still owns and the core
+closes the ones it posted through `notify-rust`; otherwise they would stay on
+screen after the application has exited.  While
 the tracker is enabled, `namaz_core_set_tracker_mask` silences the plain core
 notification for the tracked prayers so only the tracker reminds; adhan, iqama
 and reminder audio are untouched.

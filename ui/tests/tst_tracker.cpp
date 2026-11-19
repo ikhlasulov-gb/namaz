@@ -80,8 +80,8 @@ private slots:
     void unavailableWitrIsNotTracked();
     void witrIsOptInAndUsesLastThird();
     void dueSignalFiresOnce();
-    void dueCarriesTheMissedPreviousPrayer();
-    void staleMissedIsNotReplayed();
+    void dueDoesNotAnnounceTheMissedPreviousPrayer();
+    void missedPrayerIsNotAnnounced();
     void notificationMaskUsesCoreIndices();
     void qadaReminderFiresAtThreshold();
 };
@@ -406,7 +406,7 @@ void TrackerTest::dueSignalFiresOnce() {
     QCOMPARE(spy.count(), 1);
 }
 
-void TrackerTest::dueCarriesTheMissedPreviousPrayer() {
+void TrackerTest::dueDoesNotAnnounceTheMissedPreviousPrayer() {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     FakeSource source;
@@ -423,14 +423,14 @@ void TrackerTest::dueCarriesTheMissedPreviousPrayer() {
     tracker.tick();
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("isha"));
-    const QStringList missed =
-        spy.at(0).at(3).toStringList();
-    QCOMPARE(missed, QStringList{QStringLiteral("maghrib")});
+    QCOMPARE(spy.at(0).size(), 3);
+    // The record is still marked missed in the journal, but the notification
+    // is only the regular Ishaa reminder.
     QCOMPARE(findEntry(tracker, day1(), QStringLiteral("maghrib")).status,
              QStringLiteral("missed"));
 }
 
-void TrackerTest::staleMissedIsNotReplayed() {
+void TrackerTest::missedPrayerIsNotAnnounced() {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     FakeSource source;
@@ -441,14 +441,19 @@ void TrackerTest::staleMissedIsNotReplayed() {
         [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
     tracker.tick();
 
-    QSignalSpy missedSpy(&tracker, &PrayerTracker::missed);
-    // Wake up long after Shuruq: the record is missed, but no stale
-    // notification is replayed.
-    now = at(day1(), 7, 0);
+    QSignalSpy dueSpy(&tracker, &PrayerTracker::due);
+    // Shuruq closes Fajr's window.  The record becomes missed, but no
+    // "Missed" notification may replace the previous reminder.
+    now = at(day1(), 6, 30) + 1;
     tracker.tick();
     QCOMPARE(findEntry(tracker, day1(), QStringLiteral("fajr")).status,
              QStringLiteral("missed"));
-    QCOMPARE(missedSpy.count(), 0);
+    QCOMPARE(dueSpy.count(), 0);
+
+    // A machine waking hours later must not replay anything either.
+    now = at(day1(), 7, 0);
+    tracker.tick();
+    QCOMPARE(dueSpy.count(), 0);
 }
 
 void TrackerTest::qadaReminderFiresAtThreshold() {

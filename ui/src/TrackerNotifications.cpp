@@ -49,17 +49,6 @@ TrackerNotifications::TrackerNotifications(QObject *parent) : QObject(parent) {
                 SLOT(onClosed(uint, uint)));
 }
 
-void TrackerNotifications::setTracker(PrayerTracker *tracker) {
-    if (!tracker) {
-        return;
-    }
-    connect(tracker, &PrayerTracker::due, this,
-            [this, tracker](const QString &prayer, const QDate &date,
-                            bool witr, const QStringList &missed) {
-                notify(prayer, date, witr, tracker->notifyButtons(), missed);
-            });
-}
-
 void TrackerNotifications::closeAll() {
     if (!m_interface) {
         m_items.clear();
@@ -72,34 +61,15 @@ void TrackerNotifications::closeAll() {
     }
 }
 
-namespace {
-
-QString missedNames(const QStringList &missed) {
-    QStringList names;
-    names.reserve(missed.size());
-    for (const QString &key : missed) {
-        const int index = PrayerTracker::prayerIndex(key);
-        names.append(index >= 0 ? PrayerTracker::prayerName(index) : key);
-    }
-    return names.join(QStringLiteral(", "));
-}
-
-}  // namespace
-
 void TrackerNotifications::notify(const QString &prayer, const QDate &date,
-                                  bool witr, bool withButtons,
-                                  const QStringList &missed) {
+                                  bool witr, bool withButtons) {
     const int index = PrayerTracker::prayerIndex(prayer);
     const QString title = tr("Namaz");
-    QString body =
+    const QString body =
         witr
             ? tr("The last third of the night has begun: it is time for Witr.")
             : tr("It is time to pray %1.")
                   .arg(PrayerTracker::prayerName(index));
-    if (!missed.isEmpty()) {
-        body += QLatin1Char(' ')
-            + tr("Missed: %1.").arg(missedNames(missed));
-    }
 
     if (!m_interface || !m_actionsSupported) {
         // The fallback banner replaces its previous contents, so only one
@@ -128,36 +98,6 @@ void TrackerNotifications::notify(const QString &prayer, const QDate &date,
     const QDBusReply<uint> reply(message);
     if (!reply.isValid() || reply.value() == 0) {
         emit fallback(title, body, prayer, date, witr);
-        return;
-    }
-    m_items.insert(reply.value(), {prayer, date, witr});
-}
-
-void TrackerNotifications::notifyMissed(const QString &prayer,
-                                        const QDate &date, bool witr) {
-    const int index = PrayerTracker::prayerIndex(prayer);
-    const QString name = PrayerTracker::prayerName(index);
-    const QString title = tr("Namaz");
-    const QString body = tr("Missed: %1.").arg(name);
-
-    if (!m_interface) {
-        emit missedFallback(prayer);
-        return;
-    }
-
-    QVariantMap hints;
-    hints.insert(QStringLiteral("urgency"), 1);
-    hints.insert(QStringLiteral("desktop-entry"),
-                 QStringLiteral("io.github.ikhlasulov_gb.Namaz"));
-
-    closeAll();
-    const QDBusMessage message = m_interface->call(
-        QStringLiteral("Notify"), QStringLiteral("Namaz"), 0u,
-        QStringLiteral("io.github.ikhlasulov_gb.Namaz"), title, body,
-        QStringList(), hints, 0);
-    const QDBusReply<uint> reply(message);
-    if (!reply.isValid() || reply.value() == 0) {
-        emit missedFallback(prayer);
         return;
     }
     m_items.insert(reply.value(), {prayer, date, witr});

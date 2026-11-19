@@ -532,15 +532,8 @@ bool PrayerTracker::tick() {
         QString prayer;
         QDate date;
         bool witr;
-        QStringList missed;
-    };
-    struct Missed {
-        QString prayer;
-        QDate date;
-        bool witr;
     };
     QList<Due> dueEvents;
-    QList<Missed> missedEvents;
 
     for (auto day = m_days.begin(); day != m_days.end(); ++day) {
         for (TrackerEntry &entry : day.value()) {
@@ -557,14 +550,6 @@ bool PrayerTracker::tick() {
                     entry.confirmedAt = isoFromEpoch(nowEpoch);
                 } else {
                     entry.status = QLatin1String(TrackerStatus::Missed);
-                    // Announce a missed prayer only while its deadline is
-                    // fresh.  A machine waking hours later must not replay
-                    // an old "missed" notification.
-                    if (notifyEnabled(index)
-                        && nowEpoch - entry.deadline <= kNotifyGrace) {
-                        missedEvents.append({entry.prayer, entry.date,
-                                             index == PrayerIndex::Witr});
-                    }
                 }
                 changed = true;
                 continue;
@@ -576,7 +561,7 @@ bool PrayerTracker::tick() {
                     entry.notified = true;
                     if (notifyEnabled(index)) {
                         dueEvents.append({entry.prayer, entry.date,
-                                          index == PrayerIndex::Witr, {}});
+                                          index == PrayerIndex::Witr});
                     }
                     changed = true;
                 } else if (!entry.notified && at > 0
@@ -588,16 +573,8 @@ bool PrayerTracker::tick() {
         }
     }
 
-    // When the end of one prayer window is also the start of the next one,
-    // replace the old notification with the new prayer's notification and
-    // mention the prayer that was just missed in the same message.
-    if (!dueEvents.isEmpty() && !missedEvents.isEmpty()) {
-        for (const Missed &event : missedEvents) {
-            dueEvents.first().missed.append(event.prayer);
-        }
-        missedEvents.clear();
-    }
-
+    // A new prayer reminder simply replaces the previous one; a window that
+    // ended without confirmation is recorded in the journal silently.
     if (changed) {
         save();
         emitChanged();
@@ -619,10 +596,7 @@ bool PrayerTracker::tick() {
     }
 
     for (const Due &event : dueEvents) {
-        emit due(event.prayer, event.date, event.witr, event.missed);
-    }
-    for (const Missed &event : missedEvents) {
-        emit missed(event.prayer, event.date, event.witr);
+        emit due(event.prayer, event.date, event.witr);
     }
     return changed;
 }
