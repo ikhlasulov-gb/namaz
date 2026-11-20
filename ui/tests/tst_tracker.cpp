@@ -80,6 +80,8 @@ private slots:
     void unavailableWitrIsNotTracked();
     void witrIsOptInAndUsesLastThird();
     void dueSignalFiresOnce();
+    void newDayBackfillKeepsReminders();
+    void futureReminderMarkedShownIsHealed();
     void dueDoesNotAnnounceTheMissedPreviousPrayer();
     void missedPrayerIsNotAnnounced();
     void notificationMaskUsesCoreIndices();
@@ -404,6 +406,108 @@ void TrackerTest::dueSignalFiresOnce() {
     now = at(day1(), 20, 0) + 2;
     tracker.tick();
     QCOMPARE(spy.count(), 1);
+}
+
+void TrackerTest::newDayBackfillKeepsReminders() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    FakeSource source;
+    PrayerTracker tracker(&source);
+    tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+    qint64 now = at(day1(), 20, 0);
+    tracker.setNowProvider(
+        [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
+    tracker.tick();
+
+    // Namaz stayed closed overnight and starts again in the morning.  Filling
+    // the new day must not treat it as history: only the prayers whose time
+    // already passed may skip their reminder.  ensureToday() is used on
+    // purpose so the check sees the record as it was created, before tick()
+    // can repair anything.
+    QSignalSpy spy(&tracker, &PrayerTracker::due);
+    now = at(day1().addDays(1), 7, 0);
+    tracker.ensureToday();
+    const TrackerEntry fajr =
+        findEntry(tracker, day1().addDays(1), QStringLiteral("fajr"));
+    const TrackerEntry dhuhr =
+        findEntry(tracker, day1().addDays(1), QStringLiteral("dhuhr"));
+    QVERIFY(!fajr.id.isEmpty());
+    QVERIFY(!dhuhr.id.isEmpty());
+    QVERIFY(fajr.notified);
+    QVERIFY(!dhuhr.notified);
+
+    // Zuhr has not started yet, so its reminder must still be delivered.
+    now = at(day1().addDays(1), 12, 0);
+    tracker.tick();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("dhuhr"));
+
+    // Days skipped entirely are history, but the new day is not.
+    now = at(day1().addDays(3), 7, 0);
+    tracker.tick();
+    const TrackerEntry skipped =
+        findEntry(tracker, day1().addDays(2), QStringLiteral("dhuhr"));
+    QVERIFY(!skipped.id.isEmpty());
+    QVERIFY(skipped.notified);
+    const TrackerEntry nextDhuhr =
+        findEntry(tracker, day1().addDays(3), QStringLiteral("dhuhr"));
+    QVERIFY(!nextDhuhr.id.isEmpty());
+    QVERIFY(!nextDhuhr.notified);
+}
+
+void TrackerTest::futureReminderMarkedShownIsHealed() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.path() + QStringLiteral("/tracker.json");
+    const QDate today = day1().addDays(1);
+
+    // A tracker file written by 1.1.3 and older: the whole day was filled in
+    // as history, so every reminder is marked as already shown even though
+    // Zuhr is still ahead.
+    const QJsonObject stale{
+        {QStringLiteral("id"), QStringLiteral("stale-dhuhr")},
+        {QStringLiteral("prayer"), QStringLiteral("dhuhr")},
+        {QStringLiteral("date"), today.toString(Qt::ISODate)},
+        {QStringLiteral("scheduled"),
+         QDateTime::fromSecsSinceEpoch(at(today, 12, 0), Qt::UTC)
+             .toString(Qt::ISODate)},
+        {QStringLiteral("start_epoch"), at(today, 12, 0)},
+        {QStringLiteral("notify_epoch"), at(today, 12, 0)},
+        {QStringLiteral("deadline_epoch"), at(today, 15, 0)},
+        {QStringLiteral("status"), QStringLiteral("pending")},
+        {QStringLiteral("qada"), false},
+        {QStringLiteral("notified"), true},
+    };
+    const QJsonObject root{
+        {QStringLiteral("version"), 1},
+        {QStringLiteral("last_day"), today.toString(Qt::ISODate)},
+        {QStringLiteral("days"),
+         QJsonObject{{today.toString(Qt::ISODate), QJsonArray{stale}}}},
+    };
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write(QJsonDocument(root).toJson());
+    file.close();
+
+    FakeSource source;
+    PrayerTracker tracker(&source);
+    tracker.setStoragePath(path);
+    qint64 now = at(today, 11, 0);
+    tracker.setNowProvider(
+        [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
+    QVERIFY(tracker.load());
+
+    // The first tick must notice that the reminder moment is still ahead and
+    // forget the stale "already shown" mark.
+    QSignalSpy spy(&tracker, &PrayerTracker::due);
+    tracker.tick();
+    QVERIFY(!findEntry(tracker, today, QStringLiteral("dhuhr")).notified);
+    QCOMPARE(spy.count(), 0);
+
+    now = at(today, 12, 0);
+    tracker.tick();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("dhuhr"));
 }
 
 void TrackerTest::dueDoesNotAnnounceTheMissedPreviousPrayer() {

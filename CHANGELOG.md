@@ -4,6 +4,17 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.4] - 2026-11-20
+
+### Fixed
+
+- Journal reminders are no longer silently disabled for the whole day when
+  Namaz starts after being closed overnight (or keeps running past midnight).
+  The new day used to be filled in as history, which marked every reminder as
+  already shown while the tracker replaced the core's plain notification.  A
+  tracker file written by an affected build is repaired on the first tick, so
+  the reminders that are still ahead today are delivered.
+
 ## [1.1.3] - 2026-11-19
 
 ### Fixed

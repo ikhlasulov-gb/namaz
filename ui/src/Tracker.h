@@ -164,7 +164,7 @@ signals:
 
 private:
     PrayerDay timesFor(const QDate &date) const;
-    bool ensureDay(const QDate &date, const QDateTime &now, bool backfill);
+    bool ensureDay(const QDate &date, const QDateTime &now);
     QList<TrackerEntry> &dayList(const QDate &date);
     TrackerEntry *find(const QString &id);
     void fillDefaults();
