@@ -425,8 +425,7 @@ PrayerDay PrayerTracker::timesFor(const QDate &date) const {
     return result;
 }
 
-bool PrayerTracker::ensureDay(const QDate &date, const QDateTime &now,
-                              bool backfill) {
+bool PrayerTracker::ensureDay(const QDate &date, const QDateTime &now) {
     if (!date.isValid() || !m_source) {
         return false;
     }
@@ -473,8 +472,10 @@ bool PrayerTracker::ensureDay(const QDate &date, const QDateTime &now,
             entry.status = QLatin1String(TrackerStatus::Pending);
         }
         // Never replay a reminder for a window that started before this
-        // record existed (late start, wake from sleep, backfilled day).
-        entry.notified = backfill || nowEpoch >= window.notify + kNotifyGrace;
+        // record existed (late start, wake from sleep, backfilled day).  A
+        // reminder that is still ahead stays pending even when the day
+        // itself was filled in late.
+        entry.notified = nowEpoch >= window.notify + kNotifyGrace;
         list.append(entry);
         added = true;
     }
@@ -500,16 +501,18 @@ void PrayerTracker::ensureToday() {
     const QDate today = now.date();
     bool added = false;
     if (!m_lastDay.isValid()) {
-        added = ensureDay(today, now, false);
+        added = ensureDay(today, now);
     } else if (m_lastDay < today) {
+        // Fill only the days that were skipped.  Today is handled below like
+        // any other start of the application.
         QDate date = m_lastDay.addDays(1);
         int guard = 0;
-        while (date <= today && guard++ < 400) {
-            added = ensureDay(date, now, true) || added;
+        while (date < today && guard++ < 400) {
+            added = ensureDay(date, now) || added;
             date = date.addDays(1);
         }
     }
-    added = ensureDay(today, now, false) || added;
+    added = ensureDay(today, now) || added;
     if (added) {
         const bool pruned = pruneHistory();
         if (!pruned) {
@@ -556,6 +559,14 @@ bool PrayerTracker::tick() {
             }
             if (entry.pending()) {
                 const qint64 at = entry.notify;
+                // Records created by a build that backfilled the current day
+                // as history carry `notified = true` even though their
+                // reminder is still ahead.  Heal them so the reminder is not
+                // lost for the rest of the day.
+                if (entry.notified && at > 0 && nowEpoch < at) {
+                    entry.notified = false;
+                    changed = true;
+                }
                 if (!entry.notified && at > 0 && nowEpoch >= at
                     && nowEpoch <= at + kNotifyGrace) {
                     entry.notified = true;
