@@ -87,7 +87,12 @@ the tracker is enabled, `namaz_core_set_tracker_mask` silences the plain core
 notification for the tracked prayers so only the tracker reminds; adhan, iqama
 and reminder audio are untouched.  `namaz_core_is_athan_playing` lets the
 frontend hold the journal reminder until the adhan has finished, so the
-Confirm/Skip notification is not lost at the start of the recitation.
+Confirm/Skip notification is not lost at the start of the recitation.  The
+reminder itself is not tied to the core's five-second window: a pending record
+is announced as soon as Namaz sees it, so a machine that was off for the adhan
+still gets the Confirm/Skip notification while the prayer window is open.  The
+mark is persisted, so the reminder is shown once per record, survives a
+restart without repeating, and a closed window stays silent.
 
 ## Configuration and migration
 

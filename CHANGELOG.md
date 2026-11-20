@@ -4,6 +4,18 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- The journal reminder with Confirm and Skip is now shown even when Namaz
+  starts or resumes after the adhan has already begun, as long as the prayer
+  window is still open.  Each window raises its own reminder once, the mark
+  is persisted so a restart does not repeat it, and closed windows stay
+  silent.  The adhan audio keeps the strict five-second rule.  The
+  notification also asks the daemon to keep it on screen until it is
+  confirmed, skipped or closed.
+
 ## [1.1.4] - 2026-11-20
 
 ### Fixed

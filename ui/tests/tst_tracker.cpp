@@ -81,6 +81,9 @@ private slots:
     void witrIsOptInAndUsesLastThird();
     void dueSignalFiresOnce();
     void newDayBackfillKeepsReminders();
+    void lateStartInsideWindowNotifiesOnce();
+    void wakeInsideWindowNotifies();
+    void lateStartAfterWindowKeepsOnlyCurrentPrayer();
     void futureReminderMarkedShownIsHealed();
     void dueDoesNotAnnounceTheMissedPreviousPrayer();
     void missedPrayerIsNotAnnounced();
@@ -419,11 +422,9 @@ void TrackerTest::newDayBackfillKeepsReminders() {
         [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
     tracker.tick();
 
-    // Namaz stayed closed overnight and starts again in the morning.  Filling
-    // the new day must not treat it as history: only the prayers whose time
-    // already passed may skip their reminder.  ensureToday() is used on
-    // purpose so the check sees the record as it was created, before tick()
-    // can repair anything.
+    // Namaz stayed closed overnight and starts again in the morning.  The new
+    // day must not be treated as history: a reminder that is still ahead stays
+    // pending, and a prayer whose window is open is announced late.
     QSignalSpy spy(&tracker, &PrayerTracker::due);
     now = at(day1().addDays(1), 7, 0);
     tracker.ensureToday();
@@ -433,7 +434,9 @@ void TrackerTest::newDayBackfillKeepsReminders() {
         findEntry(tracker, day1().addDays(1), QStringLiteral("dhuhr"));
     QVERIFY(!fajr.id.isEmpty());
     QVERIFY(!dhuhr.id.isEmpty());
-    QVERIFY(fajr.notified);
+    // Fajr was missed while Namaz was not running: the closed window raises
+    // no reminder.
+    QCOMPARE(fajr.status, QStringLiteral("missed"));
     QVERIFY(!dhuhr.notified);
 
     // Zuhr has not started yet, so its reminder must still be delivered.
@@ -442,17 +445,89 @@ void TrackerTest::newDayBackfillKeepsReminders() {
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("dhuhr"));
 
-    // Days skipped entirely are history, but the new day is not.
+    // Days skipped entirely are closed history, but the current day is not.
     now = at(day1().addDays(3), 7, 0);
     tracker.tick();
     const TrackerEntry skipped =
         findEntry(tracker, day1().addDays(2), QStringLiteral("dhuhr"));
     QVERIFY(!skipped.id.isEmpty());
-    QVERIFY(skipped.notified);
+    QCOMPARE(skipped.status, QStringLiteral("missed"));
     const TrackerEntry nextDhuhr =
         findEntry(tracker, day1().addDays(3), QStringLiteral("dhuhr"));
     QVERIFY(!nextDhuhr.id.isEmpty());
     QVERIFY(!nextDhuhr.notified);
+    // None of the missed prayers replaced the delivered Zuhr reminder.
+    QCOMPARE(spy.count(), 1);
+}
+
+void TrackerTest::lateStartInsideWindowNotifiesOnce() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    FakeSource source;
+    PrayerTracker tracker(&source);
+    tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+
+    // The computer was off and is switched on half an hour after the adhan,
+    // while Zuhr is still current.
+    qint64 now = at(day1(), 12, 30);
+    tracker.setNowProvider(
+        [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
+    QSignalSpy spy(&tracker, &PrayerTracker::due);
+    tracker.tick();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("dhuhr"));
+
+    // One reminder per record: the next one-second tick stays quiet even
+    // though the window is still open.
+    tracker.tick();
+    QCOMPARE(spy.count(), 1);
+
+    // And a restart must not repeat it either.
+    PrayerTracker loaded(&source);
+    loaded.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+    QVERIFY(loaded.load());
+    loaded.setNowProvider(
+        [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
+    QSignalSpy restarted(&loaded, &PrayerTracker::due);
+    now += 60;
+    loaded.tick();
+    QCOMPARE(restarted.count(), 0);
+}
+
+void TrackerTest::wakeInsideWindowNotifies() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    FakeSource source;
+    PrayerTracker tracker(&source);
+    tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+    qint64 now = at(day1(), 11, 59);
+    tracker.setNowProvider(
+        [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
+    tracker.tick();
+
+    // The machine slept through the adhan and resumed inside the window.
+    QSignalSpy spy(&tracker, &PrayerTracker::due);
+    now = at(day1(), 12, 30);
+    tracker.tick();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("dhuhr"));
+}
+
+void TrackerTest::lateStartAfterWindowKeepsOnlyCurrentPrayer() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    FakeSource source;
+    PrayerTracker tracker(&source);
+    tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+
+    // Dhuhr's window ended at Asr; only the current prayer may be announced.
+    qint64 now = at(day1(), 16, 0);
+    tracker.setNowProvider(
+        [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
+    QSignalSpy spy(&tracker, &PrayerTracker::due);
+    tracker.tick();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("asr"));
 }
 
 void TrackerTest::futureReminderMarkedShownIsHealed() {
