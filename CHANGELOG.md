@@ -4,6 +4,18 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.6] - 2026-11-20
+
+### Fixed
+
+- Prayer-time notifications are no longer lost when Namaz runs under KDE
+  Plasma while a fullscreen window (a game or video) is focused or
+  Do-Not-Disturb is enabled: Plasma 6 suppresses normal-urgency popups in
+  those situations.  Both the journal Confirm/Skip reminders and the core's
+  plain notifications are now posted with critical urgency, which Plasma
+  delivers in both cases, matching their alarm-like nature (the adhan audio
+  already plays regardless of the notification).
+
 ## [1.1.5] - 2026-11-20
 
 ### Fixed

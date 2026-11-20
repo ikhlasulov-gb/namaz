@@ -69,7 +69,11 @@ in four modules:
   the history-record editor.
 - `TrackerNotifications.{h,cpp}` — `org.freedesktop.Notifications` via Qt
   DBus with Confirm/Skip actions; without a capable daemon the window falls
-  back to its own banner and a tray flash.
+  back to its own banner and a tray flash.  Prayer reminders are posted with
+  `urgency = critical` because they behave like alarms (the adhan audio is
+  already playing); Plasma 6 suppresses normal-urgency popups while a
+  fullscreen window is focused or Do-Not-Disturb is enabled, but critical
+  notifications are delivered in both cases.
 
 Witr has no core time index; the core exposes it as a `witr` object in the
 day JSON (`epoch`, `deadline_epoch`, `available`, calendar date), computed as

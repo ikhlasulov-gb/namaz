@@ -84,7 +84,11 @@ void TrackerNotifications::notify(const QString &prayer, const QDate &date,
                 << QStringLiteral("skip") << tr("Skip");
     }
     QVariantMap hints;
-    hints.insert(QStringLiteral("urgency"), 1);
+    // Critical urgency: prayer reminders behave like alarms (the adhan is
+    // already playing), and Plasma 6 suppresses normal-urgency popups while
+    // a fullscreen window is focused or Do-Not-Disturb is enabled.  Critical
+    // notifications are delivered in both cases.
+    hints.insert(QStringLiteral("urgency"), 2);
     hints.insert(QStringLiteral("desktop-entry"),
                  QStringLiteral("io.github.ikhlasulov_gb.Namaz"));
     // Keep the prayer reminder on screen until it is confirmed, skipped or
