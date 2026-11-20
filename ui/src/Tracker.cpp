@@ -24,8 +24,6 @@ const char *const kPrayerKeys[PrayerIndex::Count] = {
     "fajr", "dhuhr", "asr", "maghrib", "isha", "witr",
 };
 
-constexpr qint64 kNotifyGrace = 5;  // seconds, matches the core's strict window
-
 QString tr(const char *text) {
     return QCoreApplication::translate("Tracker", text);
 }
@@ -471,11 +469,10 @@ bool PrayerTracker::ensureDay(const QDate &date, const QDateTime &now) {
         } else {
             entry.status = QLatin1String(TrackerStatus::Pending);
         }
-        // Never replay a reminder for a window that started before this
-        // record existed (late start, wake from sleep, backfilled day).  A
-        // reminder that is still ahead stays pending even when the day
-        // itself was filled in late.
-        entry.notified = nowEpoch >= window.notify + kNotifyGrace;
+        // A reminder is delivered once per record.  `notified` is decided in
+        // tick(): a record whose moment has already passed is announced as
+        // soon as Namaz runs, because the prayer window is still open.
+        entry.notified = false;
         list.append(entry);
         added = true;
     }
@@ -567,17 +564,17 @@ bool PrayerTracker::tick() {
                     entry.notified = false;
                     changed = true;
                 }
-                if (!entry.notified && at > 0 && nowEpoch >= at
-                    && nowEpoch <= at + kNotifyGrace) {
+                // Deliver every reminder once, as soon as the record exists.
+                // The open prayer window is what makes it useful, so a late
+                // start or a wake from sleep inside the window still shows
+                // the journal notification.  Only the adhan audio keeps the
+                // core's strict five-second rule.
+                if (!entry.notified && at > 0 && nowEpoch >= at) {
                     entry.notified = true;
                     if (notifyEnabled(index)) {
                         dueEvents.append({entry.prayer, entry.date,
                                           index == PrayerIndex::Witr});
                     }
-                    changed = true;
-                } else if (!entry.notified && at > 0
-                           && nowEpoch > at + kNotifyGrace) {
-                    entry.notified = true;
                     changed = true;
                 }
             }

@@ -237,14 +237,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
                 }
                 // Do not cover the start of the adhan: hold the journal
                 // reminder with the Confirm/Skip buttons until the recitation
-                // has finished.  Witr has no adhan, so it is shown directly.
-                if (!witr) {
+                // has finished.  A late start or a wake inside the prayer
+                // window has no adhan to protect, so its reminder is shown at
+                // once.
+                if (namaz_core_is_athan_playing()) {
                     m_deferredPrayer = prayer;
                     m_deferredDate = date;
                     m_deferredNotify = m_tracker->nowEpoch();
                     m_hasDeferredReminder = true;
                     return;
                 }
+                // A direct reminder supersedes anything still held back for
+                // an earlier adhan.
+                m_hasDeferredReminder = false;
                 m_trackerNotifications->notify(
                     prayer, date, witr, m_tracker->notifyButtons());
             });

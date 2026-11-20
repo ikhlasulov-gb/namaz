@@ -87,6 +87,9 @@ void TrackerNotifications::notify(const QString &prayer, const QDate &date,
     hints.insert(QStringLiteral("urgency"), 1);
     hints.insert(QStringLiteral("desktop-entry"),
                  QStringLiteral("io.github.ikhlasulov_gb.Namaz"));
+    // Keep the prayer reminder on screen until it is confirmed, skipped or
+    // closed instead of letting the daemon time it out.
+    hints.insert(QStringLiteral("resident"), true);
 
     // A prayer reminder replaces the previous one; notifications must not
     // accumulate while the day moves from one prayer to the next.
