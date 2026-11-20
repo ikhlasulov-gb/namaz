@@ -649,12 +649,17 @@ fn shown_notifications() -> &'static Mutex<Vec<notify_rust::NotificationHandle>>
     SHOWN.get_or_init(|| Mutex::new(Vec::new()))
 }
 
+/// Critical urgency: prayer reminders behave like alarms (the adhan audio is
+/// already playing).  Plasma 6 suppresses normal-urgency popups while a
+/// fullscreen window is focused or Do-Not-Disturb is enabled; critical
+/// notifications are delivered in both cases.
 fn show_notification(title: &str, body: &str) {
     let handle = notify_rust::Notification::new()
         .appname("Namaz")
         .icon("io.github.ikhlasulov_gb.Namaz")
         .summary(title)
         .body(body)
+        .hint(notify_rust::Hint::Urgency(notify_rust::Urgency::Critical))
         .show();
     if let Ok(handle) = handle {
         if let Ok(mut shown) = shown_notifications().lock() {
