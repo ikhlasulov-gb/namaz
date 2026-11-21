@@ -4,6 +4,23 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.8] - 2026-11-21
+
+### Added
+
+- The journal editor offers a new "Восполнен" (made up) status.  Marking a
+  missed or skipped prayer as made up shows that it was later performed as
+  qada without changing the prayer it belonged to; the qada debt treats such
+  a record as neutral — the miss and its compensation cancel each other out,
+  exactly like a separate make-up record does.
+
+### Fixed
+
+- Quitting from the system-tray context menu no longer risks leaving a
+  Namaz process behind on older Qt builds.  The quit lock used by
+  plasma-integration (KDE bug 484405, Qt < 6.7.2) is now disabled, so every
+  exit path ends with the explicit `QCoreApplication::quit()`.
+
 ## [1.1.7] - 2026-11-21
 
 ### Fixed

@@ -88,6 +88,11 @@ QJsonObject dumpWidget(QWidget *widget, QWidget *origin) {
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
+    // Older plasma-integration versions (Qt < 6.7.2, KDE bug 484405) can
+    // leave a QEventLoopLocker behind after quitting from the tray context
+    // menu, keeping the process alive with no windows.  The quit lock is not
+    // needed: every exit path calls QCoreApplication::quit() explicitly.
+    QApplication::setQuitLockEnabled(false);
     QApplication::setApplicationName(QStringLiteral("Namaz"));
     QApplication::setApplicationVersion(QStringLiteral(NAMAZ_VERSION));
     QApplication::setOrganizationName(QStringLiteral("io.github.ikhlasulov_gb"));
