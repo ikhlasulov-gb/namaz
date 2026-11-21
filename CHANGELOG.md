@@ -4,6 +4,15 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.7] - 2026-11-21
+
+### Fixed
+
+- Prayer reminders no longer pile up in the notification area.  A new
+  countdown, athan or journal reminder now replaces the previous notification
+  from both the core and the tracker, so after a long absence only one message
+  is shown instead of one per past prayer.
+
 ## [1.1.6] - 2026-11-20
 
 ### Fixed

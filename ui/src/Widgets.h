@@ -73,6 +73,8 @@ private:
     void showTrackerBanner(const QString &title, const QString &body,
                            const QString &prayer, const QDate &date, bool witr);
     void hideTrackerBanner();
+    void showTrackerNotification(const QString &prayer, const QDate &date,
+                                 bool witr);
     void releaseDeferredTrackerReminder();
     void shiftDay(int days);
     void shiftMonth(int months);
