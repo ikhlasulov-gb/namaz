@@ -81,7 +81,10 @@ the last third of the night Maghrib → Fajr(D+1).  Every core time also gains
 an absolute `epoch`.  Witr is opt-in: the journal stores records for it only
 when `witr` (or one of its reminder switches) is enabled in the Journal
 preferences, and shows the last third of the night rather than Ishaa's start.
-Journal reminders replace each other.  A prayer window that closes without
+Journal reminders replace each other.  Namaz also keeps a single
+notification slot across both components: a new reminder or prayer-time
+message closes the previous one, so the countdown for a past prayer cannot
+pile up next to the current reminder.  A prayer window that closes without
 confirmation is recorded as missed in the journal, but no notification is
 shown for it: the notification area shows only the regular prayer reminders.
 On quit the tracker closes the notifications it still owns and the core

@@ -653,7 +653,14 @@ fn shown_notifications() -> &'static Mutex<Vec<notify_rust::NotificationHandle>>
 /// already playing).  Plasma 6 suppresses normal-urgency popups while a
 /// fullscreen window is focused or Do-Not-Disturb is enabled; critical
 /// notifications are delivered in both cases.
+///
+/// Namaz keeps a single notification slot.  The daemon leaves a critical
+/// notification on screen until it is dismissed, so every new reminder has to
+/// close the previous one; otherwise the countdown for each past prayer piles
+/// up next to the current one.  The frontend closes the journal notification
+/// around its own calls for the same reason.
 fn show_notification(title: &str, body: &str) {
+    close_notifications();
     let handle = notify_rust::Notification::new()
         .appname("Namaz")
         .icon("io.github.ikhlasulov_gb.Namaz")

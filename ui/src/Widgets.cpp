@@ -250,8 +250,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
                 // A direct reminder supersedes anything still held back for
                 // an earlier adhan.
                 m_hasDeferredReminder = false;
-                m_trackerNotifications->notify(
-                    prayer, date, witr, m_tracker->notifyButtons());
+                showTrackerNotification(prayer, date, witr);
             });
     connect(m_tracker, &PrayerTracker::qadaDue, this,
             [this](int index, qint64 debt) {
@@ -713,6 +712,12 @@ void MainWindow::tick() {
         namaz_core_tick_events(m_core.handle()));
     const QJsonArray events = QJsonDocument::fromJson(eventsText.toUtf8()).array();
     if (!events.isEmpty()) {
+        // The core's reminder or athan takes the single notification slot:
+        // drop a journal reminder that is still on screen instead of letting
+        // the two pile up.
+        if (m_trackerNotifications) {
+            m_trackerNotifications->closeAll();
+        }
         const QJsonObject cfg = config();
         for (const QJsonValue &value : events) {
             const QString type = value.toObject().value(QStringLiteral("type")).toString();
@@ -829,6 +834,19 @@ void MainWindow::hideTrackerBanner() {
     m_bannerWitr = false;
 }
 
+void MainWindow::showTrackerNotification(const QString &prayer,
+                                         const QDate &date, bool witr) {
+    if (!m_trackerNotifications || !m_tracker) {
+        return;
+    }
+    // The journal reminder shares one notification slot with the core's
+    // countdown and prayer-time messages.  Close the core notification so a
+    // "time left" reminder for this prayer does not stay next to it.
+    namaz_core_close_notifications();
+    m_trackerNotifications->notify(prayer, date, witr,
+                                   m_tracker->notifyButtons());
+}
+
 void MainWindow::releaseDeferredTrackerReminder() {
     if (!m_hasDeferredReminder) {
         return;
@@ -872,8 +890,7 @@ void MainWindow::releaseDeferredTrackerReminder() {
     if (!pending) {
         return;
     }
-    m_trackerNotifications->notify(m_deferredPrayer, m_deferredDate, false,
-                                   m_tracker->notifyButtons());
+    showTrackerNotification(m_deferredPrayer, m_deferredDate, false);
 }
 
 void MainWindow::playStartupSound() {
