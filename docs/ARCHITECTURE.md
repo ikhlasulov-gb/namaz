@@ -57,10 +57,10 @@ in four modules:
   schema `version` field), keeps a snapshot of every prayer window (`epoch`,
   notification moment, deadline) so later city or method changes never
   rewrite history, converts pending records to missed/auto at their deadline,
-  counts the qada debt (`missed` +1, a make-up record −1, `skip` neutral) and
-  provides history search, editing, pruning and CSV export.  The clock and
-  the prayer-time source are injected, which keeps `ui/tests/tst_tracker.cpp`
-  deterministic.
+  counts the qada debt (a done make-up record −1, `missed` +1, `skip` and
+  the user-set "made up" status neutral) and provides history search,
+  editing, pruning and CSV export.  The clock and the prayer-time source are
+  injected, which keeps `ui/tests/tst_tracker.cpp` deterministic.
 - `TrackerView.{h,cpp}` — the fourth main-window tab (Ctrl+4) with the
   Today and History subpages in plain Breeze Qt widgets.  A one-second timer
   rebuilds the Today page when a prayer window starts or ends; the page is

@@ -72,6 +72,7 @@ private slots:
     void confirmIsOnlyAllowedInsideTheWindow();
     void missedAtDeadlineAndSkippedIsNeutral();
     void qadaDebtFollowsHistoryEdits();
+    void madeUpStatusIsNeutralAndPersists();
     void autoConfirmAvoidsDebt();
     void trackerFileRoundTrips();
     void failedSaveDoesNotCreateFile();
@@ -213,6 +214,48 @@ void TrackerTest::qadaDebtFollowsHistoryEdits() {
 
     tracker.setInitialQada(PrayerIndex::Fajr, 3);
     QCOMPARE(tracker.qadaDebt(PrayerIndex::Fajr), qint64(3));
+}
+
+void TrackerTest::madeUpStatusIsNeutralAndPersists() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.path() + QStringLiteral("/tracker.json");
+    FakeSource source;
+    PrayerTracker tracker(&source);
+    tracker.setStoragePath(path);
+    qint64 now = at(day1(), 19, 0);
+    tracker.setNowProvider(
+        [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
+    tracker.tick();
+
+    QCOMPARE(tracker.qadaDebt(PrayerIndex::Fajr), qint64(1));
+    const TrackerEntry fajr = findEntry(tracker, day1(), QStringLiteral("fajr"));
+
+    // Marking the missed prayer as made up neutralises its contribution to
+    // the debt: the record carries the miss and its compensation together.
+    TrackerEntry updated = fajr;
+    updated.status = QLatin1String(TrackerStatus::MadeUp);
+    QVERIFY(tracker.updateEntry(updated));
+    QCOMPARE(tracker.entry(fajr.id).status,
+             QLatin1String(TrackerStatus::MadeUp));
+    QCOMPARE(tracker.entry(fajr.id).done(), true);
+    QVERIFY(!tracker.entry(fajr.id).confirmedAt.isEmpty());
+    QCOMPARE(tracker.qadaDebt(PrayerIndex::Fajr), qint64(0));
+
+    // Other prayers keep their debt.
+    QCOMPARE(tracker.qadaDebt(PrayerIndex::Dhuhr), qint64(1));
+
+    // The status survives a round trip through the journal file.
+    tracker.save();
+    PrayerTracker loaded(&source);
+    loaded.setStoragePath(path);
+    QVERIFY(loaded.load());
+    QCOMPARE(findEntry(loaded, day1(), QStringLiteral("fajr")).status,
+             QLatin1String(TrackerStatus::MadeUp));
+    QCOMPARE(loaded.qadaDebt(PrayerIndex::Fajr), qint64(0));
+
+    // The history search matches the status label.
+    QCOMPARE(loaded.history(QStringLiteral("made up")).size(), 1);
 }
 
 void TrackerTest::autoConfirmAvoidsDebt() {

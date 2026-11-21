@@ -28,6 +28,8 @@ inline constexpr char Confirmed[] = "confirmed";
 inline constexpr char Auto[] = "auto";
 inline constexpr char Skipped[] = "skipped";
 inline constexpr char Missed[] = "missed";
+// A prayer first recorded as missed or skipped and later made up (qada).
+inline constexpr char MadeUp[] = "made-up";
 }  // namespace TrackerStatus
 
 // One prayer window on one night/day.
@@ -62,7 +64,8 @@ struct TrackerEntry {
     bool pending() const { return status == QLatin1String(TrackerStatus::Pending); }
     bool done() const {
         return status == QLatin1String(TrackerStatus::Confirmed)
-            || status == QLatin1String(TrackerStatus::Auto);
+            || status == QLatin1String(TrackerStatus::Auto)
+            || status == QLatin1String(TrackerStatus::MadeUp);
     }
 };
 

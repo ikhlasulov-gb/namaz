@@ -50,8 +50,9 @@ Qt 6 Widgets.
 - **Desktop integration**: tray icon, notifications, D-Bus API, autostart,
   screen-locker support and a Masjid full-screen view.
 - **Prayer journal**: track the five obligatory prayers and Witr, confirm or
-  skip each prayer inside its window, keep a qada debt counter, browse and
-  export the history (CSV).  Journal notifications with Confirm/Skip buttons
+  skip each prayer inside its window, mark prayers made up after their time
+  ("made up" status), keep a qada debt counter, browse and export the history
+  (CSV).  Journal notifications with Confirm/Skip buttons
   replace the plain prayer notification while the adhan stays unchanged; they
   work while Namaz is running (window or tray).  The idea comes from
   [Dosage](https://github.com/diegopvlk/Dosage) (GPL-3.0-only, re-implemented

@@ -36,6 +36,7 @@ const char *const kStatusTexts[] = {
     QT_TRANSLATE_NOOP("Tracker", "Auto-confirmed"),
     QT_TRANSLATE_NOOP("Tracker", "Skipped"),
     QT_TRANSLATE_NOOP("Tracker", "Missed"),
+    QT_TRANSLATE_NOOP("Tracker", "Made up"),
 };
 
 QJsonObject boolMap(std::initializer_list<bool> values) {
@@ -90,6 +91,8 @@ QString statusText(const QString &status) {
         key = kStatusTexts[3];
     } else if (status == QLatin1String(TrackerStatus::Missed)) {
         key = kStatusTexts[4];
+    } else if (status == QLatin1String(TrackerStatus::MadeUp)) {
+        key = kStatusTexts[5];
     }
     return key ? tr(key) : status;
 }
@@ -333,7 +336,11 @@ qint64 PrayerTracker::qadaDebt(int index) const {
             if (entry.prayer != key) {
                 continue;
             }
-            if (entry.qada && entry.status == QLatin1String(TrackerStatus::Confirmed)) {
+            // A make-up record (separate, qada=true) cancels one miss as
+            // soon as it is done in any way.  An ordinary record set to
+            // "made up" is neutral: the entry carries the miss and its
+            // compensation at the same time.
+            if (entry.qada && entry.done()) {
                 debt -= 1;
             } else if (!entry.qada
                        && entry.status == QLatin1String(TrackerStatus::Missed)) {
@@ -740,7 +747,8 @@ bool PrayerTracker::updateEntry(const TrackerEntry &updated) {
         && updated.status != QLatin1String(TrackerStatus::Confirmed)
         && updated.status != QLatin1String(TrackerStatus::Auto)
         && updated.status != QLatin1String(TrackerStatus::Skipped)
-        && updated.status != QLatin1String(TrackerStatus::Missed)) {
+        && updated.status != QLatin1String(TrackerStatus::Missed)
+        && updated.status != QLatin1String(TrackerStatus::MadeUp)) {
         return false;
     }
     entry->status = updated.status;
@@ -812,14 +820,15 @@ bool PrayerTracker::pruneHistory() {
             continue;
         }
         // Keep the debt stable: fold the removed history into the manual
-        // baseline before dropping it.
+        // baseline before dropping it.  The same rules as qadaDebt(): a
+        // done make-up record cancels one miss, a "made up" record is
+        // neutral because it carries the miss and its compensation.
         for (const TrackerEntry &entry : day.value()) {
             const int index = prayerIndex(entry.prayer);
             if (index < 0 || !tracked(index)) {
                 continue;
             }
-            if (entry.qada
-                && entry.status == QLatin1String(TrackerStatus::Confirmed)) {
+            if (entry.qada && entry.done()) {
                 m_qada[index] = qMax<qint64>(0, m_qada[index] - 1);
             } else if (!entry.qada
                        && entry.status == QLatin1String(TrackerStatus::Missed)) {

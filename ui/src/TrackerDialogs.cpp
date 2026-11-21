@@ -129,6 +129,7 @@ EditEntryDialog::EditEntryDialog(const TrackerEntry &entry, QWidget *parent)
     m_status->setObjectName(QStringLiteral("EditStatusCombo"));
     addStatusItem(m_status, QStringLiteral("confirmed"));
     addStatusItem(m_status, QStringLiteral("auto"));
+    addStatusItem(m_status, QStringLiteral("made-up"));
     addStatusItem(m_status, QStringLiteral("skipped"));
     addStatusItem(m_status, QStringLiteral("missed"));
     m_status->setCurrentIndex(
