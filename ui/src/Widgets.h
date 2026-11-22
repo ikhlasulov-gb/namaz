@@ -91,7 +91,17 @@ private:
     void saveWindowState();
     void restoreWindowState();
     void updateTray(const QJsonObject &day);
-    void flashTray();
+    // What started the current tray blink.  A journal reminder only stops its
+    // own blink, so resolving a prayer never cuts short an athan flash.
+    enum class FlashSource { None, Core, Reminder };
+    // Starts a bounded blink of the tray icon.  A blink that is already
+    // running is left alone: a repeating reminder must never extend it.
+    void flashTray(FlashSource source);
+    // Ends the blink and restores the application icon.  Called as soon as the
+    // event that caused it is resolved (confirmed, skipped or withdrawn).
+    void stopTrayFlash();
+    // Stops the blink only when the journal reminder owns it.
+    void stopReminderFlash();
     void playSound(const QString &name);
     void showAudioError(const QString &name);
     void printMonth(bool toPdf, int calendar = 0);
@@ -153,5 +163,7 @@ private:
     QShortcut *m_dayLeftShortcut = nullptr;
     QShortcut *m_dayRightShortcut = nullptr;
     QTimer *m_flashTimer = nullptr;
+    QTimer *m_flashStopTimer = nullptr;
     bool m_flashOn = false;
+    FlashSource m_flashSource = FlashSource::None;
 };

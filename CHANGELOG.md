@@ -4,6 +4,18 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.10] - 2026-11-23
+
+### Fixed
+
+- The tray icon no longer blinks forever.  The blink used to be re-armed every
+  time a repeating journal reminder was posted again, so it could keep going
+  for the whole prayer window and did not stop when the prayer was confirmed or
+  skipped.  The blink now starts once when the reminder first appears, stops as
+  soon as the reminder is resolved or withdrawn, and follows the "Flash the
+  tray icon" preference in Preferences → Journal (the fallback banner used to
+  flash even when that option was off).
+
 ## [1.1.9] - 2026-11-22
 
 ### Added

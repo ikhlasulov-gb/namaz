@@ -69,6 +69,12 @@
 
 namespace {
 
+// How long a tray blink lasts.  The blink is a visual hint, not a state: it
+// must end on its own even when nothing confirms the event, and it must never
+// be extended by a repeating reminder.
+constexpr int kTrayFlashMs = 5 * 60 * 1000;
+constexpr int kTrayFlashIntervalMs = 500;
+
 // Keep the default window comfortable on 1280x800/150 % screens as well.
 QSize initialWindowSize() {
     QSize available(1920, 1200);
@@ -235,7 +241,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
                         .arg(PrayerTracker::prayerName(index))
                         .arg(debt),
                     15000);
-                flashTray();
+                flashTray(FlashSource::Core);
             });
     connect(m_tracker, &PrayerTracker::changed, this,
             &MainWindow::syncTrackerMask);
@@ -699,14 +705,14 @@ void MainWindow::tick() {
                     showFromTray();
                 }
                 if (cfg.value(QStringLiteral("athan_visual_flash")).toBool(false)) {
-                    flashTray();
+                    flashTray(FlashSource::Core);
                 }
             } else if (type == QStringLiteral("reminder")) {
                 if (cfg.value(QStringLiteral("reminder_visual_main")).toBool(false)) {
                     showFromTray();
                 }
                 if (cfg.value(QStringLiteral("reminder_visual_flash")).toBool(false)) {
-                    flashTray();
+                    flashTray(FlashSource::Core);
                 }
             }
         }
@@ -796,7 +802,6 @@ void MainWindow::showTrackerBanner(const QString &title, const QString &body,
         QStringLiteral("<b>%1</b><br>%2").arg(title.toHtmlEscaped(),
                                              body.toHtmlEscaped()));
     m_trackerBanner->show();
-    flashTray();
 }
 
 void MainWindow::hideTrackerBanner() {
@@ -806,6 +811,11 @@ void MainWindow::hideTrackerBanner() {
     m_bannerPrayer.clear();
     m_bannerDate = QDate();
     m_bannerWitr = false;
+    // The banner and the tray blink belong to the same journal reminder: when
+    // the reminder goes away (confirmed, skipped or replaced) the blink must
+    // stop at once instead of finishing its five-minute cycle.  A blink that
+    // belongs to an athan is left alone.
+    stopReminderFlash();
 }
 
 bool MainWindow::showTrackerNotification(const QString &prayer,
@@ -831,6 +841,10 @@ void MainWindow::updateTrackerReminder() {
     if (entry.id.isEmpty()) {
         // No prayer is due any more: withdraw the reminder that is still on
         // screen instead of leaving a stale popup with dead buttons.
+        // The tray blink belongs to this reminder and ends with it; it must
+        // not keep blinking after the prayer was confirmed or its window
+        // closed.
+        stopReminderFlash();
         if (!m_reminderId.isEmpty()) {
             m_reminderId.clear();
             m_reminder.reset();
@@ -859,6 +873,8 @@ void MainWindow::updateTrackerReminder() {
     }
 
     if (!config().value(QStringLiteral("notifications_enabled")).toBool(true)) {
+        // Reminders are switched off: nothing should keep the tray blinking.
+        stopReminderFlash();
         return;
     }
 
@@ -883,8 +899,9 @@ void MainWindow::updateTrackerReminder() {
     // Beep on every repeat, and on a first beat that arrives long after the
     // reminder moment (a late start or a wake from sleep): by then the adhan
     // is over and the reminder would otherwise appear silently.
+    const bool firstBeat = m_reminder.beats() == 0;
     const bool lateFirstBeat =
-        m_reminder.beats() == 0 && entry.notify > 0 && now - entry.notify > 300;
+        firstBeat && entry.notify > 0 && now - entry.notify > 300;
     if (m_reminder.beats() > 0 || lateFirstBeat) {
         namaz_core_play_reminder_ping();
     }
@@ -894,6 +911,14 @@ void MainWindow::updateTrackerReminder() {
     // noise.  `notified` stays informational, so a beat that never reached
     // the desktop is retried on the next repeat.
     m_reminder.take(now, m_tracker->repeatMinutes());
+    // Flash the tray only when the reminder first appears and only when the
+    // preference asks for it.  Repeat beats re-post the popup and the ping,
+    // but they must not re-arm the blink: that is what made the icon blink
+    // for as long as the reminder stayed open.
+    if (firstBeat
+        && config().value(QStringLiteral("reminder_visual_flash")).toBool(false)) {
+        flashTray(FlashSource::Reminder);
+    }
     const bool witr = PrayerTracker::prayerIndex(entry.prayer) == PrayerIndex::Witr;
     if (showTrackerNotification(entry.prayer, entry.date, witr)) {
         m_tracker->markNotified(entry.id);
@@ -1057,39 +1082,59 @@ void MainWindow::updateTray(const QJsonObject &day) {
     }
 }
 
-void MainWindow::flashTray() {
+void MainWindow::flashTray(FlashSource source) {
     if (!m_tray) {
         return;
     }
+    if (!m_flashTimer) {
+        const QIcon alert = Ui::themeIcon(QStringLiteral("dialog-information"));
+        m_flashTimer = new QTimer(this);
+        m_flashTimer->setInterval(kTrayFlashIntervalMs);
+        connect(m_flashTimer, &QTimer::timeout, this, [this, alert] {
+            if (!m_tray) {
+                return;
+            }
+            m_flashOn = !m_flashOn;
+            m_tray->setIcon(m_flashOn ? alert : Ui::appIcon());
+        });
+        m_flashStopTimer = new QTimer(this);
+        m_flashStopTimer->setSingleShot(true);
+        m_flashStopTimer->setInterval(kTrayFlashMs);
+        connect(m_flashStopTimer, &QTimer::timeout, this,
+                &MainWindow::stopTrayFlash);
+    }
+    // A blink that is already running is not restarted.  Otherwise a reminder
+    // that repeats every few minutes would keep re-arming the timer and the
+    // tray icon would blink for as long as the reminder exists, even after the
+    // prayer was already confirmed.
+    if (m_flashTimer->isActive()) {
+        return;
+    }
+    m_flashOn = false;
+    m_flashSource = source;
+    m_tray->setIcon(Ui::appIcon());
+    m_flashTimer->start();
+    m_flashStopTimer->start();
+}
+
+void MainWindow::stopTrayFlash() {
+    if (m_flashStopTimer) {
+        m_flashStopTimer->stop();
+    }
     if (m_flashTimer) {
         m_flashTimer->stop();
-        m_flashTimer->deleteLater();
     }
-    auto *timer = new QTimer(this);
-    m_flashTimer = timer;
-    timer->setInterval(500);
     m_flashOn = false;
-    const QIcon normal = windowIcon();
-    const QIcon alert = Ui::themeIcon(QStringLiteral("dialog-information"));
-    connect(timer, &QTimer::timeout, this, [this, normal, alert] {
-        m_flashOn = !m_flashOn;
-        if (m_tray) {
-            m_tray->setIcon(m_flashOn ? alert : normal);
-        }
-    });
-    timer->start();
-    QTimer::singleShot(5 * 60 * 1000, this, [this, timer, normal] {
-        // An older flash cycle must not cancel a newer one.
-        if (m_flashTimer != timer) {
-            return;
-        }
-        timer->stop();
-        timer->deleteLater();
-        m_flashTimer = nullptr;
-        if (m_tray) {
-            m_tray->setIcon(normal);
-        }
-    });
+    m_flashSource = FlashSource::None;
+    if (m_tray) {
+        m_tray->setIcon(Ui::appIcon());
+    }
+}
+
+void MainWindow::stopReminderFlash() {
+    if (m_flashSource == FlashSource::Reminder) {
+        stopTrayFlash();
+    }
 }
 
 void MainWindow::playSound(const QString &name) {

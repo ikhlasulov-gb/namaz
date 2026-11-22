@@ -235,6 +235,12 @@ release is broken, publish the next patch version.
   adhan audio must never be replayed, and `ping()` stays silent while anything
   is playing.  `notified` is informational and is set only after the
   notification daemon accepts the message, so it must not gate reminders.
+  The tray blink is a one-shot visual hint: `flashTray()` ignores a blink that
+  is already running, so repeats cannot extend it, and `stopReminderFlash()`
+  ends it as soon as the reminder is confirmed, skipped or withdrawn.  The
+  journal reminder flashes only on its first beat and only when
+  `reminder_visual_flash` is on; the athan and core reminders keep their own
+  bounded blink.
   Guard tests: `activeReminderTracksTheOpenWindow`,
   `lateStartInsideWindowRepeatsUntilConfirmed`, `reminderRepeatCadence`.
 - **Flatpak icon theme.** The manifest must install
