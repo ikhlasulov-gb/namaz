@@ -59,7 +59,7 @@ struct TrackerEntry {
     QString confirmedAt;    // ISO, empty while pending
     QString note;
     bool qada = false;      // a "make up" record that reduces the debt
-    bool notified = false;  // reminder already shown for this record
+    bool notified = false;  // a reminder was accepted by the desktop
 
     bool pending() const { return status == QLatin1String(TrackerStatus::Pending); }
     bool done() const {
@@ -67,6 +67,30 @@ struct TrackerEntry {
             || status == QLatin1String(TrackerStatus::Auto)
             || status == QLatin1String(TrackerStatus::MadeUp);
     }
+};
+
+// Repeat cadence of the journal reminder.
+//
+// The first beat is shown as soon as the prayer's reminder moment is in
+// effect.  Every `minutes` after that the reminder is posted again, so a popup
+// that was closed with the cross, swallowed by Do-Not-Disturb or lost while the
+// screen was off comes back while the prayer is still due.  Repeating stops
+// after `limit` beats or as soon as the record is confirmed, skipped or its
+// window closes.
+class ReminderRepeat {
+public:
+    void reset();
+    // True when a beat must be shown at `now`.
+    bool due(qint64 now, int minutes, int limit) const;
+    // Records a beat that was shown and schedules the next one.
+    void take(qint64 now, int minutes);
+    bool started() const { return m_started; }
+    int beats() const { return m_beats; }
+
+private:
+    bool m_started = false;
+    qint64 m_next = 0;
+    int m_beats = 0;
 };
 
 // Injectable prayer times.  The production implementation reads the day JSON
@@ -127,6 +151,10 @@ public:
     bool notifyButtons() const;
     int historyDays() const;
     int qadaReminder() const;
+    // Journal reminder repeats: `repeatMinutes` 0 means a single reminder.
+    int repeatMinutes() const;
+    // Maximum number of beats per prayer window; 0 means a single reminder.
+    int repeatLimit() const;
     QString prayerNotes(int index) const;
 
     qint64 initialQada(int index) const;
@@ -143,6 +171,16 @@ public:
     QList<TrackerEntry> allEntries() const;
     QList<TrackerEntry> history(const QString &search = QString()) const;
     TrackerEntry entry(const QString &id) const;
+    // The pending record whose reminder is in effect right now: its reminder
+    // moment has passed and its window is still open.  The record with the
+    // latest reminder moment wins, so Witr replaces Ishaa and the current
+    // prayer replaces the one whose window just closed.  An empty id means no
+    // prayer is being reminded.
+    TrackerEntry activeReminder() const;
+    // Records that the desktop accepted a reminder for this record.  The flag
+    // is informational; `activeReminder` never depends on it, so a reminder
+    // that never reached the notification daemon is retried.
+    bool markNotified(const QString &id);
     // Prayer windows for a date (used to render unavailable prayers grey).
     PrayerDay windowsFor(const QDate &date) const { return timesFor(date); }
 
@@ -159,8 +197,6 @@ public:
 signals:
     // Emitted when records or counters changed in a way the UI must redraw.
     void changed();
-    // Emitted once per record when its reminder time is reached.
-    void due(const QString &prayer, const QDate &date, bool witr);
     // Emitted at most once per day when the qada debt reaches the threshold
     // set by `qada_reminder` (0 disables the reminder).
     void qadaDue(int index, qint64 debt);

@@ -61,7 +61,7 @@ void TrackerNotifications::closeAll() {
     }
 }
 
-void TrackerNotifications::notify(const QString &prayer, const QDate &date,
+bool TrackerNotifications::notify(const QString &prayer, const QDate &date,
                                   bool witr, bool withButtons) {
     const int index = PrayerTracker::prayerIndex(prayer);
     const QString title = tr("Namaz");
@@ -75,7 +75,7 @@ void TrackerNotifications::notify(const QString &prayer, const QDate &date,
         // The fallback banner replaces its previous contents, so only one
         // prayer reminder is visible there as well.
         emit fallback(title, body, prayer, date, witr);
-        return;
+        return false;
     }
 
     QStringList actions;
@@ -105,9 +105,10 @@ void TrackerNotifications::notify(const QString &prayer, const QDate &date,
     const QDBusReply<uint> reply(message);
     if (!reply.isValid() || reply.value() == 0) {
         emit fallback(title, body, prayer, date, witr);
-        return;
+        return false;
     }
     m_items.insert(reply.value(), {prayer, date, witr});
+    return true;
 }
 
 void TrackerNotifications::onActionInvoked(uint id, const QString &key) {

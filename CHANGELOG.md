@@ -4,6 +4,26 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.9] - 2026-11-22
+
+### Added
+
+- Journal reminders now repeat while the prayer is still due.  Every five
+  minutes (configurable in Preferences → Journal) the reminder is posted again
+  with a short two-tone beep, up to twelve times per prayer window.  A popup
+  closed with the cross, swallowed by Do-Not-Disturb or lost while the screen
+  was off therefore comes back instead of disappearing for the rest of the day.
+  The adhan audio itself is never replayed.
+
+### Fixed
+
+- A pending journal reminder can no longer be lost.  The reminder no longer
+  depends on a one-shot "already shown" flag: the record stays active for as
+  long as its prayer window is open, the flag is only set after the
+  notification daemon accepts the message, the silent 30-minute drop of a
+  reminder held back during the adhan is gone, and the prayer that is currently
+  due is announced on startup even if an older build marked it as shown.
+
 ## [1.1.8] - 2026-11-21
 
 ### Added

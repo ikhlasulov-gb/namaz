@@ -225,6 +225,18 @@ release is broken, publish the next patch version.
   played the adhan when the app started ten minutes late or the machine woke
   from sleep.  The guard tests are `tick_plays_athan_on_time` and
   `tick_does_not_replay_stale_athan`.
+- **Journal reminders never get lost.** The tracker reports the prayer that is
+  currently due through `PrayerTracker::activeReminder()`; the UI decides how
+  often to repeat it with `ReminderRepeat` (`repeat_minutes`, default 5, and
+  `repeat_limit`, default 12, in `tracker.json`).  Repeats are deliberate:
+  a popup closed with the cross, suppressed by Do-Not-Disturb or lost while the
+  screen was off must come back, with a short ping from
+  `namaz_core_play_reminder_ping()`.  Only the visual reminder repeats — the
+  adhan audio must never be replayed, and `ping()` stays silent while anything
+  is playing.  `notified` is informational and is set only after the
+  notification daemon accepts the message, so it must not gate reminders.
+  Guard tests: `activeReminderTracksTheOpenWindow`,
+  `lateStartInsideWindowRepeatsUntilConfirmed`, `reminderRepeatCadence`.
 - **Flatpak icon theme.** The manifest must install
   `/usr/share/icons/hicolor/index.theme` as
   `/app/share/icons/hicolor/index.theme`.  Without it Qt cannot resolve

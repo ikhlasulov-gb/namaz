@@ -24,7 +24,8 @@ use std::sync::{Mutex, OnceLock};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
+use rodio::source::{SineWave, Zero};
+use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink, Source};
 
 /// Device loss (Bluetooth headset unplugged, PipeWire restarted, resume from
 /// suspend) surfaces as a stream error: cpal keeps polling the dead ALSA
@@ -37,6 +38,9 @@ const STALL_TIMEOUT: Duration = Duration::from_secs(3);
 
 enum Command {
     Play(Vec<PathBuf>, f32, bool),
+    /// Short two-tone beep that asks for attention without touching the
+    /// adhan flag.  Used when the journal reminder is repeated.
+    Ping(f32),
     Stop,
     SetVolume(f32),
 }
@@ -170,6 +174,35 @@ fn is_audio_file(path: &Path) -> bool {
         .unwrap_or(false)
 }
 
+/// Opens the output device and a fresh sink for one playback.
+///
+/// Every playback reopens the device: PipeWire, Bluetooth and USB devices come
+/// and go, and a cached `OutputStream` would keep writing to a dead device and
+/// stay silent until the application was restarted.  On failure the caller
+/// clears the playback flags and the next command retries.
+fn open_sink(
+    stream: &mut Option<OutputStream>,
+    handle: &mut Option<OutputStreamHandle>,
+    volume: f32,
+) -> Option<Sink> {
+    *stream = None;
+    // Drop the previous device handle as well; on failure `handle` stays None.
+    let _ = handle.take();
+    *handle = match OutputStream::try_default() {
+        Ok((new_stream, stream_handle)) => {
+            *stream = Some(new_stream);
+            Some(stream_handle)
+        }
+        Err(err) => {
+            eprintln!("audio: no output device: {err}");
+            return None;
+        }
+    };
+    let sink = Sink::try_new(handle.as_ref()?).ok()?;
+    sink.set_volume(volume.clamp(0.0, 2.0));
+    Some(sink)
+}
+
 fn sender() -> &'static Mutex<Sender<Command>> {
     TX.get_or_init(|| {
         let (tx, rx) = mpsc::channel::<Command>();
@@ -190,37 +223,11 @@ fn sender() -> &'static Mutex<Sender<Command>> {
                         if let Some(current) = sink.take() {
                             current.stop();
                         }
-                        // Re-open the device for every playback.  PipeWire,
-                        // Bluetooth and USB devices come and go; a cached
-                        // OutputStream would keep writing to a dead device and
-                        // stay silent until the application was restarted.
-                        _stream = None;
-                        // Drop the previous device handle as well; on failure
-                        // `handle` stays None and the next Play retries.
-                        let _ = handle.take();
-                        handle = match OutputStream::try_default() {
-                            Ok((stream, stream_handle)) => {
-                                _stream = Some(stream);
-                                Some(stream_handle)
-                            }
-                            Err(err) => {
-                                eprintln!("audio: no output device: {err}");
-                                PLAYING.store(false, Ordering::Relaxed);
-                                ATHAN.store(false, Ordering::Relaxed);
-                                continue;
-                            }
-                        };
-                        let Some(handle) = handle.as_ref() else {
+                        let Some(new_sink) = open_sink(&mut _stream, &mut handle, volume) else {
                             PLAYING.store(false, Ordering::Relaxed);
                             ATHAN.store(false, Ordering::Relaxed);
                             continue;
                         };
-                        let Ok(new_sink) = Sink::try_new(handle) else {
-                            PLAYING.store(false, Ordering::Relaxed);
-                            ATHAN.store(false, Ordering::Relaxed);
-                            continue;
-                        };
-                        new_sink.set_volume(volume.clamp(0.0, 2.0));
                         let mut appended = false;
                         for path in paths {
                             let Ok(file) = File::open(&path) else {
@@ -245,6 +252,36 @@ fn sender() -> &'static Mutex<Sender<Command>> {
                             PLAYING.store(false, Ordering::Relaxed);
                             ATHAN.store(false, Ordering::Relaxed);
                         }
+                    }
+                    Ok(Command::Ping(volume)) => {
+                        last_position = Duration::ZERO;
+                        last_progress = Instant::now();
+                        if let Some(current) = sink.take() {
+                            current.stop();
+                        }
+                        let Some(new_sink) = open_sink(&mut _stream, &mut handle, volume) else {
+                            PLAYING.store(false, Ordering::Relaxed);
+                            continue;
+                        };
+                        // Two short tones: audible from across the room without
+                        // being an alarm.  A ping is never an adhan, so the
+                        // flag stays clear.
+                        new_sink.append(
+                            SineWave::new(880.0)
+                                .take_duration(Duration::from_millis(140))
+                                .amplify(0.3),
+                        );
+                        new_sink.append(
+                            Zero::<f32>::new(1, 48_000).take_duration(Duration::from_millis(90)),
+                        );
+                        new_sink.append(
+                            SineWave::new(1174.7)
+                                .take_duration(Duration::from_millis(180))
+                                .amplify(0.3),
+                        );
+                        sink = Some(new_sink);
+                        PLAYING.store(true, Ordering::Relaxed);
+                        ATHAN.store(false, Ordering::Relaxed);
                     }
                     Ok(Command::Stop) => {
                         if let Some(current) = sink.take() {
@@ -365,6 +402,22 @@ pub fn play(name: &str, volume: f32) -> bool {
 /// Play an adhan playlist and keep `is_athan_active()` true until it ends.
 pub fn play_athan_paths_sequence(paths: &[PathBuf], volume: f32) -> bool {
     play_paths(paths.to_vec(), volume, true)
+}
+
+/// Short attention beep for a repeated journal reminder.
+///
+/// Silent while something else is playing: a recitation or an adhan must never
+/// be cut off by a reminder ping.  The beep is quieter than the master volume
+/// because it repeats every few minutes.
+pub fn ping() -> bool {
+    if PLAYING.load(Ordering::Relaxed) {
+        return false;
+    }
+    let volume = (VOLUME.load(Ordering::Relaxed) as f32 / 100.0 * 0.6).clamp(0.0, 2.0);
+    match sender().lock() {
+        Ok(tx) => tx.send(Command::Ping(volume)).is_ok(),
+        Err(_) => false,
+    }
 }
 
 pub fn play_quran_random(volume: f32, seed: u64) -> bool {

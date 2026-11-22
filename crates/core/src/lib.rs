@@ -2379,6 +2379,13 @@ pub extern "C" fn namaz_core_stop_audio() {
     audio::stop();
 }
 
+/// Two-tone attention beep for a repeated journal reminder.  Returns 0 when
+/// something else (a recitation or the adhan) is already playing.
+#[no_mangle]
+pub extern "C" fn namaz_core_play_reminder_ping() -> i32 {
+    i32::from(audio::ping())
+}
+
 #[no_mangle]
 pub extern "C" fn namaz_core_close_notifications() {
     close_notifications();

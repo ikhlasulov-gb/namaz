@@ -1160,6 +1160,25 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
     m_trackerHistoryDays->setSuffix(tr(" day(s)"));
     Ui::setFieldWidth(m_trackerHistoryDays, 140);
     journalDataForm->addRow(tr("Keep history for"), m_trackerHistoryDays);
+    // Repeating the reminder is what makes a popup come back after it was
+    // closed with the cross or suppressed by the desktop.
+    m_trackerRepeatMinutes = new QSpinBox(journalDataBox);
+    m_trackerRepeatMinutes->setObjectName(
+        QStringLiteral("TrackerRepeatMinutesSpin"));
+    m_trackerRepeatMinutes->setRange(0, 120);
+    m_trackerRepeatMinutes->setSuffix(tr(" minute(s)"));
+    m_trackerRepeatMinutes->setToolTip(
+        tr("Repeat the reminder while the prayer is due; 0 shows it only once"));
+    Ui::setFieldWidth(m_trackerRepeatMinutes, 140);
+    journalDataForm->addRow(tr("Repeat the reminder every"), m_trackerRepeatMinutes);
+    m_trackerRepeatLimit = new QSpinBox(journalDataBox);
+    m_trackerRepeatLimit->setObjectName(QStringLiteral("TrackerRepeatLimitSpin"));
+    m_trackerRepeatLimit->setRange(1, 200);
+    m_trackerRepeatLimit->setSuffix(tr(" time(s)"));
+    m_trackerRepeatLimit->setToolTip(
+        tr("How many times the reminder may be repeated per prayer window"));
+    Ui::setFieldWidth(m_trackerRepeatLimit, 140);
+    journalDataForm->addRow(tr("Repeat at most"), m_trackerRepeatLimit);
     journalLayout->addWidget(journalDataBox);
 
     // Starting qada debt per prayer, so an existing debt can be imported.
@@ -1226,8 +1245,14 @@ PreferencesDialog::PreferencesDialog(void *core, QWidget *parent)
         m_trackerNotifyButtons->setEnabled(on);
         m_trackerQadaReminder->setEnabled(on);
         m_trackerHistoryDays->setEnabled(on);
+        m_trackerRepeatMinutes->setEnabled(on);
+        m_trackerRepeatLimit->setEnabled(on && m_trackerRepeatMinutes->value() > 0);
         m_trackerExport->setEnabled(on);
         m_trackerReset->setEnabled(on);
+    });
+    connect(m_trackerRepeatMinutes, &QSpinBox::valueChanged, this, [this](int value) {
+        // With repeats switched off the limit has no meaning.
+        m_trackerRepeatLimit->setEnabled(m_trackerEnabled->isChecked() && value > 0);
     });
 
     // ── Reminders ───────────────────────────────────────────────────────
@@ -1876,9 +1901,13 @@ void PreferencesDialog::populateTracker() {
     m_trackerNotifyButtons->setChecked(m_tracker->notifyButtons());
     m_trackerQadaReminder->setValue(m_tracker->qadaReminder());
     m_trackerHistoryDays->setValue(m_tracker->historyDays());
+    m_trackerRepeatMinutes->setValue(m_tracker->repeatMinutes());
+    m_trackerRepeatLimit->setValue(qMax(1, m_tracker->repeatLimit()));
     m_trackerNotifyButtons->setEnabled(on);
     m_trackerQadaReminder->setEnabled(on);
     m_trackerHistoryDays->setEnabled(on);
+    m_trackerRepeatMinutes->setEnabled(on);
+    m_trackerRepeatLimit->setEnabled(on && m_trackerRepeatMinutes->value() > 0);
     m_trackerExport->setEnabled(on);
     m_trackerReset->setEnabled(on);
 }
@@ -1914,6 +1943,9 @@ void PreferencesDialog::applyTracker() {
                     m_trackerQadaReminder->value());
     settings.insert(QStringLiteral("history_days"),
                     m_trackerHistoryDays->value());
+    settings.insert(QStringLiteral("repeat_minutes"),
+                    m_trackerRepeatMinutes->value());
+    settings.insert(QStringLiteral("repeat_limit"), m_trackerRepeatLimit->value());
     m_tracker->setSettings(settings);
 }
 

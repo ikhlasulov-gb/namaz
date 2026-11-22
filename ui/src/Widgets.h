@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.h"
+#include "Tracker.h"
 #include "UpdateChecker.h"
 
 #include <QDate>
@@ -73,9 +74,14 @@ private:
     void showTrackerBanner(const QString &title, const QString &body,
                            const QString &prayer, const QDate &date, bool witr);
     void hideTrackerBanner();
-    void showTrackerNotification(const QString &prayer, const QDate &date,
+    // Posts the journal reminder.  Returns false when the notification daemon
+    // rejected it; the fallback banner is shown in that case.
+    bool showTrackerNotification(const QString &prayer, const QDate &date,
                                  bool witr);
-    void releaseDeferredTrackerReminder();
+    // Keeps the journal reminder in step with the current prayer: posts the
+    // first beat, repeats it while the window is open, and withdraws it once
+    // the prayer is done.  Called from every tick.
+    void updateTrackerReminder();
     void shiftDay(int days);
     void shiftMonth(int months);
     void shiftYear(int years);
@@ -115,11 +121,15 @@ private:
     QString m_bannerPrayer;
     QDate m_bannerDate;
     bool m_bannerWitr = false;
-    // Journal reminders held until the adhan started at the same time ends.
-    QString m_deferredPrayer;
-    QDate m_deferredDate;
-    qint64 m_deferredNotify = 0;
-    bool m_hasDeferredReminder = false;
+    // Journal reminder currently on screen and its repeat schedule.  The
+    // reminder stays alive while the prayer window is open: a popup closed
+    // with the cross, swallowed by Do-Not-Disturb or lost while the screen was
+    // off comes back every `repeat_minutes` and beeps, up to `repeat_limit`
+    // times.  The adhan audio itself is never replayed.
+    QString m_reminderId;
+    ReminderRepeat m_reminder;
+    // When the first beat was held back because the adhan was playing.
+    qint64 m_reminderHold = 0;
     QLabel *m_cityLabel = nullptr;
     QLabel *m_methodLabel = nullptr;
 

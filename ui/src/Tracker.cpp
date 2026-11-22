@@ -244,6 +244,12 @@ void PrayerTracker::fillDefaults() {
         {QStringLiteral("notify_buttons"), true},
         {QStringLiteral("qada_reminder"), 0},
         {QStringLiteral("history_days"), 365},
+        // A prayer that stays unconfirmed is announced again every five
+        // minutes, at most twelve times (one hour).  The repeats are what make
+        // a reminder come back after it was closed or swallowed by the desktop;
+        // the limit keeps Ishaa and Witr from beeping all night.
+        {QStringLiteral("repeat_minutes"), 5},
+        {QStringLiteral("repeat_limit"), 12},
     };
 }
 
@@ -296,6 +302,38 @@ bool PrayerTracker::notifyButtons() const {
 
 int PrayerTracker::historyDays() const {
     return m_settings.value(QStringLiteral("history_days")).toInt(365);
+}
+
+int PrayerTracker::repeatMinutes() const {
+    return qMax(0, m_settings.value(QStringLiteral("repeat_minutes")).toInt(5));
+}
+
+int PrayerTracker::repeatLimit() const {
+    return qMax(0, m_settings.value(QStringLiteral("repeat_limit")).toInt(12));
+}
+
+void ReminderRepeat::reset() {
+    m_started = false;
+    m_next = 0;
+    m_beats = 0;
+}
+
+bool ReminderRepeat::due(qint64 now, int minutes, int limit) const {
+    // Repeats switched off: a single beat per window.
+    if (m_started && minutes <= 0) {
+        return false;
+    }
+    const int maxBeats = limit > 0 ? limit : 1;
+    if (m_beats >= maxBeats) {
+        return false;
+    }
+    return !m_started || now >= m_next;
+}
+
+void ReminderRepeat::take(qint64 now, int minutes) {
+    m_started = true;
+    ++m_beats;
+    m_next = now + qMax(1, minutes) * 60;
 }
 
 int PrayerTracker::qadaReminder() const {
@@ -535,12 +573,6 @@ bool PrayerTracker::tick() {
 
     const qint64 nowEpoch = this->nowEpoch();
     bool changed = false;
-    struct Due {
-        QString prayer;
-        QDate date;
-        bool witr;
-    };
-    QList<Due> dueEvents;
 
     for (auto day = m_days.begin(); day != m_days.end(); ++day) {
         for (TrackerEntry &entry : day.value()) {
@@ -559,37 +591,12 @@ bool PrayerTracker::tick() {
                     entry.status = QLatin1String(TrackerStatus::Missed);
                 }
                 changed = true;
-                continue;
-            }
-            if (entry.pending()) {
-                const qint64 at = entry.notify;
-                // Records created by a build that backfilled the current day
-                // as history carry `notified = true` even though their
-                // reminder is still ahead.  Heal them so the reminder is not
-                // lost for the rest of the day.
-                if (entry.notified && at > 0 && nowEpoch < at) {
-                    entry.notified = false;
-                    changed = true;
-                }
-                // Deliver every reminder once, as soon as the record exists.
-                // The open prayer window is what makes it useful, so a late
-                // start or a wake from sleep inside the window still shows
-                // the journal notification.  Only the adhan audio keeps the
-                // core's strict five-second rule.
-                if (!entry.notified && at > 0 && nowEpoch >= at) {
-                    entry.notified = true;
-                    if (notifyEnabled(index)) {
-                        dueEvents.append({entry.prayer, entry.date,
-                                          index == PrayerIndex::Witr});
-                    }
-                    changed = true;
-                }
             }
         }
     }
 
-    // A new prayer reminder simply replaces the previous one; a window that
-    // ended without confirmation is recorded in the journal silently.
+    // A window that ended without confirmation is recorded in the journal
+    // silently; only the open window of the current prayer is reminded.
     if (changed) {
         save();
         emitChanged();
@@ -610,10 +617,48 @@ bool PrayerTracker::tick() {
         }
     }
 
-    for (const Due &event : dueEvents) {
-        emit due(event.prayer, event.date, event.witr);
-    }
     return changed;
+}
+
+TrackerEntry PrayerTracker::activeReminder() const {
+    TrackerEntry best;
+    if (!enabled()) {
+        return best;
+    }
+    const qint64 now = nowEpoch();
+    for (auto day = m_days.constBegin(); day != m_days.constEnd(); ++day) {
+        for (const TrackerEntry &entry : day.value()) {
+            if (entry.qada || !entry.pending()) {
+                continue;
+            }
+            const int index = prayerIndex(entry.prayer);
+            if (index < 0 || !tracked(index) || !notifyEnabled(index)) {
+                continue;
+            }
+            // The reminder moment must have passed and the window must still
+            // be open.  A window that already closed is history: the adhan
+            // rule forbids replaying it, and the journal records the miss.
+            if (entry.notify <= 0 || now < entry.notify || now >= entry.deadline) {
+                continue;
+            }
+            // The latest reminder moment wins: Witr replaces Ishaa, and the
+            // prayer whose window just opened replaces the previous one.
+            if (best.id.isEmpty() || entry.notify > best.notify) {
+                best = entry;
+            }
+        }
+    }
+    return best;
+}
+
+bool PrayerTracker::markNotified(const QString &id) {
+    TrackerEntry *entry = find(id);
+    if (!entry || entry->notified) {
+        return false;
+    }
+    entry->notified = true;
+    save();
+    return true;
 }
 
 QList<TrackerEntry> PrayerTracker::entriesFor(const QDate &date) const {

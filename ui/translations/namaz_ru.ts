@@ -1769,6 +1769,36 @@ Save anyway?</source>
         <translation>Хранить историю</translation>
     </message>
     <message>
+        <location filename="../src/Dialogs.cpp" line="1168"/>
+        <source>Repeat the reminder every</source>
+        <translation>Повторять напоминание каждые</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1170"/>
+        <source> minute(s)</source>
+        <translation> мин(ут)</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1172"/>
+        <source>Repeat the reminder while the prayer is due; 0 shows it only once</source>
+        <translation>Повторять напоминание, пока намаз ещё не отмечен; 0 — показать только один раз</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1178"/>
+        <source>Repeat at most</source>
+        <translation>Повторять не более</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1179"/>
+        <source> time(s)</source>
+        <translation> раз(а)</translation>
+    </message>
+    <message>
+        <location filename="../src/Dialogs.cpp" line="1181"/>
+        <source>How many times the reminder may be repeated per prayer window</source>
+        <translation>Сколько раз напоминание может повториться за время намаза</translation>
+    </message>
+    <message>
         <location filename="../src/Dialogs.cpp" line="1166"/>
         <source>Starting qada debt</source>
         <translation>Начальный долг кады</translation>

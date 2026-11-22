@@ -120,6 +120,8 @@ private:
     QSpinBox *m_trackerQada[6] = {};
     QSpinBox *m_trackerQadaReminder = nullptr;
     QSpinBox *m_trackerHistoryDays = nullptr;
+    QSpinBox *m_trackerRepeatMinutes = nullptr;
+    QSpinBox *m_trackerRepeatLimit = nullptr;
     QPushButton *m_trackerExport = nullptr;
     QPushButton *m_trackerReset = nullptr;
     PrayerTracker *m_tracker = nullptr;

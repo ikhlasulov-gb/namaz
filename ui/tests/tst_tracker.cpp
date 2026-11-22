@@ -80,14 +80,17 @@ private slots:
     void csvExportContainsRows();
     void unavailableWitrIsNotTracked();
     void witrIsOptInAndUsesLastThird();
-    void dueSignalFiresOnce();
+    void activeReminderTracksTheOpenWindow();
     void newDayBackfillKeepsReminders();
-    void lateStartInsideWindowNotifiesOnce();
-    void wakeInsideWindowNotifies();
+    void lateStartInsideWindowRepeatsUntilConfirmed();
+    void wakeInsideWindowReminds();
     void lateStartAfterWindowKeepsOnlyCurrentPrayer();
-    void futureReminderMarkedShownIsHealed();
-    void dueDoesNotAnnounceTheMissedPreviousPrayer();
-    void missedPrayerIsNotAnnounced();
+    void staleNotifiedFlagDoesNotHideTheReminder();
+    void onlyTheCurrentPrayerIsReminded();
+    void missedPrayerIsNotReminded();
+    void reminderRepeatCadence();
+    void zeroRepeatShowsTheReminderOnce();
+    void repeatSettingsHaveDefaultsAndPersist();
     void notificationMaskUsesCoreIndices();
     void qadaReminderFiresAtThreshold();
 };
@@ -432,7 +435,7 @@ void TrackerTest::witrIsOptInAndUsesLastThird() {
     QCOMPARE(tracker.entriesFor(day1()).size(), 5);
 }
 
-void TrackerTest::dueSignalFiresOnce() {
+void TrackerTest::activeReminderTracksTheOpenWindow() {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     FakeSource source;
@@ -443,15 +446,24 @@ void TrackerTest::dueSignalFiresOnce() {
         [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
     tracker.tick();
 
-    QSignalSpy spy(&tracker, &PrayerTracker::due);
+    // Maghrib's window is still open, so its reminder is the active one.
+    QCOMPARE(tracker.activeReminder().prayer, QStringLiteral("maghrib"));
+
+    // Ishaa begins exactly when Maghrib's window closes.
     now = at(day1(), 20, 0);
     tracker.tick();
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("isha"));
+    QCOMPARE(tracker.activeReminder().prayer, QStringLiteral("isha"));
 
-    now = at(day1(), 20, 0) + 2;
+    // The reminder stays active for as long as the window is open: the UI, not
+    // the tracker, decides how often to repeat it.
+    now = at(day1(), 20, 2);
     tracker.tick();
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(tracker.activeReminder().prayer, QStringLiteral("isha"));
+
+    // After Shuruq closes Fajr's window nothing is due until Zuhr.
+    now = at(day1().addDays(1), 6, 30);
+    tracker.tick();
+    QVERIFY(tracker.activeReminder().id.isEmpty());
 }
 
 void TrackerTest::newDayBackfillKeepsReminders() {
@@ -467,8 +479,7 @@ void TrackerTest::newDayBackfillKeepsReminders() {
 
     // Namaz stayed closed overnight and starts again in the morning.  The new
     // day must not be treated as history: a reminder that is still ahead stays
-    // pending, and a prayer whose window is open is announced late.
-    QSignalSpy spy(&tracker, &PrayerTracker::due);
+    // pending, and a prayer whose window is open is reminded late.
     now = at(day1().addDays(1), 7, 0);
     tracker.ensureToday();
     const TrackerEntry fajr =
@@ -481,12 +492,17 @@ void TrackerTest::newDayBackfillKeepsReminders() {
     // no reminder.
     QCOMPARE(fajr.status, QStringLiteral("missed"));
     QVERIFY(!dhuhr.notified);
+    QVERIFY(tracker.activeReminder().id.isEmpty());
 
     // Zuhr has not started yet, so its reminder must still be delivered.
     now = at(day1().addDays(1), 12, 0);
     tracker.tick();
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("dhuhr"));
+    QCOMPARE(tracker.activeReminder().prayer, QStringLiteral("dhuhr"));
+
+    // The same prayer keeps being reminded while its window is open.
+    now = at(day1().addDays(1), 12, 30);
+    tracker.tick();
+    QCOMPARE(tracker.activeReminder().prayer, QStringLiteral("dhuhr"));
 
     // Days skipped entirely are closed history, but the current day is not.
     now = at(day1().addDays(3), 7, 0);
@@ -499,11 +515,12 @@ void TrackerTest::newDayBackfillKeepsReminders() {
         findEntry(tracker, day1().addDays(3), QStringLiteral("dhuhr"));
     QVERIFY(!nextDhuhr.id.isEmpty());
     QVERIFY(!nextDhuhr.notified);
-    // None of the missed prayers replaced the delivered Zuhr reminder.
-    QCOMPARE(spy.count(), 1);
+    // None of the missed prayers replaced the current reminder; at 07:00 the
+    // next prayer (Zuhr) is still ahead, so nothing is due.
+    QVERIFY(tracker.activeReminder().id.isEmpty());
 }
 
-void TrackerTest::lateStartInsideWindowNotifiesOnce() {
+void TrackerTest::lateStartInsideWindowRepeatsUntilConfirmed() {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     FakeSource source;
@@ -515,29 +532,33 @@ void TrackerTest::lateStartInsideWindowNotifiesOnce() {
     qint64 now = at(day1(), 12, 30);
     tracker.setNowProvider(
         [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
-    QSignalSpy spy(&tracker, &PrayerTracker::due);
     tracker.tick();
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("dhuhr"));
+    const TrackerEntry first = tracker.activeReminder();
+    QCOMPARE(first.prayer, QStringLiteral("dhuhr"));
 
-    // One reminder per record: the next one-second tick stays quiet even
-    // though the window is still open.
-    tracker.tick();
-    QCOMPARE(spy.count(), 1);
+    // A reminder the desktop accepted is not forgotten: the flag is
+    // informational, and the record stays active so the UI can repeat it.
+    QVERIFY(tracker.markNotified(first.id));
+    QVERIFY(tracker.entry(first.id).notified);
+    QCOMPARE(tracker.activeReminder().id, first.id);
+    QVERIFY(!tracker.markNotified(first.id));
 
-    // And a restart must not repeat it either.
+    // A restart must not lose it either.
     PrayerTracker loaded(&source);
     loaded.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
     QVERIFY(loaded.load());
     loaded.setNowProvider(
         [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
-    QSignalSpy restarted(&loaded, &PrayerTracker::due);
     now += 60;
     loaded.tick();
-    QCOMPARE(restarted.count(), 0);
+    QCOMPARE(loaded.activeReminder().id, first.id);
+
+    // Confirming the prayer ends the reminder at once.
+    QVERIFY(loaded.confirm(first.id));
+    QVERIFY(loaded.activeReminder().id.isEmpty());
 }
 
-void TrackerTest::wakeInsideWindowNotifies() {
+void TrackerTest::wakeInsideWindowReminds() {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     FakeSource source;
@@ -547,13 +568,12 @@ void TrackerTest::wakeInsideWindowNotifies() {
     tracker.setNowProvider(
         [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
     tracker.tick();
+    QVERIFY(tracker.activeReminder().id.isEmpty());
 
     // The machine slept through the adhan and resumed inside the window.
-    QSignalSpy spy(&tracker, &PrayerTracker::due);
     now = at(day1(), 12, 30);
     tracker.tick();
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("dhuhr"));
+    QCOMPARE(tracker.activeReminder().prayer, QStringLiteral("dhuhr"));
 }
 
 void TrackerTest::lateStartAfterWindowKeepsOnlyCurrentPrayer() {
@@ -563,17 +583,17 @@ void TrackerTest::lateStartAfterWindowKeepsOnlyCurrentPrayer() {
     PrayerTracker tracker(&source);
     tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
 
-    // Dhuhr's window ended at Asr; only the current prayer may be announced.
+    // Dhuhr's window ended at Asr; only the current prayer may be reminded.
     qint64 now = at(day1(), 16, 0);
     tracker.setNowProvider(
         [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
-    QSignalSpy spy(&tracker, &PrayerTracker::due);
     tracker.tick();
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("asr"));
+    QCOMPARE(tracker.activeReminder().prayer, QStringLiteral("asr"));
+    QCOMPARE(findEntry(tracker, day1(), QStringLiteral("dhuhr")).status,
+             QStringLiteral("missed"));
 }
 
-void TrackerTest::futureReminderMarkedShownIsHealed() {
+void TrackerTest::staleNotifiedFlagDoesNotHideTheReminder() {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString path = dir.path() + QStringLiteral("/tracker.json");
@@ -615,20 +635,18 @@ void TrackerTest::futureReminderMarkedShownIsHealed() {
         [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
     QVERIFY(tracker.load());
 
-    // The first tick must notice that the reminder moment is still ahead and
-    // forget the stale "already shown" mark.
-    QSignalSpy spy(&tracker, &PrayerTracker::due);
+    // The stale "already shown" mark must not matter: while the reminder
+    // moment is still ahead nothing is due, and once it passes the record is
+    // active again.
     tracker.tick();
-    QVERIFY(!findEntry(tracker, today, QStringLiteral("dhuhr")).notified);
-    QCOMPARE(spy.count(), 0);
+    QVERIFY(tracker.activeReminder().id.isEmpty());
 
     now = at(today, 12, 0);
     tracker.tick();
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("dhuhr"));
+    QCOMPARE(tracker.activeReminder().id, QStringLiteral("stale-dhuhr"));
 }
 
-void TrackerTest::dueDoesNotAnnounceTheMissedPreviousPrayer() {
+void TrackerTest::onlyTheCurrentPrayerIsReminded() {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     FakeSource source;
@@ -638,21 +656,19 @@ void TrackerTest::dueDoesNotAnnounceTheMissedPreviousPrayer() {
     tracker.setNowProvider(
         [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
     tracker.tick();
+    QCOMPARE(tracker.activeReminder().prayer, QStringLiteral("maghrib"));
 
-    QSignalSpy spy(&tracker, &PrayerTracker::due);
     // Ishaa begins exactly when Maghrib's window closes.
     now = at(day1(), 20, 0);
     tracker.tick();
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("isha"));
-    QCOMPARE(spy.at(0).size(), 3);
-    // The record is still marked missed in the journal, but the notification
-    // is only the regular Ishaa reminder.
+    QCOMPARE(tracker.activeReminder().prayer, QStringLiteral("isha"));
+    // The record is still marked missed in the journal, but the reminder is
+    // only the regular Ishaa one.
     QCOMPARE(findEntry(tracker, day1(), QStringLiteral("maghrib")).status,
              QStringLiteral("missed"));
 }
 
-void TrackerTest::missedPrayerIsNotAnnounced() {
+void TrackerTest::missedPrayerIsNotReminded() {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     FakeSource source;
@@ -662,20 +678,99 @@ void TrackerTest::missedPrayerIsNotAnnounced() {
     tracker.setNowProvider(
         [&now] { return QDateTime::fromSecsSinceEpoch(now, Qt::UTC); });
     tracker.tick();
+    QCOMPARE(tracker.activeReminder().prayer, QStringLiteral("fajr"));
 
-    QSignalSpy dueSpy(&tracker, &PrayerTracker::due);
-    // Shuruq closes Fajr's window.  The record becomes missed, but no
-    // "Missed" notification may replace the previous reminder.
+    // Shuruq closes Fajr's window.  The record becomes missed and its reminder
+    // must disappear instead of being repeated for the rest of the day.
     now = at(day1(), 6, 30) + 1;
     tracker.tick();
     QCOMPARE(findEntry(tracker, day1(), QStringLiteral("fajr")).status,
              QStringLiteral("missed"));
-    QCOMPARE(dueSpy.count(), 0);
+    QVERIFY(tracker.activeReminder().id.isEmpty());
 
-    // A machine waking hours later must not replay anything either.
+    // A machine waking hours later must not revive anything either.
     now = at(day1(), 7, 0);
     tracker.tick();
-    QCOMPARE(dueSpy.count(), 0);
+    QVERIFY(tracker.activeReminder().id.isEmpty());
+}
+
+void TrackerTest::reminderRepeatCadence() {
+    ReminderRepeat repeat;
+    const qint64 t0 = 1000000;
+    // The first beat is immediate.
+    QVERIFY(repeat.due(t0, 5, 12));
+    QVERIFY(!repeat.started());
+    repeat.take(t0, 5);
+    QVERIFY(repeat.started());
+    QCOMPARE(repeat.beats(), 1);
+
+    // Four minutes later the reminder still waits; five is the cadence.
+    QVERIFY(!repeat.due(t0 + 299, 5, 12));
+    QVERIFY(repeat.due(t0 + 300, 5, 12));
+    repeat.take(t0 + 300, 5);
+    QCOMPARE(repeat.beats(), 2);
+
+    // The limit stops the beeping even while the window is still open.
+    for (int beat = 2; beat < 12; ++beat) {
+        QVERIFY(repeat.due(t0 + 300 * (beat + 1), 5, 12));
+        repeat.take(t0 + 300 * (beat + 1), 5);
+    }
+    QCOMPARE(repeat.beats(), 12);
+    QVERIFY(!repeat.due(t0 + 300 * 40, 5, 12));
+
+    // A new prayer window starts a fresh schedule.
+    repeat.reset();
+    QVERIFY(!repeat.started());
+    QCOMPARE(repeat.beats(), 0);
+    QVERIFY(repeat.due(t0 + 300 * 40, 5, 12));
+}
+
+void TrackerTest::zeroRepeatShowsTheReminderOnce() {
+    // 0 minutes turns the repeats off: the reminder is shown once per window.
+    ReminderRepeat repeat;
+    QVERIFY(repeat.due(0, 0, 12));
+    repeat.take(0, 0);
+    QVERIFY(!repeat.due(3600, 0, 12));
+
+    // A limit of one has the same effect.
+    ReminderRepeat once;
+    QVERIFY(once.due(0, 5, 1));
+    once.take(0, 5);
+    QVERIFY(!once.due(3600, 5, 1));
+}
+
+void TrackerTest::repeatSettingsHaveDefaultsAndPersist() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    FakeSource source;
+    PrayerTracker tracker(&source);
+    tracker.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+    QCOMPARE(tracker.repeatMinutes(), 5);
+    QCOMPARE(tracker.repeatLimit(), 12);
+
+    QJsonObject settings = tracker.settings();
+    settings.insert(QStringLiteral("repeat_minutes"), 0);
+    settings.insert(QStringLiteral("repeat_limit"), 3);
+    tracker.setSettings(settings);
+    QCOMPARE(tracker.repeatMinutes(), 0);
+    QCOMPARE(tracker.repeatLimit(), 3);
+
+    // The values survive a restart, so the cadence is a user setting and not a
+    // build-time constant.
+    PrayerTracker loaded(&source);
+    loaded.setStoragePath(dir.path() + QStringLiteral("/tracker.json"));
+    QVERIFY(loaded.load());
+    QCOMPARE(loaded.repeatMinutes(), 0);
+    QCOMPARE(loaded.repeatLimit(), 3);
+
+    // Negative values from a hand-edited file are clamped instead of breaking
+    // the reminder loop.
+    QJsonObject broken = loaded.settings();
+    broken.insert(QStringLiteral("repeat_minutes"), -5);
+    broken.insert(QStringLiteral("repeat_limit"), -1);
+    loaded.setSettings(broken);
+    QCOMPARE(loaded.repeatMinutes(), 0);
+    QCOMPARE(loaded.repeatLimit(), 0);
 }
 
 void TrackerTest::qadaReminderFiresAtThreshold() {

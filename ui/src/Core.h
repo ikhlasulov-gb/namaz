@@ -54,6 +54,7 @@ int namaz_core_volume(void);
 int namaz_core_is_playing(void);
 int namaz_core_is_athan_playing(void);
 void namaz_core_stop_audio(void);
+int namaz_core_play_reminder_ping(void);
 void namaz_core_close_notifications(void);
 char *namaz_core_available_sounds_json(void);
 char *namaz_core_athan_sounds_json(void);

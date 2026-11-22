@@ -17,7 +17,10 @@ public:
     explicit TrackerNotifications(QObject *parent = nullptr);
 
     bool actionsSupported() const { return m_actionsSupported; }
-    void notify(const QString &prayer, const QDate &date, bool witr,
+    // Posts the reminder.  Returns true when the notification daemon accepted
+    // it; false means `fallback` was emitted and the journal must not treat the
+    // reminder as delivered.
+    bool notify(const QString &prayer, const QDate &date, bool witr,
                 bool withButtons);
     // Dismiss every notification this process still owns.  Called on quit:
     // otherwise the daemon keeps the notification after the application's
