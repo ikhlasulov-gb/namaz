@@ -4,6 +4,20 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.11] - 2026-11-23
+
+### Fixed
+
+- Desktop notifications no longer fail for a whole session when Namaz starts
+  before the notification daemon.  The autostarted application used to check
+  for `org.freedesktop.Notifications` once at startup; when it came up before
+  plasmashell (or plasmashell restarted later in the session), every prayer
+  reminder was silently diverted to the in-window banner on the hidden window
+  for the rest of the run.  The notification interface is now acquired lazily
+  on each reminder beat and reconnects automatically after the daemon appears
+  or restarts; the fallback banner is only used for the beat that actually
+  failed.
+
 ## [1.1.10] - 2026-11-23
 
 ### Fixed

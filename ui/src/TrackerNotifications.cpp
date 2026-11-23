@@ -17,40 +17,85 @@ constexpr const char *kInterface = "org.freedesktop.Notifications";
 }  // namespace
 
 TrackerNotifications::TrackerNotifications(QObject *parent) : QObject(parent) {
-    QDBusConnection bus = QDBusConnection::sessionBus();
-    if (!bus.isConnected()) {
-        return;
-    }
-    if (!bus.interface()
-             || !bus.interface()->isServiceRegistered(QString::fromLatin1(kService))) {
-        return;
-    }
-    m_interface = new QDBusInterface(QString::fromLatin1(kService),
-                                     QString::fromLatin1(kPath),
-                                     QString::fromLatin1(kInterface),
-                                     QDBusConnection::sessionBus(), this);
-    if (!m_interface->isValid()) {
-        delete m_interface;
-        m_interface = nullptr;
-        return;
-    }
+    // The interface is acquired lazily by `ensureInterface()`.  At startup the
+    // notification daemon may not be there yet (Namaz is autostarted and often
+    // comes up before plasmashell), and plasmashell can also restart later in
+    // the session; a check made once in the constructor used to disable the
+    // desktop notifications for the whole run and silently left every prayer
+    // reminder on the hidden fallback banner.
+    bus().connect(QString::fromLatin1(kService), QString::fromLatin1(kPath),
+                  QString::fromLatin1(kInterface), QStringLiteral("ActionInvoked"),
+                  this, SLOT(onActionInvoked(uint, QString)));
+    bus().connect(QString::fromLatin1(kService), QString::fromLatin1(kPath),
+                  QString::fromLatin1(kInterface),
+                  QStringLiteral("NotificationClosed"), this,
+                  SLOT(onClosed(uint, uint)));
+}
 
+QDBusConnection TrackerNotifications::bus() {
+    return QDBusConnection::sessionBus();
+}
+
+bool TrackerNotifications::ensureInterface() {
+    if (m_interface && m_interface->isValid()) {
+        return true;
+    }
+    delete m_interface;
+    m_interface = nullptr;
+
+    if (!bus().isConnected()) {
+        return false;
+    }
+    auto *interface = new QDBusInterface(QString::fromLatin1(kService),
+                                         QString::fromLatin1(kPath),
+                                         QString::fromLatin1(kInterface),
+                                         bus(), this);
+    // A short timeout keeps a wedged daemon from stalling the reminder beat.
+    interface->setTimeout(5000);
+    if (!interface->isValid()) {
+        // The daemon is absent (not yet started, or restarting).  Do not
+        // remember the failure: the next beat must try again.
+        delete interface;
+        return false;
+    }
+    m_interface = interface;
+    return true;
+}
+
+bool TrackerNotifications::ensureCapabilities() {
+    if (m_capabilitiesKnown) {
+        return m_actionsSupported;
+    }
+    if (!ensureInterface()) {
+        return false;
+    }
     const QDBusReply<QStringList> capabilities =
         m_interface->call(QStringLiteral("GetCapabilities"));
-    m_actionsSupported = capabilities.isValid()
-        && capabilities.value().contains(QStringLiteral("actions"));
+    if (!capabilities.isValid()) {
+        // The daemon may have disappeared between the interface check and
+        // this call; retry on the next beat instead of caching the answer.
+        delete m_interface;
+        m_interface = nullptr;
+        return false;
+    }
+    m_actionsSupported =
+        capabilities.value().contains(QStringLiteral("actions"));
+    m_capabilitiesKnown = true;
+    return m_actionsSupported;
+}
 
-    bus.connect(QString::fromLatin1(kService), QString::fromLatin1(kPath),
-                QString::fromLatin1(kInterface), QStringLiteral("ActionInvoked"),
-                this, SLOT(onActionInvoked(uint, QString)));
-    bus.connect(QString::fromLatin1(kService), QString::fromLatin1(kPath),
-                QString::fromLatin1(kInterface),
-                QStringLiteral("NotificationClosed"), this,
-                SLOT(onClosed(uint, uint)));
+void TrackerNotifications::daemonGone() {
+    // The notification daemon restarted (for example plasmashell was
+    // replaced): drop the stale interface and the stale capability cache so
+    // the next reminder reconnects instead of posting into a dead peer.
+    delete m_interface;
+    m_interface = nullptr;
+    m_capabilitiesKnown = false;
+    m_items.clear();
 }
 
 void TrackerNotifications::closeAll() {
-    if (!m_interface) {
+    if (!ensureInterface()) {
         m_items.clear();
         return;
     }
@@ -63,6 +108,12 @@ void TrackerNotifications::closeAll() {
 
 bool TrackerNotifications::notify(const QString &prayer, const QDate &date,
                                   bool witr, bool withButtons) {
+    if (!ensureInterface() || !ensureCapabilities()) {
+        // No usable daemon right now (it may not have started yet, or it is
+        // restarting).  Fall back to the banner for this beat only: the next
+        // repeat tries the desktop notification again.
+        return fallbackNotify(prayer, date, witr);
+    }
     const int index = PrayerTracker::prayerIndex(prayer);
     const QString title = tr("Namaz");
     const QString body =
@@ -70,13 +121,6 @@ bool TrackerNotifications::notify(const QString &prayer, const QDate &date,
             ? tr("The last third of the night has begun: it is time for Witr.")
             : tr("It is time to pray %1.")
                   .arg(PrayerTracker::prayerName(index));
-
-    if (!m_interface || !m_actionsSupported) {
-        // The fallback banner replaces its previous contents, so only one
-        // prayer reminder is visible there as well.
-        emit fallback(title, body, prayer, date, witr);
-        return false;
-    }
 
     QStringList actions;
     if (withButtons) {
@@ -104,11 +148,29 @@ bool TrackerNotifications::notify(const QString &prayer, const QDate &date,
         hints, 0);
     const QDBusReply<uint> reply(message);
     if (!reply.isValid() || reply.value() == 0) {
-        emit fallback(title, body, prayer, date, witr);
-        return false;
+        // The call failed (the daemon died mid-flight or rejected the
+        // message): forget the cached state and let this beat use the
+        // banner, while the next repeat reconnects.
+        daemonGone();
+        return fallbackNotify(prayer, date, witr);
     }
     m_items.insert(reply.value(), {prayer, date, witr});
     return true;
+}
+
+bool TrackerNotifications::fallbackNotify(const QString &prayer,
+                                          const QDate &date, bool witr) {
+    const int index = PrayerTracker::prayerIndex(prayer);
+    const QString title = tr("Namaz");
+    const QString body =
+        witr
+            ? tr("The last third of the night has begun: it is time for Witr.")
+            : tr("It is time to pray %1.")
+                  .arg(PrayerTracker::prayerName(index));
+    // The fallback banner replaces its previous contents, so only one
+    // prayer reminder is visible there as well.
+    emit fallback(title, body, prayer, date, witr);
+    return false;
 }
 
 void TrackerNotifications::onActionInvoked(uint id, const QString &key) {
@@ -117,7 +179,7 @@ void TrackerNotifications::onActionInvoked(uint id, const QString &key) {
     }
     const Item item = m_items.take(id);
     // Dismiss immediately instead of waiting for the daemon's own timeout.
-    if (m_interface) {
+    if (m_interface && m_interface->isValid()) {
         m_interface->call(QStringLiteral("CloseNotification"), id);
     }
     if (key == QLatin1String("confirm")) {

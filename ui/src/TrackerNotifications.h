@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDate>
+#include <QDBusConnection>
 #include <QHash>
 #include <QObject>
 #include <QString>
@@ -45,7 +46,17 @@ private:
         bool witr = false;
     };
 
+    // The notification daemon is acquired lazily and re-checked on every
+    // beat: at autostart it may not be up yet, and plasmashell can restart
+    // mid-session.  A failure is never cached permanently.
+    static QDBusConnection bus();
+    bool ensureInterface();
+    bool ensureCapabilities();
+    void daemonGone();
+    bool fallbackNotify(const QString &prayer, const QDate &date, bool witr);
+
     QDBusInterface *m_interface = nullptr;
     bool m_actionsSupported = false;
+    bool m_capabilitiesKnown = false;
     QHash<uint, Item> m_items;
 };
