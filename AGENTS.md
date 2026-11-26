@@ -1,159 +1,54 @@
 # Namaz — guide for AI agents
 
 This file is for a future AI developer or coding agent working on Namaz.  It
-documents the local-only pieces (secrets, signing key, build environment) that
-must never be committed, plus the project invariants and release flow.
+documents the project invariants, the build and test flow, and the release
+process.
 
-> This file is public.  Never put the private key, a GitHub token, a
-> passphrase or any other secret into it.
-
-## Current local paths (maintainer machine)
-
-| What | Path |
-| --- | --- |
-| Project | `project` |
-| Portable builds | `builds/` |
-| Private legacy archive | `private-legacy/` |
-| Flatpak signing key | `~/.config/namaz/flatpak-signing/` |
-| Secure key backup | `private-secrets/` |
-| Local access notes | `~/.config/namaz/access-notes` |
-| Dev container | `container` (podman/toolbox), user id 1002 |
-
-The project path contains spaces and Cyrillic characters.  The Qt build was
-made spaces-safe in `ui/CMakeLists.txt` by generating `namaz_ru.qm` with a
-plain `lrelease` command instead of the deferred `qt_add_translations()`
-implementation.  Do not reintroduce `qt_add_translations()` without testing a
-build directory whose path contains spaces.
+> This file is public.  Never put a private key, a token, a passphrase, a
+> personal file path or any other machine-specific detail into it.
+> Maintainer-only secrets and access notes belong outside the repository.
 
 ## GitHub access
 
 - Repository: `https://github.com/ikhlasulov/namaz`
 - Remote: `origin` → the same URL (HTTPS)
-- CLI: `~/.local/bin/gh`
 - Account: `ikhlasulov`
-- Token storage: system keyring.  It survives reboot and was verified from a
-  clean environment (`env -i ... gh auth status`).
-- Git credential helper:
-  `!~/.local/bin/gh auth git-credential`
-- Required scopes: `repo`, `workflow` (plus `gist`, `read:org`).
+- CLI: `gh` (authenticate with `gh auth login` if needed)
 
 Check access with:
 
 ```bash
-~/.local/bin/gh auth status
-cd "project"
-podman exec -w "$PWD" -u 1002 container bash -lc 'git ls-remote --heads origin main'
-```
-
-Re-authenticate only if the keyring entry is gone:
-
-```bash
-~/.local/bin/gh auth login --hostname github.com --git-protocol https --web
-~/.local/bin/gh auth refresh -h github.com -s workflow
+gh auth status
+git ls-remote --heads origin main
 ```
 
 Never print the token, write it into the repository, or add it to a workflow
 file.  GitHub Actions receives it automatically as `GITHUB_TOKEN`.
 
-## Flatpak signing key
+## Release signing
 
-The signed Flatpak repository is what lets users update with
-`flatpak update`.  Losing the private key means existing installations can no
-longer trust updates from the same remote without re-adding it.
+The Flatpak repository is signed in CI with the repository secrets
+`FLATPAK_GPG_PRIVATE_KEY` and `FLATPAK_GPG_KEY_ID`.  The private key is never
+stored in this repository.
 
-- Key ID: `C1AFFFEA2652299E`
-- Fingerprint: `AA761593D3FB540FEE04EBB0C1AFFFEA2652299E`
-- UID: `Namaz Flatpak Signing <namaz@ikhlasulov.github.io>`
-- Private key: `~/.config/namaz/flatpak-signing/backup/private-key.asc`
-- Public key: `~/.config/namaz/flatpak-signing/backup/public-key.asc`
-- GPG home: `~/.config/namaz/flatpak-signing/gnupg`
-- Secure backup directory (mode 700):
-  `private-secrets/`
-  - `private-key.asc`
-  - `public-key.asc`
-  - `revocation-certificate.rev`
-  - `flatpak-signing-backup-2026-11-08.tar.gz` (archive of the previous key
-    `C1AFFFEA2652299E`, no longer used)
-  - `SHA256SUMS`
-  - `README.txt`
-
-The public key is embedded in
-`https://ikhlasulov.github.io/namaz/namaz.flatpakrepo`.  The private key is
-**not** in the repository and must never be added to it.
-
-### GitHub Actions secrets
-
-Already configured on the repository:
-
-- `FLATPAK_GPG_PRIVATE_KEY` — contents of `private-key.asc`
-- `FLATPAK_GPG_KEY_ID` — `C1AFFFEA2652299E`
-
-Set them again only on a new repository:
-
-```bash
-~/.local/bin/gh secret set FLATPAK_GPG_PRIVATE_KEY \
-  < ~/.config/namaz/flatpak-signing/backup/private-key.asc
-~/.local/bin/gh secret set FLATPAK_GPG_KEY_ID --body C1AFFFEA2652299E
-```
-
-### Restore the key on a new machine
-
-```bash
-export GNUPGHOME="$HOME/.config/namaz/flatpak-signing/gnupg"
-mkdir -p "$GNUPGHOME"
-chmod 700 "$GNUPGHOME"
-gpg --batch --import /path/to/private-secrets/private-key.asc
-gpg --list-secret-keys --keyid-format LONG
-```
-
-Verify the fingerprint before using it.  The new key was test-imported into a
-temporary GNUPGHOME and reported the expected fingerprint
-`AA761593D3FB540FEE04EBB0C1AFFFEA2652299E`.  The archive in the backup
-directory holds the previous key (`7D589F7149CE1619`).
-
-### Manual signing (recovery / local testing)
-
-The release workflow does this automatically.  For a local repository:
-
-```bash
-export GNUPGHOME="$HOME/.config/namaz/flatpak-signing/gnupg"
-KEYID=C1AFFFEA2652299E
-REPO=/path/to/flatpak-repo
-
-flatpak build-sign --arch=x86_64 --gpg-sign="$KEYID" "$REPO" \
-  io.github.ikhlasulov.Namaz master
-flatpak build-sign --arch=x86_64 --runtime --gpg-sign="$KEYID" "$REPO" \
-  io.github.ikhlasulov.Namaz.Debug master
-# Repeat with --arch=aarch64 when that architecture is present.
-
-flatpak build-update-repo --gpg-sign="$KEYID" \
-  --generate-static-deltas --prune "$REPO"
-```
-
-If the key is compromised, revoke it with
-`revocation-certificate.rev`, generate a new key, update the GitHub secrets,
+If the key is compromised, revoke it, generate a new key, update the secrets
 and tell users to re-add the remote.  Never silently replace the key.
 
 ## Build and test
 
-Run in the `container` container:
-
 ```bash
-NEW="project"
-podman exec -w "$NEW" -u 1002 container bash -lc '
-  cargo fmt --all -- --check &&
-  cargo clippy --workspace --lib --bins -- -D warnings &&
-  cargo test -p prayer-core -p namaz-core &&
-  cmake -S ui -B ui/build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -G Ninja &&
-  cmake --build ui/build -j4 &&
-  QT_QPA_PLATFORM=offscreen ctest --test-dir ui/build --output-on-failure
-'
+cargo fmt --all -- --check
+cargo clippy --workspace --lib --bins -- -D warnings
+cargo test -p prayer-core -p namaz-core
+cmake -S ui -B ui/build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -G Ninja
+cmake --build ui/build -j"$(nproc)"
+QT_QPA_PLATFORM=offscreen ctest --test-dir ui/build --output-on-failure
 ./scripts/ui-check.sh
 ./scripts/diff-itl.sh 1500
 ```
 
-The helper scripts use `container` when it exists and otherwise run directly.
-Set `NAMAZ_CONTAINER` to use a different container.
+The helper scripts run locally by default.  Set `NAMAZ_CONTAINER` to run them
+inside an existing Podman container.
 
 Build artifacts are ignored: `target/`, `ui/build/`, `ui/build-release/`,
 `dist/`, `.flatpak-builder/`, `build-appimage/`, `.cache/`.  Do not commit
@@ -162,7 +57,6 @@ them.
 ### Flatpak
 
 ```bash
-cd "project"
 flatpak run --share=network org.flatpak.Builder \
   --state-dir="$HOME/namaz-flatpak-state" --disable-rofiles-fuse \
   --user --install --force-clean --repo="$HOME/namaz-flatpak-repo" \
@@ -196,8 +90,7 @@ read RELR sections.  CI smoke-tests the AppImage under Xvfb.
 2. From a clean checkout run:
 
    ```bash
-   podman exec -w "project" \
-     -u 1002 container bash -lc './scripts/release.sh X.Y.Z'
+   ./scripts/release.sh X.Y.Z
    ```
 
 3. `scripts/release.sh` updates `VERSION`, `Cargo.toml`, `Cargo.lock` and the
@@ -208,7 +101,7 @@ read RELR sections.  CI smoke-tests the AppImage under Xvfb.
 5. Verify:
 
    ```bash
-   ~/.local/bin/gh release view vX.Y.Z -R ikhlasulov/namaz
+   gh release view vX.Y.Z -R ikhlasulov/namaz
    curl -sI https://ikhlasulov.github.io/namaz/namaz.flatpakrepo
    flatpak remote-ls --user namaz
    flatpak install --user -y --reinstall namaz io.github.ikhlasulov.Namaz
@@ -251,10 +144,10 @@ release is broken, publish the next patch version.
   `QIcon::fromTheme("io.github.ikhlasulov.Namaz")`, which leaves the window
   and tray icon empty.  `Ui::appIcon()` also falls back to the embedded PNG
   when a theme icon has no pixmaps.
-- **Spaces in the project path.** The project lives under
-  `.../workspace/...`; `ui/CMakeLists.txt` generates `namaz_ru.qm` with a
-  direct `lrelease` command instead of deferred `qt_add_translations()`.
-  Keep at least one test build in this path.
+- **Spaces in the project path.** The build must work from directories whose
+  names contain spaces and non-ASCII characters.  `ui/CMakeLists.txt`
+  generates `namaz_ru.qm` with a direct `lrelease` command instead of deferred
+  `qt_add_translations()`.  Keep at least one test build in such a path.
 
 ## Project invariants
 

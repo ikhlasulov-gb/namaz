@@ -22,9 +22,8 @@ cargo test -p prayer-core -p namaz-core
 ./scripts/diff-itl.sh 1500
 ```
 
-`ui-check.sh` and `diff-itl.sh` use the `container` Toolbox container when it
-exists and fall back to the current environment otherwise.  Set
-`NAMAZ_CONTAINER` to use a different container.
+`ui-check.sh` and `diff-itl.sh` run in the current environment by default.  Set
+`NAMAZ_CONTAINER` to run them inside an existing Podman container.
 
 ## Pull requests
 

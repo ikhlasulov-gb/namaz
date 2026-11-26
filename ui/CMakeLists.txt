@@ -90,9 +90,9 @@ add_executable(namaz-ui
 add_dependencies(namaz-ui namaz_core)
 
 # Build the .qm file explicitly.  qt_add_translations() defers a call with
-# unquoted arguments and breaks when the build directory contains spaces
-# (for example ".../workspace/...").  A plain lrelease command is
-# smaller and works with any path.
+# unquoted arguments and breaks when the build directory contains spaces or
+# non-ASCII characters.  A plain lrelease command is smaller and works with
+# any path.
 set(NAMAZ_TS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/translations/namaz_ru.ts")
 set(NAMAZ_QM_FILE "${CMAKE_CURRENT_BINARY_DIR}/namaz_ru.qm")
 set_source_files_properties("${NAMAZ_QM_FILE}" PROPERTIES GENERATED TRUE)

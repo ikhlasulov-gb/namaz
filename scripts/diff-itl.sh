@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CASES="${1:-1500}"
-CONTAINER="${NAMAZ_CONTAINER:-container}"
+CONTAINER="${NAMAZ_CONTAINER:-}"
 
 run_checks() {
     gcc -O2 -I "$ROOT/third_party/itl" "$ROOT/scripts/itl_ref.c" \
@@ -15,7 +15,8 @@ run_checks() {
         "$ROOT/target/debug/namaz-cli" "$CASES"
 }
 
-if command -v podman >/dev/null 2>&1 \
+if [ -n "$CONTAINER" ] \
+    && command -v podman >/dev/null 2>&1 \
     && podman container exists "$CONTAINER" >/dev/null 2>&1; then
     podman exec -u "$(id -u)" -w "$ROOT" "$CONTAINER" bash -lc \
         "gcc -O2 -I '$ROOT/third_party/itl' '$ROOT/scripts/itl_ref.c' \

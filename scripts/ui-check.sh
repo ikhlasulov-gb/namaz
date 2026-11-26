@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-CONTAINER="${NAMAZ_CONTAINER:-container}"
+CONTAINER="${NAMAZ_CONTAINER:-}"
 cd "$ROOT"
 
 BUILD_COMMANDS='cargo test -p prayer-core -p namaz-core && \
@@ -11,7 +11,8 @@ BUILD_COMMANDS='cargo test -p prayer-core -p namaz-core && \
      cmake --build ui/build -j4 && \
      QT_QPA_PLATFORM=offscreen ctest --test-dir ui/build --output-on-failure'
 
-if command -v podman >/dev/null 2>&1 \
+if [ -n "$CONTAINER" ] \
+    && command -v podman >/dev/null 2>&1 \
     && podman container exists "$CONTAINER" >/dev/null 2>&1; then
     podman exec -u "$(id -u)" -w "$ROOT" "$CONTAINER" bash -lc "$BUILD_COMMANDS"
 else
