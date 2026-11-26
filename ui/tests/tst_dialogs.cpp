@@ -694,7 +694,7 @@ void DialogTest::updateCheckerComparesVersions() {
 void DialogTest::updateCheckerParsesRelease() {
     const QByteArray payload = R"({
         "tag_name": "v1.2.3",
-        "html_url": "https://github.com/Ikhlasulov/namaz/releases/tag/v1.2.3",
+        "html_url": "https://github.com/ikhlasulov/namaz/releases/tag/v1.2.3",
         "body": "Release notes",
         "assets": [
             {"name": "Namaz-1.2.3-x86_64.AppImage",

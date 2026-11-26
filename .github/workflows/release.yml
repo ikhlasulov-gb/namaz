@@ -298,7 +298,7 @@ jobs:
             --generate-static-deltas --prune \
             --title="Namaz" \
             --comment="Muslim prayer times, Qibla and Hijri calendar" \
-            --homepage="https://github.com/Ikhlasulov/namaz" \
+            --homepage="https://github.com/ikhlasulov/namaz" \
             --icon="https://ikhlasulov.github.io/namaz/icon.png" \
             --default-branch=master pages/repo
       - name: Generate .flatpakrepo and site
@@ -311,7 +311,7 @@ jobs:
           [Flatpak Repo]
           Title=Namaz
           Url=https://ikhlasulov.github.io/namaz/repo
-          Homepage=https://github.com/Ikhlasulov/namaz
+          Homepage=https://github.com/ikhlasulov/namaz
           Comment=Muslim prayer times, Qibla and Hijri calendar
           Description=Namaz for Linux
           Icon=https://ikhlasulov.github.io/namaz/icon.png

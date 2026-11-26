@@ -8,11 +8,11 @@ All notable changes to Namaz are documented here.  The format is based on
 
 ### Changed
 
-- The project moved to the Ikhlasulov account.  The Flatpak and desktop
+- The project moved to the ikhlasulov account.  The Flatpak and desktop
   application ID is now `io.github.ikhlasulov.Namaz` (previously
   `io.github.ikhlasulov_gb.Namaz`), so the Flatpak remote has to be added
   again once.  Repository, Pages and update-check URLs now point to
-  github.com/Ikhlasulov.  The Flatpak repository is signed with a new key
+  github.com/ikhlasulov.  The Flatpak repository is signed with a new key
   (`AA761593D3FB540FEE04EBB0C1AFFFEA2652299E`).
 
 ## [1.1.11] - 2026-11-23

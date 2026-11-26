@@ -86,7 +86,7 @@ flatpak run io.github.ikhlasulov.Namaz
 ### AppImage
 
 Скачайте AppImage для своей архитектуры из
-[Releases](https://github.com/Ikhlasulov/namaz/releases):
+[Releases](https://github.com/ikhlasulov/namaz/releases):
 
 ```bash
 chmod +x Namaz-1.0.0-x86_64.AppImage
@@ -118,7 +118,7 @@ tar -xzf namaz-1.0.0-linux-x86_64.tar.gz
 PrintSupport, LinguistTools) и заголовки ALSA.
 
 ```bash
-git clone https://github.com/Ikhlasulov/namaz.git
+git clone https://github.com/ikhlasulov/namaz.git
 cd namaz
 cmake -S ui -B ui/build -DCMAKE_BUILD_TYPE=Release
 cmake --build ui/build -j"$(nproc)"
@@ -204,6 +204,6 @@ Namaz — свободное программное обеспечение: вы
 
 ## Автор
 
-**Ikhlasulov** — [github.com/Ikhlasulov](https://github.com/Ikhlasulov)
+**Ikhlasulov** — [github.com/ikhlasulov](https://github.com/ikhlasulov)
 
 Предложения, сообщения об ошибках и переводы приветствуются.

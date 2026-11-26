@@ -28,9 +28,9 @@
   </description>
 
   <launchable type="desktop-id">io.github.ikhlasulov.Namaz.desktop</launchable>
-  <url type="homepage">https://github.com/Ikhlasulov/namaz</url>
-  <url type="bugtracker">https://github.com/Ikhlasulov/namaz/issues</url>
-  <url type="vcs-browser">https://github.com/Ikhlasulov/namaz</url>
+  <url type="homepage">https://github.com/ikhlasulov/namaz</url>
+  <url type="bugtracker">https://github.com/ikhlasulov/namaz/issues</url>
+  <url type="vcs-browser">https://github.com/ikhlasulov/namaz</url>
 
   <developer id="io.github.ikhlasulov">
     <name>Ikhlasulov</name>

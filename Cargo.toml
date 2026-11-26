@@ -10,7 +10,7 @@ version = "1.1.11"
 edition = "2021"
 license = "GPL-3.0-or-later"
 authors = ["Ikhlasulov"]
-repository = "https://github.com/Ikhlasulov/namaz"
+repository = "https://github.com/ikhlasulov/namaz"
 
 # cpal 0.15.3 retries a failed ALSA write forever inside its output worker.
 # A dead device (PipeWire restart, ENOSPC, unplugged USB/BT sink) therefore

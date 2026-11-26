@@ -27,10 +27,10 @@ build directory whose path contains spaces.
 
 ## GitHub access
 
-- Repository: `https://github.com/Ikhlasulov/namaz`
+- Repository: `https://github.com/ikhlasulov/namaz`
 - Remote: `origin` → the same URL (HTTPS)
 - CLI: `~/.local/bin/gh`
-- Account: `Ikhlasulov`
+- Account: `ikhlasulov`
 - Token storage: system keyring.  It survives reboot and was verified from a
   clean environment (`env -i ... gh auth status`).
 - Git credential helper:
@@ -208,7 +208,7 @@ read RELR sections.  CI smoke-tests the AppImage under Xvfb.
 5. Verify:
 
    ```bash
-   ~/.local/bin/gh release view vX.Y.Z -R Ikhlasulov/namaz
+   ~/.local/bin/gh release view vX.Y.Z -R ikhlasulov/namaz
    curl -sI https://ikhlasulov.github.io/namaz/namaz.flatpakrepo
    flatpak remote-ls --user namaz
    flatpak install --user -y --reinstall namaz io.github.ikhlasulov.Namaz
@@ -273,7 +273,7 @@ release is broken, publish the next patch version.
 
 ## Useful URLs
 
-- Repository: https://github.com/Ikhlasulov/namaz
+- Repository: https://github.com/ikhlasulov/namaz
 - Pages: https://ikhlasulov.github.io/namaz/
 - Flatpak remote: https://ikhlasulov.github.io/namaz/namaz.flatpakrepo
-- Releases: https://github.com/Ikhlasulov/namaz/releases
+- Releases: https://github.com/ikhlasulov/namaz/releases

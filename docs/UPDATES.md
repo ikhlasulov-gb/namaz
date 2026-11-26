@@ -5,7 +5,7 @@
 `ui/src/UpdateChecker.cpp` performs one GET request to:
 
 ```text
-https://api.github.com/repos/Ikhlasulov/namaz/releases/latest
+https://api.github.com/repos/ikhlasulov/namaz/releases/latest
 ```
 
 - Automatic check: at most once every 24 hours, 15 seconds after startup.

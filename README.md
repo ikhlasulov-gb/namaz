@@ -14,7 +14,7 @@
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-1.92-000000?logo=rust" alt="Rust"/></a>
   <a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt-6-41CD52?logo=qt&amp;logoColor=white" alt="Qt 6"/></a>
   <a href="https://flatpak.org/"><img src="https://img.shields.io/badge/Flatpak-ready-4A90D9?logo=flatpak&amp;logoColor=white" alt="Flatpak"/></a>
-  <a href="https://github.com/Ikhlasulov/namaz/releases"><img src="https://img.shields.io/github/v/release/Ikhlasulov/namaz?label=release" alt="Latest release"/></a>
+  <a href="https://github.com/ikhlasulov/namaz/releases"><img src="https://img.shields.io/github/v/release/ikhlasulov/namaz?label=release" alt="Latest release"/></a>
 </p>
 
 <p align="center">
@@ -89,7 +89,7 @@ flatpak run io.github.ikhlasulov.Namaz
 ### AppImage
 
 Download the latest AppImage for your architecture from
-[Releases](https://github.com/Ikhlasulov/namaz/releases), then:
+[Releases](https://github.com/ikhlasulov/namaz/releases), then:
 
 ```bash
 chmod +x Namaz-1.0.0-x86_64.AppImage
@@ -121,7 +121,7 @@ Requirements: Rust 1.92+, CMake 3.21+, Ninja, Qt 6.5+ (Widgets, DBus,
 Network, PrintSupport, LinguistTools) and ALSA development headers.
 
 ```bash
-git clone https://github.com/Ikhlasulov/namaz.git
+git clone https://github.com/ikhlasulov/namaz.git
 cd namaz
 cmake -S ui -B ui/build -DCMAKE_BUILD_TYPE=Release
 cmake --build ui/build -j"$(nproc)"
@@ -207,6 +207,6 @@ terms of the **GNU General Public License, version 3 or later**.  See
 
 ## Author
 
-**Ikhlasulov** — [github.com/Ikhlasulov](https://github.com/Ikhlasulov)
+**Ikhlasulov** — [github.com/ikhlasulov](https://github.com/ikhlasulov)
 
 Contributions, bug reports and translations are welcome.
