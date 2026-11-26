@@ -78,6 +78,13 @@
   </screenshots>
 
   <releases>
+    <release version="1.1.12" date="2026-11-26">
+      <description>
+        <p>Moved to the ikhlasulov account: the application ID is now
+        io.github.ikhlasulov.Namaz and the Flatpak repository is signed with
+        a new key.</p>
+      </description>
+    </release>
     <release version="1.1.11" date="2026-11-23">
       <description>
         <p>See CHANGELOG.md for the full list of changes.</p>
