@@ -22,11 +22,9 @@
 /packaging/flatpak/repo/
 /packaging/flatpak/build/
 
-# Local-only legacy archive and private recordings
+# Local-only private recordings
 /legacy/
 /assets/private/
-/assets/salaattime-exe/
-/assets/salaattime-dll/
 
 # Python bytecode
 __pycache__/

@@ -1504,10 +1504,6 @@ void MainWindow::syncAutostart() {
                   + QStringLiteral("/autostart");
     const QString path = autostartDir
         + QStringLiteral("/io.github.ikhlasulov.Namaz.desktop");
-    // Remove the entry written by the old working title so a user does not
-    // start two instances after upgrading.
-    QFile::remove(autostartDir
-                  + QStringLiteral("/io.github.ikhlasulov.SalaatTime.desktop"));
     if (!enabled) {
         QFile::remove(path);
         return;

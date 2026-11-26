@@ -12,7 +12,6 @@
 #include <QLocalSocket>
 #include <QLibraryInfo>
 #include <QLocale>
-#include <QSettings>
 #include <QSize>
 #include <QSplashScreen>
 #include <QStandardPaths>
@@ -98,21 +97,6 @@ int main(int argc, char *argv[]) {
     QApplication::setOrganizationName(QStringLiteral("io.github.ikhlasulov"));
     QApplication::setOrganizationDomain(QStringLiteral("github.com/ikhlasulov"));
     QApplication::setDesktopFileName(QStringLiteral("io.github.ikhlasulov.Namaz"));
-
-    // QSettings keys from the old working title (window geometry, selected
-    // tab).  Copy them once so the first Namaz start looks familiar.
-    {
-        QSettings current;
-        if (current.allKeys().isEmpty()) {
-            QSettings legacy(QStringLiteral("io.github.ikhlasulov"),
-                             QStringLiteral("SalaatTime"));
-            const QStringList keys = legacy.allKeys();
-            for (const QString &key : keys) {
-                current.setValue(key, legacy.value(key));
-            }
-            current.sync();
-        }
-    }
 
     QString locale;
     {

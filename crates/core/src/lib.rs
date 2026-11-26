@@ -237,21 +237,6 @@ fn config_path() -> std::path::PathBuf {
     config_path_in(xdg.as_deref(), home_dir().as_deref())
 }
 
-/// Configuration files written by the old working title.  They are copied
-/// once, then the user continues with the `namaz` directory.
-fn old_config_paths() -> Vec<std::path::PathBuf> {
-    let mut paths = Vec::new();
-    if let Some(dir) = std::env::var_os("XDG_CONFIG_HOME").map(std::path::PathBuf::from) {
-        if dir.is_absolute() {
-            paths.push(dir.join("salaat-time").join("config.toml"));
-        }
-    }
-    if let Some(home) = home_dir() {
-        paths.push(home.join(".config").join("salaat-time").join("config.toml"));
-    }
-    paths
-}
-
 /// Keep settings written by older versions meaningful after a schema change.
 fn migrate_config(cfg: &mut Config) {
     // The first UI used 1..4 for the extreme-latitude combo, but those values
@@ -274,50 +259,6 @@ fn migrate_config(cfg: &mut Config) {
     }
     cfg.iqama[1] = 0;
     cfg.iqama_on[1] = false;
-
-    // The bundled recordings changed when the project became fully free.
-    // Keep old configurations usable by pointing legacy names at the files
-    // that are actually shipped.
-    for sound in &mut cfg.sounds {
-        if matches!(
-            sound.as_str(),
-            "ALAQSA" | "CAIRO1" | "CAIRO2" | "DAMASCUS" | "FAJRMADINA" | "FAJRMAKKAH" | "MAKKAH"
-        ) {
-            *sound = "ADHAN".to_string();
-        } else if sound.starts_with("BISMILLAH") {
-            *sound = "BISMILLAH".to_string();
-        } else if matches!(
-            sound.as_str(),
-            "ALFATIHA"
-                | "LUQMAN"
-                | "ALQAMAR"
-                | "ALALA"
-                | "ADDUHA"
-                | "ASSARH"
-                | "ALASR"
-                | "ALMAUN"
-                | "ALKAWTAR"
-                | "ALKAFIRUNE"
-                | "ALIHLAS"
-                | "ALFALAQ"
-                | "ANNAS"
-                | "ALBAQARAH_155_157"
-                | "ALBAQARAH_177"
-                | "ALBAQARAH_238"
-                | "AYAATALKURSI"
-                | "ALBAQARAH_285_286"
-                | "ALIMRAN"
-                | "ALANAM"
-                | "HUD"
-                | "ALKAHF"
-                | "ANNAML"
-                | "ALAHZAB"
-                | "ALHADID"
-                | "ALALAQ"
-        ) {
-            *sound = "ALIHLAS".to_string();
-        }
-    }
 }
 
 fn load_config_from(path: &std::path::Path) -> Config {
@@ -347,20 +288,7 @@ fn load_config_from(path: &std::path::Path) -> Config {
 }
 
 fn load_config() -> Config {
-    let path = config_path();
-    // Carry settings over once from the old working title.
-    if !path.exists() {
-        for legacy in old_config_paths() {
-            if legacy != path && legacy.exists() {
-                if let Some(parent) = path.parent() {
-                    let _ = std::fs::create_dir_all(parent);
-                }
-                let _ = std::fs::copy(&legacy, &path);
-                break;
-            }
-        }
-    }
-    load_config_from(&path)
+    load_config_from(&config_path())
 }
 
 fn save_config_to(cfg: &Config, path: &std::path::Path) -> bool {

@@ -25,8 +25,7 @@ compare both implementations over random locations, dates and methods.
 
 `crates/core` owns:
 
-- configuration in `XDG_CONFIG_HOME/namaz/config.toml` (with migration from
-  the old `salaat-time` directory),
+- configuration in `XDG_CONFIG_HOME/namaz/config.toml`,
 - day/month/year JSON consumed by the UI,
 - Hijri conversion, Qibla bearing and city lookup,
 - audio playback through `rodio` (PipeWire/PulseAudio/ALSA),
@@ -101,14 +100,12 @@ still gets the Confirm/Skip notification while the prayer window is open.  The
 mark is persisted, so the reminder is shown once per record, survives a
 restart without repeating, and a closed window stays silent.
 
-## Configuration and migration
+## Configuration
 
 The config directory is `$XDG_CONFIG_HOME/namaz/config.toml` (or
-`~/.config/namaz/config.toml`).  On first start the core copies a config from
-`$XDG_CONFIG_HOME/salaat-time/config.toml` or
-`~/.config/salaat-time/config.toml` and maps legacy audio names to the free
-recordings.  QSettings (window geometry, selected tab, update preferences)
-also migrates from the old organization/application names.
+`~/.config/namaz/config.toml`).  QSettings stores the window geometry,
+selected tab and update preferences under the `io.github.ikhlasulov` /
+`Namaz` organization and application names.
 
 ## Packaging
 

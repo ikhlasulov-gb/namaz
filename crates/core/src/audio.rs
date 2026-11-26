@@ -72,22 +72,14 @@ fn resolve_wave_dir() -> PathBuf {
     if let Some(dir) = std::env::var_os("NAMAZ_WAVE_DIR") {
         return PathBuf::from(dir);
     }
-    // Keep working with installations created by the old working title.
-    if let Some(dir) = std::env::var_os("SALAAT_TIME_WAVE_DIR") {
-        return PathBuf::from(dir);
-    }
     if let Some(home) = std::env::var_os("HOME") {
-        for relative in [".local/share/namaz/wave", ".local/share/salaat-time/wave"] {
-            let p = PathBuf::from(&home).join(relative);
-            if p.is_dir() {
-                return p;
-            }
+        let p = PathBuf::from(&home).join(".local/share/namaz/wave");
+        if p.is_dir() {
+            return p;
         }
     }
-    for absolute in ["/app/share/namaz/wave", "/app/share/salaat-time/wave"] {
-        if Path::new(absolute).is_dir() {
-            return PathBuf::from(absolute);
-        }
+    if Path::new("/app/share/namaz/wave").is_dir() {
+        return PathBuf::from("/app/share/namaz/wave");
     }
 
     // Portable/development layouts: look next to the executable first, then
@@ -98,15 +90,12 @@ fn resolve_wave_dir() -> PathBuf {
             candidates.push(dir.join("../share/namaz/wave"));
             candidates.push(dir.join("share/namaz/wave"));
             candidates.push(dir.join("assets/audio"));
-            candidates.push(dir.join("assets/salaattime-exe/wave"));
         }
     }
     let manifest = Path::new(env!("CARGO_MANIFEST_DIR"));
     candidates.push(manifest.join("../../assets/audio"));
-    candidates.push(manifest.join("../../assets/salaattime-exe/wave"));
     if let Ok(cwd) = std::env::current_dir() {
         candidates.push(cwd.join("assets/audio"));
-        candidates.push(cwd.join("assets/salaattime-exe/wave"));
         candidates.push(cwd.join("share/namaz/wave"));
     }
     for candidate in candidates {
@@ -132,31 +121,8 @@ fn find_audio_file(dir: &Path, name: &str) -> Option<PathBuf> {
     None
 }
 
-fn legacy_alias(name: &str) -> Option<&'static str> {
-    match name {
-        // Recordings from the old Salaat Time installation.
-        "ALAQSA" | "CAIRO1" | "CAIRO2" | "DAMASCUS" | "FAJRMADINA" | "FAJRMAKKAH" | "MAKKAH" => {
-            Some("ADHAN")
-        }
-        "BISMILLAH0" | "BISMILLAH1" | "BISMILLAH2" | "BISMILLAH3" | "BISMILLAH4" => {
-            Some("BISMILLAH")
-        }
-        "ALFATIHA" | "LUQMAN" | "ALQAMAR" | "ALALA" | "ADDUHA" | "ASSARH" | "ALASR" | "ALMAUN"
-        | "ALKAWTAR" | "ALKAFIRUNE" | "ALIHLAS" | "ALFALAQ" | "ANNAS" | "ALBAQARAH_155_157"
-        | "ALBAQARAH_177" | "ALBAQARAH_238" | "AYAATALKURSI" | "ALBAQARAH_285_286" | "ALIMRAN"
-        | "ALANAM" | "HUD" | "ALKAHF" | "ANNAML" | "ALAHZAB" | "ALHADID" | "ALALAQ" => {
-            Some("ALIHLAS")
-        }
-        _ => None,
-    }
-}
-
 pub fn sound_path(name: &str) -> Option<PathBuf> {
-    let dir = wave_dir();
-    if let Some(path) = find_audio_file(&dir, name) {
-        return Some(path);
-    }
-    legacy_alias(name).and_then(|alias| find_audio_file(&dir, alias))
+    find_audio_file(&wave_dir(), name)
 }
 
 pub fn sound_available(name: &str) -> bool {
