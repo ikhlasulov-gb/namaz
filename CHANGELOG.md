@@ -4,6 +4,17 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.12] - 2026-11-26
+
+### Changed
+
+- The project moved to the Ikhlasulov account.  The Flatpak and desktop
+  application ID is now `io.github.ikhlasulov.Namaz` (previously
+  `io.github.ikhlasulov_gb.Namaz`), so the Flatpak remote has to be added
+  again once.  Repository, Pages and update-check URLs now point to
+  github.com/Ikhlasulov.  The Flatpak repository is signed with a new key
+  (`AA761593D3FB540FEE04EBB0C1AFFFEA2652299E`).
+
 ## [1.1.11] - 2026-11-23
 
 ### Fixed
@@ -376,7 +387,7 @@ All notable changes to Namaz are documented here.  The format is based on
 ### Changed
 
 - The project is now called **Namaz**, with the application ID
-  `io.github.ikhlasulov.Namaz`.
+  `io.github.ikhlasulov_gb.Namaz`.
 - Settings from the old working title are migrated automatically.
 - The default audio set is fully free; missing dua/iqama files no longer
   appear as selectable actions.
