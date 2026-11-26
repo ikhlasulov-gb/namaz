@@ -61,9 +61,9 @@ The signed Flatpak repository is what lets users update with
 `flatpak update`.  Losing the private key means existing installations can no
 longer trust updates from the same remote without re-adding it.
 
-- Key ID: `7D589F7149CE1619`
-- Fingerprint: `775E58E7D9BC2567B2C7FF697D589F7149CE1619`
-- UID: `Namaz Flatpak Signing <namaz@ikhlasulov-gb.github.io>`
+- Key ID: `C1AFFFEA2652299E`
+- Fingerprint: `AA761593D3FB540FEE04EBB0C1AFFFEA2652299E`
+- UID: `Namaz Flatpak Signing <namaz@ikhlasulov.github.io>`
 - Private key: `~/.config/namaz/flatpak-signing/backup/private-key.asc`
 - Public key: `~/.config/namaz/flatpak-signing/backup/public-key.asc`
 - GPG home: `~/.config/namaz/flatpak-signing/gnupg`
@@ -72,7 +72,8 @@ longer trust updates from the same remote without re-adding it.
   - `private-key.asc`
   - `public-key.asc`
   - `revocation-certificate.rev`
-  - `flatpak-signing-backup-2026-11-08.tar.gz`
+  - `flatpak-signing-backup-2026-11-08.tar.gz` (archive of the previous key
+    `C1AFFFEA2652299E`, no longer used)
   - `SHA256SUMS`
   - `README.txt`
 
@@ -85,14 +86,14 @@ The public key is embedded in
 Already configured on the repository:
 
 - `FLATPAK_GPG_PRIVATE_KEY` — contents of `private-key.asc`
-- `FLATPAK_GPG_KEY_ID` — `7D589F7149CE1619`
+- `FLATPAK_GPG_KEY_ID` — `C1AFFFEA2652299E`
 
 Set them again only on a new repository:
 
 ```bash
 ~/.local/bin/gh secret set FLATPAK_GPG_PRIVATE_KEY \
   < ~/.config/namaz/flatpak-signing/backup/private-key.asc
-~/.local/bin/gh secret set FLATPAK_GPG_KEY_ID --body 7D589F7149CE1619
+~/.local/bin/gh secret set FLATPAK_GPG_KEY_ID --body C1AFFFEA2652299E
 ```
 
 ### Restore the key on a new machine
@@ -105,9 +106,10 @@ gpg --batch --import /path/to/private-secrets/private-key.asc
 gpg --list-secret-keys --keyid-format LONG
 ```
 
-Verify the fingerprint before using it.  The backup archive was test-imported
-into a temporary GNUPGHOME and reported the expected fingerprint
-`775E58E7D9BC2567B2C7FF697D589F7149CE1619`.
+Verify the fingerprint before using it.  The new key was test-imported into a
+temporary GNUPGHOME and reported the expected fingerprint
+`AA761593D3FB540FEE04EBB0C1AFFFEA2652299E`.  The archive in the backup
+directory holds the previous key (`7D589F7149CE1619`).
 
 ### Manual signing (recovery / local testing)
 
@@ -115,7 +117,7 @@ The release workflow does this automatically.  For a local repository:
 
 ```bash
 export GNUPGHOME="$HOME/.config/namaz/flatpak-signing/gnupg"
-KEYID=7D589F7149CE1619
+KEYID=C1AFFFEA2652299E
 REPO=/path/to/flatpak-repo
 
 flatpak build-sign --arch=x86_64 --gpg-sign="$KEYID" "$REPO" \
