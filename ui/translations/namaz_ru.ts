@@ -492,9 +492,9 @@
         <location filename="../src/Widgets.cpp" line="1533"/>
         <location filename="../src/Widgets.cpp" line="1566"/>
         <source>Namaz is installed as a Flatpak. Use your software centre or run:
-flatpak update --user io.github.ikhlasulov_gb.Namaz</source>
+flatpak update --user io.github.ikhlasulov.Namaz</source>
         <translation>Namaz установлен как Flatpak. Используйте центр приложений или выполните:
-flatpak update --user io.github.ikhlasulov_gb.Namaz</translation>
+flatpak update --user io.github.ikhlasulov.Namaz</translation>
     </message>
     <message>
         <location filename="../src/Widgets.cpp" line="1574"/>

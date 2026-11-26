@@ -14,7 +14,7 @@
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-1.92-000000?logo=rust" alt="Rust"/></a>
   <a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt-6-41CD52?logo=qt&amp;logoColor=white" alt="Qt 6"/></a>
   <a href="https://flatpak.org/"><img src="https://img.shields.io/badge/Flatpak-ready-4A90D9?logo=flatpak&amp;logoColor=white" alt="Flatpak"/></a>
-  <a href="https://github.com/ikhlasulov-gb/namaz/releases"><img src="https://img.shields.io/github/v/release/ikhlasulov-gb/namaz?label=release" alt="Latest release"/></a>
+  <a href="https://github.com/Ikhlasulov/namaz/releases"><img src="https://img.shields.io/github/v/release/Ikhlasulov/namaz?label=release" alt="Latest release"/></a>
 </p>
 
 <p align="center">
@@ -81,15 +81,15 @@ The signed Flatpak repository is hosted on GitHub Pages and updates through
 
 ```bash
 flatpak remote-add --if-not-exists --user namaz \
-  https://ikhlasulov-gb.github.io/namaz/namaz.flatpakrepo
-flatpak install --user namaz io.github.ikhlasulov_gb.Namaz
-flatpak run io.github.ikhlasulov_gb.Namaz
+  https://ikhlasulov.github.io/namaz/namaz.flatpakrepo
+flatpak install --user namaz io.github.ikhlasulov.Namaz
+flatpak run io.github.ikhlasulov.Namaz
 ```
 
 ### AppImage
 
 Download the latest AppImage for your architecture from
-[Releases](https://github.com/ikhlasulov-gb/namaz/releases), then:
+[Releases](https://github.com/Ikhlasulov/namaz/releases), then:
 
 ```bash
 chmod +x Namaz-1.0.0-x86_64.AppImage
@@ -108,7 +108,7 @@ way to get a self-contained build on any distribution.
 
 ## Updating
 
-- **Flatpak**: `flatpak update --user io.github.ikhlasulov_gb.Namaz`
+- **Flatpak**: `flatpak update --user io.github.ikhlasulov.Namaz`
   (or use GNOME Software / KDE Discover).
 - **In the application**: `Help → Check for Updates…` checks the latest GitHub
   release, shows the release notes and offers the download link.  AppImage
@@ -121,7 +121,7 @@ Requirements: Rust 1.92+, CMake 3.21+, Ninja, Qt 6.5+ (Widgets, DBus,
 Network, PrintSupport, LinguistTools) and ALSA development headers.
 
 ```bash
-git clone https://github.com/ikhlasulov-gb/namaz.git
+git clone https://github.com/Ikhlasulov/namaz.git
 cd namaz
 cmake -S ui -B ui/build -DCMAKE_BUILD_TYPE=Release
 cmake --build ui/build -j"$(nproc)"
@@ -156,7 +156,7 @@ Flatpak:
 flatpak install -y flathub org.flatpak.Builder org.kde.Sdk//6.10 \
   org.freedesktop.Sdk.Extension.rust-stable//25.08
 flatpak run org.flatpak.Builder --user --install --force-clean \
-  --repo=repo build packaging/io.github.ikhlasulov_gb.Namaz.yml
+  --repo=repo build packaging/io.github.ikhlasulov.Namaz.yml
 ```
 
 ## Project structure
@@ -207,6 +207,6 @@ terms of the **GNU General Public License, version 3 or later**.  See
 
 ## Author
 
-**Ikhlasulov** — [github.com/ikhlasulov-gb](https://github.com/ikhlasulov-gb)
+**Ikhlasulov** — [github.com/Ikhlasulov](https://github.com/Ikhlasulov)
 
 Contributions, bug reports and translations are welcome.

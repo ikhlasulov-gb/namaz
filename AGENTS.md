@@ -27,10 +27,10 @@ build directory whose path contains spaces.
 
 ## GitHub access
 
-- Repository: `https://github.com/ikhlasulov-gb/namaz`
+- Repository: `https://github.com/Ikhlasulov/namaz`
 - Remote: `origin` → the same URL (HTTPS)
 - CLI: `~/.local/bin/gh`
-- Account: `ikhlasulov-gb`
+- Account: `Ikhlasulov`
 - Token storage: system keyring.  It survives reboot and was verified from a
   clean environment (`env -i ... gh auth status`).
 - Git credential helper:
@@ -77,7 +77,7 @@ longer trust updates from the same remote without re-adding it.
   - `README.txt`
 
 The public key is embedded in
-`https://ikhlasulov-gb.github.io/namaz/namaz.flatpakrepo`.  The private key is
+`https://ikhlasulov.github.io/namaz/namaz.flatpakrepo`.  The private key is
 **not** in the repository and must never be added to it.
 
 ### GitHub Actions secrets
@@ -119,9 +119,9 @@ KEYID=7D589F7149CE1619
 REPO=/path/to/flatpak-repo
 
 flatpak build-sign --arch=x86_64 --gpg-sign="$KEYID" "$REPO" \
-  io.github.ikhlasulov_gb.Namaz master
+  io.github.ikhlasulov.Namaz master
 flatpak build-sign --arch=x86_64 --runtime --gpg-sign="$KEYID" "$REPO" \
-  io.github.ikhlasulov_gb.Namaz.Debug master
+  io.github.ikhlasulov.Namaz.Debug master
 # Repeat with --arch=aarch64 when that architecture is present.
 
 flatpak build-update-repo --gpg-sign="$KEYID" \
@@ -164,7 +164,7 @@ cd "project"
 flatpak run --share=network org.flatpak.Builder \
   --state-dir="$HOME/namaz-flatpak-state" --disable-rofiles-fuse \
   --user --install --force-clean --repo="$HOME/namaz-flatpak-repo" \
-  "$HOME/namaz-flatpak-build" packaging/io.github.ikhlasulov_gb.Namaz.yml
+  "$HOME/namaz-flatpak-build" packaging/io.github.ikhlasulov.Namaz.yml
 ```
 
 The manifest uses vendored Cargo sources (`packaging/cargo-sources.json`) and
@@ -206,11 +206,11 @@ read RELR sections.  CI smoke-tests the AppImage under Xvfb.
 5. Verify:
 
    ```bash
-   ~/.local/bin/gh release view vX.Y.Z -R ikhlasulov-gb/namaz
-   curl -sI https://ikhlasulov-gb.github.io/namaz/namaz.flatpakrepo
+   ~/.local/bin/gh release view vX.Y.Z -R Ikhlasulov/namaz
+   curl -sI https://ikhlasulov.github.io/namaz/namaz.flatpakrepo
    flatpak remote-ls --user namaz
-   flatpak install --user -y --reinstall namaz io.github.ikhlasulov_gb.Namaz
-   flatpak run io.github.ikhlasulov_gb.Namaz --version
+   flatpak install --user -y --reinstall namaz io.github.ikhlasulov.Namaz
+   flatpak run io.github.ikhlasulov.Namaz --version
    ```
 
 Do not move a published tag.  The early `v1.0.0` tag was moved while the
@@ -246,7 +246,7 @@ release is broken, publish the next patch version.
 - **Flatpak icon theme.** The manifest must install
   `/usr/share/icons/hicolor/index.theme` as
   `/app/share/icons/hicolor/index.theme`.  Without it Qt cannot resolve
-  `QIcon::fromTheme("io.github.ikhlasulov_gb.Namaz")`, which leaves the window
+  `QIcon::fromTheme("io.github.ikhlasulov.Namaz")`, which leaves the window
   and tray icon empty.  `Ui::appIcon()` also falls back to the embedded PNG
   when a theme icon has no pixmaps.
 - **Spaces in the project path.** The project lives under
@@ -256,10 +256,10 @@ release is broken, publish the next patch version.
 
 ## Project invariants
 
-- Application ID: `io.github.ikhlasulov_gb.Namaz`
+- Application ID: `io.github.ikhlasulov.Namaz`
 - Binary: `namaz`
-- Desktop file / icon name: `io.github.ikhlasulov_gb.Namaz`
-- D-Bus service: `io.github.ikhlasulov_gb.Namaz`, object `/Namaz`
+- Desktop file / icon name: `io.github.ikhlasulov.Namaz`
+- D-Bus service: `io.github.ikhlasulov.Namaz`, object `/Namaz`
 - Config: `$XDG_CONFIG_HOME/namaz/config.toml`
 - Audio env: `NAMAZ_WAVE_DIR`
 - Version: `VERSION` is the single source of truth; tag is `vX.Y.Z`
@@ -271,7 +271,7 @@ release is broken, publish the next patch version.
 
 ## Useful URLs
 
-- Repository: https://github.com/ikhlasulov-gb/namaz
-- Pages: https://ikhlasulov-gb.github.io/namaz/
-- Flatpak remote: https://ikhlasulov-gb.github.io/namaz/namaz.flatpakrepo
-- Releases: https://github.com/ikhlasulov-gb/namaz/releases
+- Repository: https://github.com/Ikhlasulov/namaz
+- Pages: https://ikhlasulov.github.io/namaz/
+- Flatpak remote: https://ikhlasulov.github.io/namaz/namaz.flatpakrepo
+- Releases: https://github.com/Ikhlasulov/namaz/releases

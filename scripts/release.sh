@@ -53,7 +53,7 @@ from datetime import date
 from pathlib import Path
 import sys
 version = sys.argv[1]
-path = Path("packaging/io.github.ikhlasulov_gb.Namaz.metainfo.xml")
+path = Path("packaging/io.github.ikhlasulov.Namaz.metainfo.xml")
 text = path.read_text()
 if f'version="{version}"' in text:
     raise SystemExit(0)
@@ -70,7 +70,7 @@ path.write_text(text.replace("  <releases>\n", "  <releases>\n" + entry, 1))
 PY
 
 git add VERSION Cargo.toml Cargo.lock CHANGELOG.md \
-    packaging/io.github.ikhlasulov_gb.Namaz.metainfo.xml
+    packaging/io.github.ikhlasulov.Namaz.metainfo.xml
 git commit -m "chore(release): v$VERSION"
 git tag -a "v$VERSION" -m "Namaz $VERSION"
 

@@ -6,7 +6,7 @@
 #include <QJsonArray>
 
 namespace {
-constexpr const char *kServiceName = "io.github.ikhlasulov_gb.Namaz";
+constexpr const char *kServiceName = "io.github.ikhlasulov.Namaz";
 constexpr const char *kObjectPath = "/Namaz";
 }  // namespace
 

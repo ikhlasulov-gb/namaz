@@ -78,15 +78,15 @@
 
 ```bash
 flatpak remote-add --if-not-exists --user namaz \
-  https://ikhlasulov-gb.github.io/namaz/namaz.flatpakrepo
-flatpak install --user namaz io.github.ikhlasulov_gb.Namaz
-flatpak run io.github.ikhlasulov_gb.Namaz
+  https://ikhlasulov.github.io/namaz/namaz.flatpakrepo
+flatpak install --user namaz io.github.ikhlasulov.Namaz
+flatpak run io.github.ikhlasulov.Namaz
 ```
 
 ### AppImage
 
 Скачайте AppImage для своей архитектуры из
-[Releases](https://github.com/ikhlasulov-gb/namaz/releases):
+[Releases](https://github.com/Ikhlasulov/namaz/releases):
 
 ```bash
 chmod +x Namaz-1.0.0-x86_64.AppImage
@@ -105,7 +105,7 @@ tar -xzf namaz-1.0.0-linux-x86_64.tar.gz
 
 ## Обновление
 
-- **Flatpak**: `flatpak update --user io.github.ikhlasulov_gb.Namaz`
+- **Flatpak**: `flatpak update --user io.github.ikhlasulov.Namaz`
   (или GNOME Software / KDE Discover).
 - **В приложении**: `Help → Check for Updates…` проверяет последний релиз на
   GitHub, показывает список изменений и ссылку на скачивание. AppImage умеет
@@ -118,7 +118,7 @@ tar -xzf namaz-1.0.0-linux-x86_64.tar.gz
 PrintSupport, LinguistTools) и заголовки ALSA.
 
 ```bash
-git clone https://github.com/ikhlasulov-gb/namaz.git
+git clone https://github.com/Ikhlasulov/namaz.git
 cd namaz
 cmake -S ui -B ui/build -DCMAKE_BUILD_TYPE=Release
 cmake --build ui/build -j"$(nproc)"
@@ -153,7 +153,7 @@ Flatpak:
 flatpak install -y flathub org.flatpak.Builder org.kde.Sdk//6.10 \
   org.freedesktop.Sdk.Extension.rust-stable//25.08
 flatpak run org.flatpak.Builder --user --install --force-clean \
-  --repo=repo build packaging/io.github.ikhlasulov_gb.Namaz.yml
+  --repo=repo build packaging/io.github.ikhlasulov.Namaz.yml
 ```
 
 ## Структура проекта
@@ -204,6 +204,6 @@ Namaz — свободное программное обеспечение: вы
 
 ## Автор
 
-**Ikhlasulov** — [github.com/ikhlasulov-gb](https://github.com/ikhlasulov-gb)
+**Ikhlasulov** — [github.com/Ikhlasulov](https://github.com/Ikhlasulov)
 
 Предложения, сообщения об ошибках и переводы приветствуются.

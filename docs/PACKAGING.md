@@ -2,7 +2,7 @@
 
 ## Flatpak
 
-The manifest is `packaging/io.github.ikhlasulov_gb.Namaz.yml`.  Cargo
+The manifest is `packaging/io.github.ikhlasulov.Namaz.yml`.  Cargo
 dependencies are pinned in `packaging/cargo-sources.json`; regenerate that file
 after changing `Cargo.lock`:
 
@@ -14,8 +14,8 @@ Build locally with `org.flatpak.Builder`:
 
 ```bash
 flatpak run org.flatpak.Builder --user --install --force-clean \
-  --repo=repo build packaging/io.github.ikhlasulov_gb.Namaz.yml
-flatpak run io.github.ikhlasulov_gb.Namaz --version
+  --repo=repo build packaging/io.github.ikhlasulov.Namaz.yml
+flatpak run io.github.ikhlasulov.Namaz --version
 ```
 
 The release workflow builds x86_64 and aarch64, signs the OSTree commits with
@@ -24,8 +24,8 @@ Pages.  Users add it once:
 
 ```bash
 flatpak remote-add --if-not-exists --user namaz \
-  https://ikhlasulov-gb.github.io/namaz/namaz.flatpakrepo
-flatpak install --user namaz io.github.ikhlasulov_gb.Namaz
+  https://ikhlasulov.github.io/namaz/namaz.flatpakrepo
+flatpak install --user namaz io.github.ikhlasulov.Namaz
 ```
 
 ## Portable archive
@@ -68,10 +68,10 @@ The install step provides:
 | --- | --- |
 | `bin/namaz` | the Qt binary |
 | `<libdir>/libnamaz_core.so` | the Rust core library |
-| `share/applications/io.github.ikhlasulov_gb.Namaz.desktop` | desktop entry |
-| `share/metainfo/io.github.ikhlasulov_gb.Namaz.metainfo.xml` | AppStream data |
-| `share/icons/hicolor/*/apps/io.github.ikhlasulov_gb.Namaz.png` | 16–512 px icons |
-| `share/icons/hicolor/scalable/apps/io.github.ikhlasulov_gb.Namaz.svg` | scalable icon |
+| `share/applications/io.github.ikhlasulov.Namaz.desktop` | desktop entry |
+| `share/metainfo/io.github.ikhlasulov.Namaz.metainfo.xml` | AppStream data |
+| `share/icons/hicolor/*/apps/io.github.ikhlasulov.Namaz.png` | 16–512 px icons |
+| `share/icons/hicolor/scalable/apps/io.github.ikhlasulov.Namaz.svg` | scalable icon |
 | `share/namaz/wave/*.ogg` | bundled recordings |
 | `share/namaz/audio.LICENSE`, `share/namaz/cities.LICENSE` | asset licences |
 | `share/licenses/namaz/LICENSE` | GPL text |
@@ -107,4 +107,4 @@ in sync by `scripts/release.sh`.
 `packaging/icons/` contains every hicolor size plus the scalable SVG and the
 Windows `.ico`.  The Flatpak manifest, portable script and `install-user.sh`
 install the whole set.  The desktop file uses
-`io.github.ikhlasulov_gb.Namaz` as the icon name.
+`io.github.ikhlasulov.Namaz` as the icon name.

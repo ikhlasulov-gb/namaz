@@ -376,7 +376,7 @@ All notable changes to Namaz are documented here.  The format is based on
 ### Changed
 
 - The project is now called **Namaz**, with the application ID
-  `io.github.ikhlasulov_gb.Namaz`.
+  `io.github.ikhlasulov.Namaz`.
 - Settings from the old working title are migrated automatically.
 - The default audio set is fully free; missing dua/iqama files no longer
   appear as selectable actions.

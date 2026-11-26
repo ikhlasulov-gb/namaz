@@ -134,7 +134,7 @@ bool TrackerNotifications::notify(const QString &prayer, const QDate &date,
     // notifications are delivered in both cases.
     hints.insert(QStringLiteral("urgency"), 2);
     hints.insert(QStringLiteral("desktop-entry"),
-                 QStringLiteral("io.github.ikhlasulov_gb.Namaz"));
+                 QStringLiteral("io.github.ikhlasulov.Namaz"));
     // Keep the prayer reminder on screen until it is confirmed, skipped or
     // closed instead of letting the daemon time it out.
     hints.insert(QStringLiteral("resident"), true);
@@ -144,7 +144,7 @@ bool TrackerNotifications::notify(const QString &prayer, const QDate &date,
     closeAll();
     const QDBusMessage message = m_interface->call(
         QStringLiteral("Notify"), QStringLiteral("Namaz"), 0u,
-        QStringLiteral("io.github.ikhlasulov_gb.Namaz"), title, body, actions,
+        QStringLiteral("io.github.ikhlasulov.Namaz"), title, body, actions,
         hints, 0);
     const QDBusReply<uint> reply(message);
     if (!reply.isValid() || reply.value() == 0) {

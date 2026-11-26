@@ -663,7 +663,7 @@ fn show_notification(title: &str, body: &str) {
     close_notifications();
     let handle = notify_rust::Notification::new()
         .appname("Namaz")
-        .icon("io.github.ikhlasulov_gb.Namaz")
+        .icon("io.github.ikhlasulov.Namaz")
         .summary(title)
         .body(body)
         .hint(notify_rust::Hint::Urgency(notify_rust::Urgency::Critical))

@@ -153,20 +153,20 @@ install(TARGETS namaz-ui RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 install(FILES "${CORE_LIB}" DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 
 install(FILES
-    "${CMAKE_CURRENT_SOURCE_DIR}/../packaging/io.github.ikhlasulov_gb.Namaz.desktop"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../packaging/io.github.ikhlasulov.Namaz.desktop"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
 install(FILES
-    "${CMAKE_CURRENT_SOURCE_DIR}/../packaging/io.github.ikhlasulov_gb.Namaz.metainfo.xml"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../packaging/io.github.ikhlasulov.Namaz.metainfo.xml"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/metainfo")
 
 foreach(size IN ITEMS 16 22 24 32 48 64 96 128 192 256 512)
     install(FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/../packaging/icons/io.github.ikhlasulov_gb.Namaz-${size}.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../packaging/icons/io.github.ikhlasulov.Namaz-${size}.png"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/${size}x${size}/apps"
-        RENAME io.github.ikhlasulov_gb.Namaz.png)
+        RENAME io.github.ikhlasulov.Namaz.png)
 endforeach()
 install(FILES
-    "${CMAKE_CURRENT_SOURCE_DIR}/../packaging/icons/io.github.ikhlasulov_gb.Namaz.svg"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../packaging/icons/io.github.ikhlasulov.Namaz.svg"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps")
 
 # Bundled recordings.  audio.rs finds them through

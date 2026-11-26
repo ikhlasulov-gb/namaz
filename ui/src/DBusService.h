@@ -7,7 +7,7 @@
 
 class DBusService : public QObject {
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "io.github.ikhlasulov_gb.Namaz")
+    Q_CLASSINFO("D-Bus Interface", "io.github.ikhlasulov.Namaz")
     Q_PROPERTY(QString NextPrayerName READ nextPrayerName NOTIFY changed)
     Q_PROPERTY(QString NextPrayerTime READ nextPrayerTime NOTIFY changed)
     Q_PROPERTY(QString TimeRemaining READ timeRemaining NOTIFY changed)

@@ -12,7 +12,7 @@ export HOME="$HOME_DIR"
 export QT_QPA_PLATFORM=offscreen
 BIN="$ROOT/ui/build/namaz"
 LIB="$ROOT/ui/build/cargo/debug/libnamaz_core.so"
-DESKTOP="$HOME/.config/autostart/io.github.ikhlasulov_gb.Namaz.desktop"
+DESKTOP="$HOME/.config/autostart/io.github.ikhlasulov.Namaz.desktop"
 
 cleanup() { rm -rf "$HOME_DIR"; }
 trap cleanup EXIT

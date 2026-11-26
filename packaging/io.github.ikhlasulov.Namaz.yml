@@ -3,7 +3,7 @@
 # The Cargo dependencies are vendored through packaging/cargo-sources.json,
 # generated with flatpak-builder-tools/flatpak-cargo-generator.py.  The build
 # therefore works without network access.
-app-id: io.github.ikhlasulov_gb.Namaz
+app-id: io.github.ikhlasulov.Namaz
 runtime: org.kde.Platform
 runtime-version: '6.10'
 sdk: org.kde.Sdk
@@ -42,16 +42,16 @@ modules:
       - cp assets/audio/*.ogg /app/share/namaz/wave/
       - install -Dm644 assets/audio/audio.LICENSE /app/share/namaz/audio.LICENSE
       - install -Dm644 assets/cities.LICENSE /app/share/namaz/cities.LICENSE
-      - install -Dm644 packaging/io.github.ikhlasulov_gb.Namaz.desktop
-        /app/share/applications/io.github.ikhlasulov_gb.Namaz.desktop
-      - install -Dm644 packaging/io.github.ikhlasulov_gb.Namaz.metainfo.xml
-        /app/share/metainfo/io.github.ikhlasulov_gb.Namaz.metainfo.xml
+      - install -Dm644 packaging/io.github.ikhlasulov.Namaz.desktop
+        /app/share/applications/io.github.ikhlasulov.Namaz.desktop
+      - install -Dm644 packaging/io.github.ikhlasulov.Namaz.metainfo.xml
+        /app/share/metainfo/io.github.ikhlasulov.Namaz.metainfo.xml
       - for size in 16 22 24 32 48 64 96 128 192 256 512; do
-        install -Dm644 packaging/icons/io.github.ikhlasulov_gb.Namaz-$size.png
-        /app/share/icons/hicolor/${size}x${size}/apps/io.github.ikhlasulov_gb.Namaz.png;
+        install -Dm644 packaging/icons/io.github.ikhlasulov.Namaz-$size.png
+        /app/share/icons/hicolor/${size}x${size}/apps/io.github.ikhlasulov.Namaz.png;
         done
-      - install -Dm644 packaging/icons/io.github.ikhlasulov_gb.Namaz.svg
-        /app/share/icons/hicolor/scalable/apps/io.github.ikhlasulov_gb.Namaz.svg
+      - install -Dm644 packaging/icons/io.github.ikhlasulov.Namaz.svg
+        /app/share/icons/hicolor/scalable/apps/io.github.ikhlasulov.Namaz.svg
       - install -Dm644 /usr/share/icons/hicolor/index.theme
         /app/share/icons/hicolor/index.theme
     sources:

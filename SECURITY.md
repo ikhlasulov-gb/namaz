@@ -9,7 +9,7 @@ API (`api.github.com`); it sends no user data.
 Please do not open a public issue for security-sensitive reports.  Contact the
 maintainer through the GitHub profile:
 
-https://github.com/ikhlasulov-gb
+https://github.com/Ikhlasulov
 
 Include the affected version, a description of the issue and, if possible, a
 minimal reproduction.  You will receive an acknowledgement as soon as

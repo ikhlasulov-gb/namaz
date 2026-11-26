@@ -22,7 +22,7 @@ int s_timeFormat = 0;
 }
 
 QIcon appIcon() {
-    QIcon icon = QIcon::fromTheme(QStringLiteral("io.github.ikhlasulov_gb.Namaz"));
+    QIcon icon = QIcon::fromTheme(QStringLiteral("io.github.ikhlasulov.Namaz"));
     // A theme lookup can return a non-null QIcon with no actual pixmaps when
     // the icon theme cache is incomplete (for example inside a minimal
     // sandbox).  In that case the embedded PNG still gives the tray and the

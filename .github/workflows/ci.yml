@@ -51,9 +51,9 @@ jobs:
 
       - name: Validate desktop and AppStream metadata
         run: |
-          desktop-file-validate packaging/io.github.ikhlasulov_gb.Namaz.desktop
+          desktop-file-validate packaging/io.github.ikhlasulov.Namaz.desktop
           appstreamcli validate --no-net \
-            packaging/io.github.ikhlasulov_gb.Namaz.metainfo.xml
+            packaging/io.github.ikhlasulov.Namaz.metainfo.xml
 
   flatpak:
     name: Flatpak (${{ matrix.arch }})
@@ -82,7 +82,7 @@ jobs:
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
           bundle: Namaz-${{ matrix.arch }}.flatpak
-          manifest-path: packaging/io.github.ikhlasulov_gb.Namaz.yml
+          manifest-path: packaging/io.github.ikhlasulov.Namaz.yml
           arch: ${{ matrix.arch }}
           cache-key: flatpak-ci-${{ matrix.arch }}
           upload-artifact: false

@@ -33,16 +33,16 @@ fi
 cp "$ROOT"/assets/audio/*.ogg "$DIST/share/namaz/wave/"
 install -m644 "$ROOT/assets/audio/audio.LICENSE" "$DIST/share/namaz/audio.LICENSE"
 install -m644 "$ROOT/assets/cities.LICENSE" "$DIST/share/namaz/cities.LICENSE"
-install -m644 "$ROOT/packaging/io.github.ikhlasulov_gb.Namaz.desktop" \
+install -m644 "$ROOT/packaging/io.github.ikhlasulov.Namaz.desktop" \
   "$DIST/share/applications/"
-install -m644 "$ROOT/packaging/io.github.ikhlasulov_gb.Namaz.metainfo.xml" \
+install -m644 "$ROOT/packaging/io.github.ikhlasulov.Namaz.metainfo.xml" \
   "$DIST/share/metainfo/"
 for size in 16 22 24 32 48 64 96 128 192 256 512; do
-  install -Dm644 "$ROOT/packaging/icons/io.github.ikhlasulov_gb.Namaz-$size.png" \
-    "$DIST/share/icons/hicolor/${size}x${size}/apps/io.github.ikhlasulov_gb.Namaz.png"
+  install -Dm644 "$ROOT/packaging/icons/io.github.ikhlasulov.Namaz-$size.png" \
+    "$DIST/share/icons/hicolor/${size}x${size}/apps/io.github.ikhlasulov.Namaz.png"
 done
-install -Dm644 "$ROOT/packaging/icons/io.github.ikhlasulov_gb.Namaz.svg" \
-  "$DIST/share/icons/hicolor/scalable/apps/io.github.ikhlasulov_gb.Namaz.svg"
+install -Dm644 "$ROOT/packaging/icons/io.github.ikhlasulov.Namaz.svg" \
+  "$DIST/share/icons/hicolor/scalable/apps/io.github.ikhlasulov.Namaz.svg"
 if [[ -f /usr/share/icons/hicolor/index.theme ]]; then
   install -Dm644 /usr/share/icons/hicolor/index.theme \
     "$DIST/share/icons/hicolor/index.theme"

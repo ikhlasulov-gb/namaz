@@ -34,16 +34,16 @@ install -d "$DATA_DIR/wave"
 cp "$ROOT"/assets/audio/*.ogg "$DATA_DIR/wave/"
 install -Dm644 "$ROOT/assets/audio/audio.LICENSE" "$DATA_DIR/audio.LICENSE"
 install -Dm644 "$ROOT/assets/cities.LICENSE" "$DATA_DIR/cities.LICENSE"
-install -Dm644 "$ROOT/packaging/io.github.ikhlasulov_gb.Namaz.desktop" \
-  "$APP_DIR/io.github.ikhlasulov_gb.Namaz.desktop"
-install -Dm644 "$ROOT/packaging/io.github.ikhlasulov_gb.Namaz.metainfo.xml" \
-  "$METAINFO_DIR/io.github.ikhlasulov_gb.Namaz.metainfo.xml"
+install -Dm644 "$ROOT/packaging/io.github.ikhlasulov.Namaz.desktop" \
+  "$APP_DIR/io.github.ikhlasulov.Namaz.desktop"
+install -Dm644 "$ROOT/packaging/io.github.ikhlasulov.Namaz.metainfo.xml" \
+  "$METAINFO_DIR/io.github.ikhlasulov.Namaz.metainfo.xml"
 for size in 16 22 24 32 48 64 96 128 192 256 512; do
-  install -Dm644 "$ROOT/packaging/icons/io.github.ikhlasulov_gb.Namaz-$size.png" \
-    "$ICON_DIR/${size}x${size}/apps/io.github.ikhlasulov_gb.Namaz.png"
+  install -Dm644 "$ROOT/packaging/icons/io.github.ikhlasulov.Namaz-$size.png" \
+    "$ICON_DIR/${size}x${size}/apps/io.github.ikhlasulov.Namaz.png"
 done
-install -Dm644 "$ROOT/packaging/icons/io.github.ikhlasulov_gb.Namaz.svg" \
-  "$ICON_DIR/scalable/apps/io.github.ikhlasulov_gb.Namaz.svg"
+install -Dm644 "$ROOT/packaging/icons/io.github.ikhlasulov.Namaz.svg" \
+  "$ICON_DIR/scalable/apps/io.github.ikhlasulov.Namaz.svg"
 if [[ -f /usr/share/icons/hicolor/index.theme ]]; then
   install -Dm644 /usr/share/icons/hicolor/index.theme "$ICON_DIR/index.theme"
 fi
@@ -59,7 +59,7 @@ chmod 755 "$BIN_DIR/namaz"
 
 # Make Exec work even when ~/.local/bin is not in PATH.
 sed -i "s|^Exec=namaz$|Exec=$BIN_DIR/namaz|" \
-  "$APP_DIR/io.github.ikhlasulov_gb.Namaz.desktop"
+  "$APP_DIR/io.github.ikhlasulov.Namaz.desktop"
 
 command -v update-desktop-database >/dev/null 2>&1 && \
   update-desktop-database "$APP_DIR" || true
@@ -68,4 +68,4 @@ command -v gtk-update-icon-cache >/dev/null 2>&1 && \
 
 echo "installed: $BIN_DIR/namaz"
 echo "application: $APP_LIB_DIR/namaz"
-echo "desktop entry: $APP_DIR/io.github.ikhlasulov_gb.Namaz.desktop"
+echo "desktop entry: $APP_DIR/io.github.ikhlasulov.Namaz.desktop"

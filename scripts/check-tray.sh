@@ -12,12 +12,12 @@ DATA_DIR="$HOME_DIR/.local/share"
 mkdir -p "$DATA_DIR/icons/hicolor"
 for size in 16 22 24 32 48 64 96 128 192 256 512; do
     mkdir -p "$DATA_DIR/icons/hicolor/${size}x${size}/apps"
-    cp "$ROOT/packaging/icons/io.github.ikhlasulov_gb.Namaz-$size.png" \
-        "$DATA_DIR/icons/hicolor/${size}x${size}/apps/io.github.ikhlasulov_gb.Namaz.png"
+    cp "$ROOT/packaging/icons/io.github.ikhlasulov.Namaz-$size.png" \
+        "$DATA_DIR/icons/hicolor/${size}x${size}/apps/io.github.ikhlasulov.Namaz.png"
 done
 mkdir -p "$DATA_DIR/icons/hicolor/scalable/apps"
-cp "$ROOT/packaging/icons/io.github.ikhlasulov_gb.Namaz.svg" \
-    "$DATA_DIR/icons/hicolor/scalable/apps/io.github.ikhlasulov_gb.Namaz.svg"
+cp "$ROOT/packaging/icons/io.github.ikhlasulov.Namaz.svg" \
+    "$DATA_DIR/icons/hicolor/scalable/apps/io.github.ikhlasulov.Namaz.svg"
 export XDG_DATA_HOME="$DATA_DIR"
 export XDG_DATA_DIRS="$DATA_DIR:/usr/local/share:/usr/share"
 PID=""
@@ -81,7 +81,7 @@ tooltip="$(busctl --user get-property "$BUS" /StatusNotifierItem \
     org.kde.StatusNotifierItem ToolTip 2>/dev/null || true)"
 [[ "$id" == 's "Namaz"' ]] || { echo "FAIL unexpected Id: $id"; exit 1; }
 [[ "$title" == 's "Namaz"' ]] || { echo "FAIL unexpected Title: $title"; exit 1; }
-[[ "$icon" == 's "io.github.ikhlasulov_gb.Namaz"' ]] \
+[[ "$icon" == 's "io.github.ikhlasulov.Namaz"' ]] \
     || { echo "FAIL unexpected IconName: $icon"; exit 1; }
 echo "PASS Id/Title/IconName"
 echo "INFO ToolTip: $tooltip"

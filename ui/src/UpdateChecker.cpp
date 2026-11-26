@@ -50,7 +50,7 @@ QString UpdateChecker::updateUrl() {
         return override;
     }
     return QStringLiteral(
-        "https://api.github.com/repos/ikhlasulov-gb/namaz/releases/latest");
+        "https://api.github.com/repos/Ikhlasulov/namaz/releases/latest");
 }
 
 int UpdateChecker::compareVersions(const QString &lhs, const QString &rhs) {

@@ -69,7 +69,7 @@ jobs:
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
           bundle: Namaz-${{ needs.prepare.outputs.version }}-${{ matrix.arch }}.flatpak
-          manifest-path: packaging/io.github.ikhlasulov_gb.Namaz.yml
+          manifest-path: packaging/io.github.ikhlasulov.Namaz.yml
           arch: ${{ matrix.arch }}
           repo-dir: flatpak-repo
           cache-key: flatpak-release-${{ matrix.arch }}
@@ -290,16 +290,16 @@ jobs:
           ostree pull-local --repo=pages/repo repo-aarch64
           for arch in x86_64 aarch64; do
             flatpak build-sign --arch="$arch" --gpg-sign="$GPG_KEY_ID" \
-              pages/repo io.github.ikhlasulov_gb.Namaz master || true
+              pages/repo io.github.ikhlasulov.Namaz master || true
             flatpak build-sign --arch="$arch" --runtime --gpg-sign="$GPG_KEY_ID" \
-              pages/repo io.github.ikhlasulov_gb.Namaz.Debug master || true
+              pages/repo io.github.ikhlasulov.Namaz.Debug master || true
           done
           flatpak build-update-repo --gpg-sign="$GPG_KEY_ID" \
             --generate-static-deltas --prune \
             --title="Namaz" \
             --comment="Muslim prayer times, Qibla and Hijri calendar" \
-            --homepage="https://github.com/ikhlasulov-gb/namaz" \
-            --icon="https://ikhlasulov-gb.github.io/namaz/icon.png" \
+            --homepage="https://github.com/Ikhlasulov/namaz" \
+            --icon="https://ikhlasulov.github.io/namaz/icon.png" \
             --default-branch=master pages/repo
       - name: Generate .flatpakrepo and site
         env:
@@ -310,11 +310,11 @@ jobs:
           cat > pages/namaz.flatpakrepo <<EOF
           [Flatpak Repo]
           Title=Namaz
-          Url=https://ikhlasulov-gb.github.io/namaz/repo
-          Homepage=https://github.com/ikhlasulov-gb/namaz
+          Url=https://ikhlasulov.github.io/namaz/repo
+          Homepage=https://github.com/Ikhlasulov/namaz
           Comment=Muslim prayer times, Qibla and Hijri calendar
           Description=Namaz for Linux
-          Icon=https://ikhlasulov-gb.github.io/namaz/icon.png
+          Icon=https://ikhlasulov.github.io/namaz/icon.png
           GPGKey=$GPGKEY
           DefaultBranch=master
           EOF

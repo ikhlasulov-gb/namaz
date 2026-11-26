@@ -95,9 +95,9 @@ int main(int argc, char *argv[]) {
     QApplication::setQuitLockEnabled(false);
     QApplication::setApplicationName(QStringLiteral("Namaz"));
     QApplication::setApplicationVersion(QStringLiteral(NAMAZ_VERSION));
-    QApplication::setOrganizationName(QStringLiteral("io.github.ikhlasulov_gb"));
-    QApplication::setOrganizationDomain(QStringLiteral("github.com/ikhlasulov-gb"));
-    QApplication::setDesktopFileName(QStringLiteral("io.github.ikhlasulov_gb.Namaz"));
+    QApplication::setOrganizationName(QStringLiteral("io.github.ikhlasulov"));
+    QApplication::setOrganizationDomain(QStringLiteral("github.com/ikhlasulov"));
+    QApplication::setDesktopFileName(QStringLiteral("io.github.ikhlasulov.Namaz"));
 
     // QSettings keys from the old working title (window geometry, selected
     // tab).  Copy them once so the first Namaz start looks familiar.
@@ -215,7 +215,7 @@ int main(int argc, char *argv[]) {
     }
 
     const QString serverName =
-        QStringLiteral("io.github.ikhlasulov_gb.Namaz-%1")
+        QStringLiteral("io.github.ikhlasulov.Namaz-%1")
             .arg(qEnvironmentVariable("USER", QStringLiteral("user")));
     if (dumpPath.isEmpty() && pdfPath.isEmpty() && screenshotPath.isEmpty()) {
         QLocalSocket socket;

@@ -5,7 +5,7 @@
 `ui/src/UpdateChecker.cpp` performs one GET request to:
 
 ```text
-https://api.github.com/repos/ikhlasulov-gb/namaz/releases/latest
+https://api.github.com/repos/Ikhlasulov/namaz/releases/latest
 ```
 
 - Automatic check: at most once every 24 hours, 15 seconds after startup.
@@ -20,7 +20,7 @@ https://api.github.com/repos/ikhlasulov-gb/namaz/releases/latest
 Flatpak updates are delivered by the signed OSTree repository on GitHub Pages:
 
 ```bash
-flatpak update --user io.github.ikhlasulov_gb.Namaz
+flatpak update --user io.github.ikhlasulov.Namaz
 ```
 
 The in-app dialog detects Flatpak and offers to copy the command.  Software

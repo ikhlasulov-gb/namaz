@@ -93,10 +93,10 @@ mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/lib" \
     "$APPDIR/usr/share/namaz/wave"
 install -m755 "$BIN" "$APPDIR/usr/bin/namaz"
 install -m755 "$CORE" "$APPDIR/usr/lib/libnamaz_core.so"
-install -m644 "$ROOT/packaging/io.github.ikhlasulov_gb.Namaz.desktop" \
+install -m644 "$ROOT/packaging/io.github.ikhlasulov.Namaz.desktop" \
     "$APPDIR/usr/share/applications/"
-install -m644 "$ROOT/packaging/icons/io.github.ikhlasulov_gb.Namaz-256.png" \
-    "$APPDIR/usr/share/icons/hicolor/256x256/apps/io.github.ikhlasulov_gb.Namaz.png"
+install -m644 "$ROOT/packaging/icons/io.github.ikhlasulov.Namaz-256.png" \
+    "$APPDIR/usr/share/icons/hicolor/256x256/apps/io.github.ikhlasulov.Namaz.png"
 cp "$ROOT"/assets/audio/*.ogg "$APPDIR/usr/share/namaz/wave/"
 install -m644 "$ROOT/assets/audio/audio.LICENSE" "$APPDIR/usr/share/namaz/audio.LICENSE"
 install -m644 "$ROOT/assets/cities.LICENSE" "$APPDIR/usr/share/namaz/cities.LICENSE"
@@ -110,8 +110,8 @@ cd "$WORK"
 "$CACHE/linuxdeploy-root/squashfs-root/AppRun" \
     --appdir "$APPDIR" \
     --plugin qt \
-    --desktop-file "$APPDIR/usr/share/applications/io.github.ikhlasulov_gb.Namaz.desktop" \
-    --icon-file "$APPDIR/usr/share/icons/hicolor/256x256/apps/io.github.ikhlasulov_gb.Namaz.png" \
+    --desktop-file "$APPDIR/usr/share/applications/io.github.ikhlasulov.Namaz.desktop" \
+    --icon-file "$APPDIR/usr/share/icons/hicolor/256x256/apps/io.github.ikhlasulov.Namaz.png" \
     --executable "$APPDIR/usr/bin/namaz" \
     --output appimage
 

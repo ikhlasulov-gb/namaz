@@ -1503,7 +1503,7 @@ void MainWindow::syncAutostart() {
             : QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)
                   + QStringLiteral("/autostart");
     const QString path = autostartDir
-        + QStringLiteral("/io.github.ikhlasulov_gb.Namaz.desktop");
+        + QStringLiteral("/io.github.ikhlasulov.Namaz.desktop");
     // Remove the entry written by the old working title so a user does not
     // start two instances after upgrading.
     QFile::remove(autostartDir
@@ -1522,7 +1522,7 @@ void MainWindow::syncAutostart() {
     if (flatpak) {
         const QString id =
             qEnvironmentVariable("FLATPAK_ID",
-                                 QStringLiteral("io.github.ikhlasulov_gb.Namaz"));
+                                 QStringLiteral("io.github.ikhlasulov.Namaz"));
         QString flatpakProgram = QStringLiteral("/usr/bin/flatpak");
         if (!QFileInfo::exists(flatpakProgram)) {
             flatpakProgram = QStringLiteral("flatpak");
@@ -1542,7 +1542,7 @@ void MainWindow::syncAutostart() {
                        "Name=Namaz\n"
                        "Comment=Muslim prayer times, Qibla and Hijri calendar\n"
                        "Exec=%1\n"
-                       "Icon=io.github.ikhlasulov_gb.Namaz\n"
+                       "Icon=io.github.ikhlasulov.Namaz\n"
                        "Terminal=false\n"
                        "StartupNotify=false\n"
                        "X-GNOME-Autostart-enabled=true\n"
@@ -1583,7 +1583,7 @@ void MainWindow::checkForUpdates(bool manual) {
             QMessageBox::information(
                 this, tr("Check for Updates"),
                 tr("Namaz is installed as a Flatpak. Use your software centre "
-                   "or run:\nflatpak update --user io.github.ikhlasulov_gb.Namaz"));
+                   "or run:\nflatpak update --user io.github.ikhlasulov.Namaz"));
         }
         return;
     }
@@ -1616,7 +1616,7 @@ void MainWindow::showUpdateDialog(const UpdateChecker::Release &release) {
     if (UpdateChecker::isFlatpak()) {
         auto *hint = new QLabel(
             tr("Namaz is installed as a Flatpak. Use your software centre or run:\n"
-               "flatpak update --user io.github.ikhlasulov_gb.Namaz"),
+               "flatpak update --user io.github.ikhlasulov.Namaz"),
             &dialog);
         hint->setWordWrap(true);
         layout->addWidget(hint);
@@ -1653,7 +1653,7 @@ void MainWindow::showUpdateDialog(const UpdateChecker::Release &release) {
     if (copy) {
         connect(copy, &QPushButton::clicked, &dialog, [&] {
             QGuiApplication::clipboard()->setText(
-                QStringLiteral("flatpak update --user io.github.ikhlasulov_gb.Namaz"));
+                QStringLiteral("flatpak update --user io.github.ikhlasulov.Namaz"));
             QMessageBox::information(&dialog, tr("Update command copied"),
                                      tr("The command was copied to the clipboard."));
         });
