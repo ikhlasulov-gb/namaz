@@ -430,7 +430,7 @@
     <message>
         <location filename="../src/Widgets.cpp" line="473"/>
         <source>Show &amp;Hijri Date</source>
-        <translation>Показать &amp;хиджрийскую дату</translation>
+        <translation>Показать &amp;дату хиджры</translation>
     </message>
     <message>
         <location filename="../src/Widgets.cpp" line="480"/>
@@ -2009,7 +2009,7 @@ Save anyway?</source>
     <message>
         <location filename="../src/Dialogs.cpp" line="1448"/>
         <source>Hijri date offset</source>
-        <translation>Смещение хиджрийской даты</translation>
+        <translation>Смещение даты хиджры</translation>
     </message>
     <message>
         <location filename="../src/Dialogs.cpp" line="1160"/>

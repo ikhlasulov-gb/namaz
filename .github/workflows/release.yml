@@ -320,7 +320,7 @@ jobs:
           EOF
           cp README/logo.png pages/icon.png
           mkdir -p pages/screenshots
-          cp README/day.png README/month.png README/year.png \
+          cp README/day.png README/journal.png README/month.png README/year.png \
              README/settings.png README/preferences.png README/masjid.png \
              pages/screenshots/
           cp packaging/pages/index.html pages/index.html

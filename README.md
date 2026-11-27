@@ -63,6 +63,10 @@ Qt 6 Widgets.
   prayer-time calculations.
 
 <p align="center">
+  <img src="README/journal.png" alt="Prayer journal" width="900"/>
+</p>
+
+<p align="center">
   <img src="README/month.png" alt="Month view" width="440"/>
   <img src="README/year.png" alt="Year view" width="440"/>
 </p>

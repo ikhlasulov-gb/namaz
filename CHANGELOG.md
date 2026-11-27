@@ -4,6 +4,15 @@ All notable changes to Namaz are documented here.  The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.13] - 2026-11-28
+
+### Changed
+
+- Refreshed the screenshots in both READMEs and on the project page, and added
+  a Journal screenshot to the README gallery and the Pages screenshot grid.
+- The Russian README, desktop entry and interface now use "календарь хиджры"
+  and "дата хиджры" instead of the awkward "хиджрийский календарь".
+
 ## [1.1.12] - 2026-11-26
 
 ### Changed
