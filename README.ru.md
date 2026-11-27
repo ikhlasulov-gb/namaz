@@ -60,7 +60,7 @@
 - **Приватность**: без телеметрии, аккаунтов и сетевых запросов для расчёта.
 
 <p align="center">
-  <img src="README/journal.png" alt="Журнал намазов" width="900"/>
+  <img src="README/journal.png" alt="Журнал намазов" width="440"/>
 </p>
 
 <p align="center">
